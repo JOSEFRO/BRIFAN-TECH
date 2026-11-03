@@ -45,6 +45,15 @@ export default function App() {
   const [savedIds, setSavedIds] = useState<string[]>([])
   const [panoramaMode, setPanoramaMode] = useState<'panorama' | 'network'>('panorama')
   const [selectedResource, setSelectedResource] = useState<any | null>(null)
+  const [publishOpen, setPublishOpen] = useState(false)
+  const [publishTitle, setPublishTitle] = useState('')
+  const [publishCategory, setPublishCategory] = useState(categories[0].name)
+  const [publishType, setPublishType] = useState('guide')
+  const [publishLevel, setPublishLevel] = useState('beginner')
+  const [publishExcerpt, setPublishExcerpt] = useState('')
+  const [publishBody, setPublishBody] = useState('')
+  const [publishMessage, setPublishMessage] = useState('')
+  const [publishBusy, setPublishBusy] = useState(false)
 
   useEffect(() => {
     if (!supabase) return
@@ -98,6 +107,47 @@ export default function App() {
     setSavedIds(current => isSaved ? current.filter(id => id !== articleId) : [...current, articleId])
   }
 
+
+  async function submitArticle(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    if (!supabase || !session) {
+      setPublishOpen(false)
+      setAuthMode('signin')
+      setAuthOpen(true)
+      setAuthMessage('Inicia sesión para publicar contenido en BRIFAN TECH.')
+      return
+    }
+    setPublishBusy(true)
+    setPublishMessage('')
+    try {
+      const { data: category, error: categoryError } = await supabase.from('categories').select('id').eq('name', publishCategory).eq('is_active', true).single()
+      if (categoryError || !category) throw new Error('No se encontró la categoría seleccionada.')
+      const slugBase = publishTitle.normalize('NFD').replace(/[\\u0300-\\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 140)
+      const slug = `${slugBase}-${Date.now().toString(36)}`
+      const result = await supabase.from('articles').insert({
+        author_id: session.user.id,
+        category_id: category.id,
+        title: publishTitle.trim(),
+        slug,
+        excerpt: publishExcerpt.trim(),
+        body_md: publishBody.trim(),
+        content_type: publishType,
+        difficulty: publishLevel,
+        status: 'pending',
+        reading_minutes: Math.max(1, Math.ceil(publishBody.trim().split(/\\s+/).length / 180)),
+      })
+      if (result.error) throw result.error
+      setPublishMessage('¡Enviado! Tu publicación quedó pendiente de revisión. Cuando sea aprobada aparecerá en la biblioteca.')
+      setPublishTitle('')
+      setPublishExcerpt('')
+      setPublishBody('')
+    } catch (error: any) {
+      setPublishMessage(error?.message || 'No se pudo enviar la publicación. Inténtalo de nuevo.')
+    } finally {
+      setPublishBusy(false)
+    }
+  }
+
   useEffect(() => {
     let active = true
     async function loadResources() {
@@ -123,10 +173,10 @@ export default function App() {
     <header className="relative z-20 mx-auto flex max-w-7xl items-center justify-between px-5 py-5 sm:px-8">
       <a href="#" className="flex items-center gap-3"><span className="brand-mark"><Layers3 size={21}/></span><span className="text-lg font-black tracking-[.16em]">BRIFAN<span className="text-cyan-300">.</span>TECH</span></a>
       <nav className="hidden items-center gap-8 text-sm text-slate-400 md:flex"><a className="nav-link active" href="#explorar">Explorar</a><a className="nav-link" href="#categorias">Categorías</a><a className="nav-link" href="#comunidad">Comunidad</a><a className="nav-link" href="#nosotros">Acerca de</a></nav>
-      <div className="hidden items-center gap-3 md:flex">{session ? <><span className="text-xs text-slate-400">{session.user.email}</span><button className="btn-ghost" onClick={() => void supabase?.auth.signOut()}><LogOut size={15}/> Salir</button></> : <><button className="btn-ghost" onClick={() => {setAuthMode('signin');setAuthOpen(true);setAuthMessage('')}}>Iniciar sesión</button><button className="btn-primary" onClick={() => {setAuthMode('signup');setAuthOpen(true);setAuthMessage('')}}>Únete gratis <ArrowUpRight size={16}/></button></>}</div>
+      <div className="hidden items-center gap-3 md:flex">{session ? <><button className="btn-primary" onClick={() => {setPublishMessage('');setPublishOpen(true)}}><FileText size={15}/> Publicar</button><span className="text-xs text-slate-400">{session.user.email}</span><button className="btn-ghost" onClick={() => void supabase?.auth.signOut()}><LogOut size={15}/> Salir</button></> : <><button className="btn-ghost" onClick={() => {setAuthMode('signin');setAuthOpen(true);setAuthMessage('')}}>Iniciar sesión</button><button className="btn-primary" onClick={() => {setAuthMode('signup');setAuthOpen(true);setAuthMessage('')}}>Únete gratis <ArrowUpRight size={16}/></button></>}</div>
       <button className="rounded-xl border border-white/10 p-2 md:hidden" onClick={() => setMenu(!menu)} aria-label="Abrir menú">{menu ? <X/> : <Menu/>}</button>
     </header>
-    {menu && <div className="relative z-30 mx-5 rounded-2xl border border-white/10 bg-slate-900 p-5 md:hidden"><div className="flex flex-col gap-4 text-sm text-slate-300"><a href="#explorar" onClick={() => setMenu(false)}>Explorar</a><a href="#categorias" onClick={() => setMenu(false)}>Categorías</a><a href="#comunidad" onClick={() => setMenu(false)}>Comunidad</a><a href="#nosotros" onClick={() => setMenu(false)}>Acerca de</a><div className="border-t border-white/10 pt-4">{session ? <div className="flex flex-col gap-3"><span className="break-all text-xs text-slate-400">{session.user.email}</span><button className="btn-ghost justify-start" onClick={() => { void supabase?.auth.signOut(); setMenu(false) }}><LogOut size={15}/> Cerrar sesión</button></div> : <div className="flex flex-col gap-2"><button className="btn-ghost justify-start" onClick={() => {setAuthMode('signin');setAuthOpen(true);setAuthMessage('');setMenu(false)}}>Iniciar sesión</button><button className="btn-primary" onClick={() => {setAuthMode('signup');setAuthOpen(true);setAuthMessage('');setMenu(false)}}>Únete gratis <ArrowUpRight size={16}/></button></div>}</div></div></div>}
+    {menu && <div className="relative z-30 mx-5 rounded-2xl border border-white/10 bg-slate-900 p-5 md:hidden"><div className="flex flex-col gap-4 text-sm text-slate-300"><a href="#explorar" onClick={() => setMenu(false)}>Explorar</a><a href="#categorias" onClick={() => setMenu(false)}>Categorías</a><a href="#comunidad" onClick={() => setMenu(false)}>Comunidad</a><a href="#nosotros" onClick={() => setMenu(false)}>Acerca de</a><div className="border-t border-white/10 pt-4">{session ? <div className="flex flex-col gap-3"><span className="break-all text-xs text-slate-400">{session.user.email}</span><button className="btn-primary justify-start" onClick={() => {setPublishMessage('');setPublishOpen(true);setMenu(false)}}><FileText size={15}/> Publicar contenido</button><button className="btn-ghost justify-start" onClick={() => { void supabase?.auth.signOut(); setMenu(false) }}><LogOut size={15}/> Cerrar sesión</button></div> : <div className="flex flex-col gap-2"><button className="btn-ghost justify-start" onClick={() => {setAuthMode('signin');setAuthOpen(true);setAuthMessage('');setMenu(false)}}>Iniciar sesión</button><button className="btn-primary" onClick={() => {setAuthMode('signup');setAuthOpen(true);setAuthMessage('');setMenu(false)}}>Únete gratis <ArrowUpRight size={16}/></button></div>}</div></div></div>}
     <main className="relative z-10">
       <section className="mx-auto grid max-w-7xl items-center gap-12 px-5 pb-20 pt-16 sm:px-8 lg:grid-cols-[1.08fr_.92fr] lg:pb-28 lg:pt-24">
         <div><div className="eyebrow"><span className="pulse-dot"/> CONOCIMIENTO QUE CONECTA</div><h1 className="mt-7 max-w-3xl text-5xl font-black leading-[1.05] tracking-tight sm:text-6xl lg:text-7xl">El conocimiento<br/>tecnológico <span className="gradient-text">no tiene límites.</span></h1><p className="mt-7 max-w-xl text-lg leading-8 text-slate-400">Aprende, comparte y descubre. Una comunidad para explorar el mundo de la tecnología, desde los fundamentos hasta las ideas que están transformando el futuro.</p><div className="mt-9 flex flex-wrap gap-3"><a href="#explorar" className="btn-primary px-6 py-3.5">Explorar contenido <ArrowRight size={17}/></a><a href="#comunidad" className="btn-secondary px-6 py-3.5">Conoce la comunidad</a></div><div className="mt-12 flex flex-wrap gap-x-8 gap-y-3 border-t border-white/10 pt-7 text-xs font-semibold uppercase tracking-[.16em] text-slate-500"><span className="flex items-center gap-2"><BookOpen size={15} className="text-cyan-300"/> Guías y tutoriales</span><span className="flex items-center gap-2"><Globe2 size={15} className="text-cyan-300"/> Comunidad abierta</span><span className="flex items-center gap-2"><Sparkles size={15} className="text-cyan-300"/> Aprende a tu ritmo</span></div></div>
@@ -177,6 +227,26 @@ export default function App() {
       <section id="comunidad" className="mx-auto max-w-7xl px-5 py-20 sm:px-8"><div className="community-panel"><div className="relative z-10 max-w-2xl"><span className="section-kicker">03 / CONSTRUYAMOS JUNTOS</span><h2 className="mt-4 text-3xl font-black sm:text-4xl">Tu experiencia también puede <span className="gradient-text">inspirar.</span></h2><p className="mt-4 max-w-xl text-sm leading-7 text-slate-400">BRIFAN TECH busca reunir a estudiantes, profesionales y entusiastas para compartir soluciones, documentar aprendizajes y hacer crecer la comunidad tecnológica.</p><button className="btn-primary mt-7" onClick={() => {setAuthMode("signup");setAuthOpen(true);setAuthMessage("")}}>Crear cuenta gratis <ArrowUpRight size={16}/></button></div><div className="community-symbol"><Layers3 size={100} strokeWidth={.7}/></div></div></section>
     </main>
     <footer id="nosotros" className="border-t border-white/[.08]"><div className="mx-auto flex max-w-7xl flex-col gap-5 px-5 py-8 text-xs text-slate-500 sm:px-8 md:flex-row md:items-center md:justify-between"><div className="flex items-center gap-3"><span className="brand-mark small"><Layers3 size={16}/></span><b className="tracking-[.14em] text-slate-300">BRIFAN.TECH</b><span>© 2026</span></div><p>Explora. Aprende. Comparte.</p><a href="https://github.com/JOSEFRO/BRIFAN-TECH" target="_blank" rel="noreferrer" className="hover:text-cyan-300">Código en GitHub <ArrowUpRight size={13} className="inline"/></a></div></footer>
+    {publishOpen && <div className="modal-backdrop resource-backdrop" role="presentation" onMouseDown={(event) => {if(event.target === event.currentTarget && !publishBusy) setPublishOpen(false)}}>
+      <section className="resource-reader publish-reader" role="dialog" aria-modal="true" aria-labelledby="publish-title">
+        <button className="modal-close" onClick={() => setPublishOpen(false)} aria-label="Cerrar" disabled={publishBusy}><X size={18}/></button>
+        <span className="section-kicker">BRIFAN / CONTRIBUCIONES</span>
+        <h2 id="publish-title">Comparte tu conocimiento.</h2>
+        <p className="reader-excerpt">Crea una guía, tutorial o recurso. Tu contenido se enviará a revisión antes de aparecer públicamente en la biblioteca.</p>
+        <form className="publish-form" onSubmit={submitArticle}>
+          <label>Título<input value={publishTitle} onChange={e => setPublishTitle(e.target.value)} minLength={8} maxLength={180} required placeholder="Ej. Configuración básica de VLAN"/></label>
+          <div className="publish-fields">
+            <label>Categoría<select value={publishCategory} onChange={e => setPublishCategory(e.target.value)}>{categories.map(item => <option key={item.name} value={item.name}>{item.name}</option>)}</select></label>
+            <label>Tipo<select value={publishType} onChange={e => setPublishType(e.target.value)}><option value="guide">Guía</option><option value="tutorial">Tutorial</option><option value="article">Artículo</option><option value="resource">Recurso</option><option value="news">Noticia</option><option value="snippet">Fragmento</option></select></label>
+            <label>Nivel<select value={publishLevel} onChange={e => setPublishLevel(e.target.value)}><option value="beginner">Principiante</option><option value="intermediate">Intermedio</option><option value="advanced">Avanzado</option><option value="all">Todos</option></select></label>
+          </div>
+          <label>Resumen<textarea value={publishExcerpt} onChange={e => setPublishExcerpt(e.target.value)} maxLength={400} required rows={2} placeholder="Explica brevemente qué aprenderá el lector."/></label>
+          <label>Contenido<textarea value={publishBody} onChange={e => setPublishBody(e.target.value)} minLength={40} required rows={10} placeholder="Escribe aquí tu guía. Puedes separar los temas con títulos y párrafos."/></label>
+          {publishMessage && <p className="auth-message" role="status">{publishMessage}</p>}
+          <button className="btn-primary auth-submit" type="submit" disabled={publishBusy}>{publishBusy ? 'Enviando…' : 'Enviar a revisión'}</button>
+        </form>
+      </section>
+    </div>}
     {selectedResource && <div className="modal-backdrop resource-backdrop" role="presentation" onMouseDown={(event) => {if(event.target === event.currentTarget) setSelectedResource(null)}}>
       <section className="resource-reader" role="dialog" aria-modal="true" aria-labelledby="resource-reader-title">
         <button className="modal-close" onClick={() => setSelectedResource(null)} aria-label="Cerrar guía"><X size={18}/></button>
