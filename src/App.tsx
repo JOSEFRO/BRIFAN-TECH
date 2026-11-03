@@ -1,5 +1,6 @@
-import { ArrowRight, ArrowUpRight, BookOpen, Bookmark, BrainCircuit, Code2, Cpu, Database, FileText, Globe2, Layers3, Menu, Network, Search, ShieldCheck, Sparkles, Terminal, X } from 'lucide-react'
+import { ArrowRight, ArrowUpRight, BookOpen, Bookmark, BrainCircuit, Code2, Cpu, Database, FileText, Globe2, Layers3, LogOut, Menu, Network, Search, ShieldCheck, Sparkles, Terminal, X } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
+import type { Session } from '@supabase/supabase-js'
 import { supabase, isSupabaseConfigured } from './lib/supabase'
 
 const categories = [
@@ -20,19 +21,70 @@ export default function App() {
   const [query, setQuery] = useState('')
   const [liveResources, setLiveResources] = useState<any[]>([])
   const [loadingResources, setLoadingResources] = useState(true)
+  const [session, setSession] = useState<Session | null>(null)
+  const [authOpen, setAuthOpen] = useState(false)
+  const [authMode, setAuthMode] = useState<'signin' | 'signup'>('signin')
+  const [authEmail, setAuthEmail] = useState('')
+  const [authPassword, setAuthPassword] = useState('')
+  const [authName, setAuthName] = useState('')
+  const [authMessage, setAuthMessage] = useState('')
+  const [authBusy, setAuthBusy] = useState(false)
+  const [savedIds, setSavedIds] = useState<string[]>([])
+
+  useEffect(() => {
+    if (!supabase) return
+    let mounted = true
+    void supabase.auth.getSession().then(({ data }) => { if (mounted) setSession(data.session) })
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, nextSession) => setSession(nextSession))
+    return () => { mounted = false; subscription.unsubscribe() }
+  }, [])
+
+  useEffect(() => {
+    if (!supabase || !session?.user.id) { setSavedIds([]); return }
+    let mounted = true
+    void supabase.from('bookmarks').select('article_id').eq('user_id', session.user.id).then(({ data }) => {
+      if (mounted) setSavedIds((data ?? []).map((row: { article_id: string }) => row.article_id))
+    })
+    return () => { mounted = false }
+  }, [session?.user.id])
+
+  async function submitAuth() {
+    if (!supabase) { setAuthMessage('El servicio de autenticación no está configurado.'); return }
+    setAuthBusy(true)
+    setAuthMessage('')
+    const result = authMode === 'signup'
+      ? await supabase.auth.signUp({ email: authEmail.trim(), password: authPassword, options: { data: { display_name: authName.trim() } } })
+      : await supabase.auth.signInWithPassword({ email: authEmail.trim(), password: authPassword })
+    setAuthBusy(false)
+    if (result.error) { setAuthMessage(result.error.message); return }
+    if (authMode === 'signup') setAuthMessage('Cuenta creada. Si la confirmación por correo está activada, revisa tu bandeja de entrada.')
+    else { setAuthOpen(false); setAuthPassword('') }
+  }
+
+  async function toggleBookmark(articleId?: string) {
+    if (!articleId || !supabase) return
+    if (!session) { setAuthMode('signin'); setAuthOpen(true); setAuthMessage('Inicia sesión para guardar publicaciones.'); return }
+    const isSaved = savedIds.includes(articleId)
+    const result = isSaved
+      ? await supabase.from('bookmarks').delete().eq('user_id', session.user.id).eq('article_id', articleId)
+      : await supabase.from('bookmarks').insert({ user_id: session.user.id, article_id: articleId })
+    if (result.error) { setAuthMessage('No se pudo actualizar el guardado. Inténtalo de nuevo.'); return }
+    setSavedIds(current => isSaved ? current.filter(id => id !== articleId) : [...current, articleId])
+  }
+
   useEffect(() => {
     let active = true
     async function loadResources() {
       if (!supabase) { setLoadingResources(false); return }
-      const { data, error } = await supabase.from('articles').select('id,title,excerpt,content_type,difficulty,reading_minutes,categories(name)').eq('status', 'published').order('published_at', { ascending: false }).limit(18)
+      const { data, error } = await supabase.from('articles').select('id,title,excerpt,body_md,content_type,difficulty,reading_minutes,categories(name)').eq('status', 'published').order('published_at', { ascending: false }).limit(18)
       if (!active) return
-      if (!error && data) setLiveResources(data.map((item: any) => ({ type: item.content_type.toUpperCase(), title: item.title, category: item.categories?.name ?? 'Tecnología', level: item.difficulty, time: item.reading_minutes + ' min', icon: BookOpen, color: 'blue' })))
+      if (!error && data) setLiveResources(data.map((item: any) => ({ id: item.id, excerpt: item.excerpt, body: item.body_md, type: String(item.content_type ?? 'article').toUpperCase(), title: item.title, category: item.categories?.name ?? 'Tecnología', level: item.difficulty === 'beginner' ? 'Principiante' : item.difficulty === 'advanced' ? 'Avanzado' : item.difficulty === 'all' ? 'Todos' : 'Intermedio', time: (item.reading_minutes ?? 1) + ' min', icon: BookOpen, color: 'blue' })))
       setLoadingResources(false)
     }
     void loadResources()
     return () => { active = false }
   }, [])
-  const resources = isSupabaseConfigured ? liveResources : demoResources
+  const resources = liveResources.length > 0 ? liveResources : demoResources
   const [active, setActive] = useState('Todo')
   const [menu, setMenu] = useState(false)
   const filtered = useMemo(() => resources.filter((r) =>
@@ -45,7 +97,7 @@ export default function App() {
     <header className="relative z-20 mx-auto flex max-w-7xl items-center justify-between px-5 py-5 sm:px-8">
       <a href="#" className="flex items-center gap-3"><span className="brand-mark"><Layers3 size={21}/></span><span className="text-lg font-black tracking-[.16em]">BRIFAN<span className="text-cyan-300">.</span>TECH</span></a>
       <nav className="hidden items-center gap-8 text-sm text-slate-400 md:flex"><a className="nav-link active" href="#explorar">Explorar</a><a className="nav-link" href="#categorias">Categorías</a><a className="nav-link" href="#comunidad">Comunidad</a><a className="nav-link" href="#nosotros">Acerca de</a></nav>
-      <div className="hidden items-center gap-3 md:flex"><button className="btn-ghost">Iniciar sesión</button><button className="btn-primary">Únete gratis <ArrowUpRight size={16}/></button></div>
+      <div className="hidden items-center gap-3 md:flex">{session ? <><span className="text-xs text-slate-400">{session.user.email}</span><button className="btn-ghost" onClick={() => void supabase?.auth.signOut()}><LogOut size={15}/> Salir</button></> : <><button className="btn-ghost" onClick={() => {setAuthMode('signin');setAuthOpen(true);setAuthMessage('')}}>Iniciar sesión</button><button className="btn-primary" onClick={() => {setAuthMode('signup');setAuthOpen(true);setAuthMessage('')}}>Únete gratis <ArrowUpRight size={16}/></button></>}</div>
       <button className="rounded-xl border border-white/10 p-2 md:hidden" onClick={() => setMenu(!menu)} aria-label="Abrir menú">{menu ? <X/> : <Menu/>}</button>
     </header>
     {menu && <div className="relative z-30 mx-5 rounded-2xl border border-white/10 bg-slate-900 p-5 md:hidden"><div className="flex flex-col gap-4 text-sm text-slate-300"><a href="#explorar" onClick={() => setMenu(false)}>Explorar</a><a href="#categorias" onClick={() => setMenu(false)}>Categorías</a><a href="#comunidad" onClick={() => setMenu(false)}>Comunidad</a></div></div>}
@@ -72,9 +124,26 @@ export default function App() {
       </section>
       <section className="border-y border-white/[.07] bg-white/[.018]"><div className="mx-auto grid max-w-7xl gap-6 px-5 py-7 sm:grid-cols-3 sm:px-8"><div className="flex items-center gap-4"><span className="stat-icon"><BookOpen size={19}/></span><div><b className="block text-sm">Conocimiento compartido</b><span className="text-xs text-slate-500">Experiencias que ayudan a crecer</span></div></div><div className="flex items-center gap-4"><span className="stat-icon"><FileText size={19}/></span><div><b className="block text-sm">Recursos prácticos</b><span className="text-xs text-slate-500">Material para aprender haciendo</span></div></div><div className="flex items-center gap-4"><span className="stat-icon"><Globe2 size={19}/></span><div><b className="block text-sm">Comunidad tecnológica</b><span className="text-xs text-slate-500">Distintas áreas, una misma pasión</span></div></div></div></section>
       <section id="categorias" className="mx-auto max-w-7xl px-5 py-20 sm:px-8"><div className="section-heading"><div><span className="section-kicker">01 / EXPLORA POR ÁREA</span><h2>Un universo de <span className="gradient-text">posibilidades.</span></h2></div><a href="#explorar" className="text-sm font-semibold text-cyan-300">Ver contenido <ArrowUpRight size={15} className="inline"/></a></div><div className="mt-9 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{categories.map(({name,icon:Icon,tone},i)=><button key={name} onClick={()=>{setActive(name);document.getElementById('explorar')?.scrollIntoView({behavior:'smooth'})}} className="category-card group text-left"><div className={'category-icon '+tone}><Icon size={22}/></div><div className="mt-7 flex items-end justify-between"><div><span className="mb-2 block text-xs text-slate-500">0{i+1} / ÁREA</span><h3>{name}</h3><span className="mt-2 block text-xs text-slate-500">Explorar contenido</span></div><ArrowUpRight className="text-slate-600 transition group-hover:-translate-y-1 group-hover:translate-x-1 group-hover:text-cyan-300"/></div></button>)}</div></section>
-      <section id="explorar" className="border-y border-white/[.07] bg-[#0b1220]/80"><div className="mx-auto max-w-7xl px-5 py-20 sm:px-8"><div className="section-heading"><div><span className="section-kicker">02 / BIBLIOTECA</span><h2>Descubre algo <span className="gradient-text">nuevo.</span></h2><p className="mt-3 text-sm text-slate-400">Guías, tutoriales y recursos para llevar tus conocimientos más lejos.</p></div></div><div className="mt-8 flex flex-col gap-4 md:flex-row md:items-center md:justify-between"><div className="flex flex-wrap gap-2">{['Todo',...categories.map(c=>c.name)].map(item=><button key={item} onClick={()=>setActive(item)} className={'filter-pill '+(active===item?'selected':'')}>{item}</button>)}</div><label className="search-box"><Search size={17}/><input value={query} onChange={e=>setQuery(e.target.value)} placeholder="Buscar contenido..."/></label></div><div className="mt-8 grid gap-5 lg:grid-cols-3">{loadingResources ? <div className="col-span-full py-14 text-center text-sm text-slate-500">Cargando publicaciones...</div> : filtered.map(({type,title,category,level,time,icon:Icon,color})=><article key={title} className="resource-card"><div className={'resource-art '+color}><div className="art-orbit"/><Icon size={42} strokeWidth={1.1}/><span className="resource-type">{type}</span></div><div className="p-5"><span className="text-xs font-semibold text-cyan-300">{category}</span><h3 className="mt-3 min-h-14 text-lg font-bold leading-snug">{title}</h3><div className="mt-5 flex items-center justify-between border-t border-white/10 pt-4 text-xs text-slate-500"><span>{level} · {time}</span><button aria-label="Guardar recurso" className="rounded-lg p-2 hover:bg-white/10 hover:text-cyan-300"><Bookmark size={16}/></button></div></div></article>)}{filtered.length===0&&<div className="col-span-full rounded-2xl border border-dashed border-white/15 py-14 text-center text-sm text-slate-500">No encontramos contenido con esos filtros. Prueba otra búsqueda.</div>}</div><p className="mt-5 text-xs text-slate-600">{isSupabaseConfigured ? 'Contenido publicado desde Supabase.' : 'Vista de demostración. Configura Supabase para activar la biblioteca.'}</p></div></section>
-      <section id="comunidad" className="mx-auto max-w-7xl px-5 py-20 sm:px-8"><div className="community-panel"><div className="relative z-10 max-w-2xl"><span className="section-kicker">03 / CONSTRUYAMOS JUNTOS</span><h2 className="mt-4 text-3xl font-black sm:text-4xl">Tu experiencia también puede <span className="gradient-text">inspirar.</span></h2><p className="mt-4 max-w-xl text-sm leading-7 text-slate-400">BRIFAN TECH busca reunir a estudiantes, profesionales y entusiastas para compartir soluciones, documentar aprendizajes y hacer crecer la comunidad tecnológica.</p><button className="btn-primary mt-7">Próximamente <ArrowUpRight size={16}/></button></div><div className="community-symbol"><Layers3 size={100} strokeWidth={.7}/></div></div></section>
+      <section id="explorar" className="border-y border-white/[.07] bg-[#0b1220]/80"><div className="mx-auto max-w-7xl px-5 py-20 sm:px-8"><div className="section-heading"><div><span className="section-kicker">02 / BIBLIOTECA</span><h2>Descubre algo <span className="gradient-text">nuevo.</span></h2><p className="mt-3 text-sm text-slate-400">Guías, tutoriales y recursos para llevar tus conocimientos más lejos.</p></div></div><div className="mt-8 flex flex-col gap-4 md:flex-row md:items-center md:justify-between"><div className="flex flex-wrap gap-2">{['Todo',...categories.map(c=>c.name)].map(item=><button key={item} onClick={()=>setActive(item)} className={'filter-pill '+(active===item?'selected':'')}>{item}</button>)}</div><label className="search-box"><Search size={17}/><input value={query} onChange={e=>setQuery(e.target.value)} placeholder="Buscar contenido..."/></label></div><div className="mt-8 grid gap-5 lg:grid-cols-3">{loadingResources ? <div className="col-span-full py-14 text-center text-sm text-slate-500">Cargando publicaciones...</div> : filtered.map(({id,type,title,category,level,time,icon:Icon,color})=><article key={id ?? title} className="resource-card"><div className={'resource-art '+color}><div className="art-orbit"/><Icon size={42} strokeWidth={1.1}/><span className="resource-type">{type}</span></div><div className="p-5"><span className="text-xs font-semibold text-cyan-300">{category}</span><h3 className="mt-3 min-h-14 text-lg font-bold leading-snug">{title}</h3><div className="mt-5 flex items-center justify-between border-t border-white/10 pt-4 text-xs text-slate-500"><span>{level} · {time}</span><button aria-label={savedIds.includes(id) ? "Quitar de guardados" : "Guardar recurso"} aria-pressed={Boolean(id && savedIds.includes(id))} onClick={() => void toggleBookmark(id)} disabled={!id} className="rounded-lg p-2 hover:bg-white/10 hover:text-cyan-300 disabled:cursor-not-allowed disabled:opacity-40"><Bookmark size={16} fill={id && savedIds.includes(id) ? "currentColor" : "none"}/></button></div></div></article>)}{filtered.length===0&&<div className="col-span-full rounded-2xl border border-dashed border-white/15 py-14 text-center text-sm text-slate-500">No encontramos contenido con esos filtros. Prueba otra búsqueda.</div>}</div><p className="mt-5 text-xs text-slate-600">{liveResources.length > 0 ? 'Contenido publicado desde Supabase.' : isSupabaseConfigured ? 'Mostrando recursos de ejemplo: todavía no hay artículos publicados en la biblioteca.' : 'Vista de demostración. Configura Supabase para activar la biblioteca.'}</p></div></section>
+      <section id="comunidad" className="mx-auto max-w-7xl px-5 py-20 sm:px-8"><div className="community-panel"><div className="relative z-10 max-w-2xl"><span className="section-kicker">03 / CONSTRUYAMOS JUNTOS</span><h2 className="mt-4 text-3xl font-black sm:text-4xl">Tu experiencia también puede <span className="gradient-text">inspirar.</span></h2><p className="mt-4 max-w-xl text-sm leading-7 text-slate-400">BRIFAN TECH busca reunir a estudiantes, profesionales y entusiastas para compartir soluciones, documentar aprendizajes y hacer crecer la comunidad tecnológica.</p><button className="btn-primary mt-7" onClick={() => {setAuthMode("signup");setAuthOpen(true);setAuthMessage("")}}>Crear cuenta gratis <ArrowUpRight size={16}/></button></div><div className="community-symbol"><Layers3 size={100} strokeWidth={.7}/></div></div></section>
     </main>
     <footer id="nosotros" className="border-t border-white/[.08]"><div className="mx-auto flex max-w-7xl flex-col gap-5 px-5 py-8 text-xs text-slate-500 sm:px-8 md:flex-row md:items-center md:justify-between"><div className="flex items-center gap-3"><span className="brand-mark small"><Layers3 size={16}/></span><b className="tracking-[.14em] text-slate-300">BRIFAN.TECH</b><span>© 2026</span></div><p>Explora. Aprende. Comparte.</p><a href="https://github.com/JOSEFRO/BRIFAN-TECH" target="_blank" rel="noreferrer" className="hover:text-cyan-300">Código en GitHub <ArrowUpRight size={13} className="inline"/></a></div></footer>
+    {authOpen && <div className="modal-backdrop" role="presentation" onMouseDown={(event) => {if(event.target === event.currentTarget) setAuthOpen(false)}}>
+      <section className="auth-modal" role="dialog" aria-modal="true" aria-labelledby="auth-title">
+        <button className="modal-close" onClick={() => setAuthOpen(false)} aria-label="Cerrar"><X size={18}/></button>
+        <span className="section-kicker">BRIFAN / CUENTA</span>
+        <h2 id="auth-title">{authMode === 'signup' ? 'Únete a la comunidad' : 'Qué bueno tenerte de vuelta'}</h2>
+        <p>{authMode === 'signup' ? 'Crea tu cuenta para guardar recursos y participar.' : 'Accede para guardar tus publicaciones favoritas.'}</p>
+        <form onSubmit={(event) => {event.preventDefault(); void submitAuth()}}>
+          {authMode === 'signup' && <label>Nombre visible<input value={authName} onChange={event => setAuthName(event.target.value)} required minLength={2} maxLength={60} placeholder="Cómo te conocerá la comunidad"/></label>}
+          <label>Correo electrónico<input type="email" value={authEmail} onChange={event => setAuthEmail(event.target.value)} required autoComplete="email" placeholder="tu@correo.com"/></label>
+          <label>Contraseña<input type="password" value={authPassword} onChange={event => setAuthPassword(event.target.value)} required minLength={8} autoComplete={authMode === 'signup' ? 'new-password' : 'current-password'} placeholder="Mínimo 8 caracteres"/></label>
+          {authMessage && <p className="auth-message" role="status">{authMessage}</p>}
+          <button className="btn-primary auth-submit" type="submit" disabled={authBusy}>{authBusy ? 'Procesando…' : authMode === 'signup' ? 'Crear cuenta' : 'Iniciar sesión'}</button>
+        </form>
+        <button className="auth-switch" onClick={() => {setAuthMode(authMode === 'signup' ? 'signin' : 'signup');setAuthMessage('')}}>{authMode === 'signup' ? '¿Ya tienes cuenta? Inicia sesión' : '¿Primera vez? Crea una cuenta'}</button>
+      </section>
+    </div>}
+
   </div>
 }
