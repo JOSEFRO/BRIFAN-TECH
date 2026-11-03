@@ -1,5 +1,5 @@
 import Header from './components/Header'
-import { ArrowRight, ArrowUpRight, BookOpen, Bookmark, BrainCircuit, Code2, Cpu, Database, FileText, Globe2, Layers3, LogOut, Menu, Network, Search, ShieldCheck, Sparkles, Terminal, X } from 'lucide-react'
+import { ArrowRight, ArrowUpRight, BookOpen, Bookmark, BrainCircuit, Code2, Cpu, Database, FileText, Globe2, Layers3, Network, Search, ShieldCheck, Sparkles, Terminal, X } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import type { Session } from '@supabase/supabase-js'
 import { supabase, isSupabaseConfigured } from './lib/supabase'
@@ -265,7 +265,6 @@ export default function App() {
       onSignIn={() => { setAuthMode('signin'); setAuthOpen(true); setAuthMessage('') }}
       onSignUp={() => { setAuthMode('signup'); setAuthOpen(true); setAuthMessage('') }}
       onSignOut={() => { void supabase?.auth.signOut() }}
-      onLoadPending={loadPendingArticles}
     />
     <main className="relative z-10">
       <section className="mx-auto grid max-w-7xl items-center gap-12 px-5 pb-20 pt-16 sm:px-8 lg:grid-cols-[1.08fr_.92fr] lg:pb-28 lg:pt-24">
