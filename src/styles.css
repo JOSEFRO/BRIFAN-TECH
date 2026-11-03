@@ -100,3 +100,14 @@
 @keyframes nodePulse{0%,100%{scale:1;opacity:.8}50%{scale:1.7;opacity:1}}
 @media(max-width:760px){.panorama-heading{align-items:start;flex-direction:column}.panorama-stage{min-height:420px}.panorama-world{top:54%;transform:translate(-50%,-50%) perspective(700px) rotateX(58deg) rotateZ(-18deg) scale(.64)}.panorama-stage.network-mode .panorama-world{transform:translate(-50%,-50%) perspective(700px) rotateX(8deg) rotateZ(0deg) scale(.57)}.hotspot{padding:8px;font-size:0}.hotspot svg{width:16px;height:16px}.hotspot-network{left:4%;top:35%}.hotspot-ai{right:4%;top:30%}.hotspot-security{right:6%;bottom:19%}.panorama-label{left:15px;top:16px;font-size:8px}.panorama-label small{display:none}.panorama-caption{left:15px;bottom:15px;max-width:68%}.panorama-caption span{font-size:9px}.panorama-coordinates{right:13px;bottom:17px;font-size:7px}.panorama-switch button{padding:8px 10px;font-size:10px}}
 @media(prefers-reduced-motion:reduce){.world-cube,.world-beam,.world-node,.center-orbit{animation:none!important}}
+
+
+/* Resource reader: guide and tutorial detail */
+.resource-backdrop{z-index:80;overflow-y:auto;align-items:flex-start;padding:28px 16px}
+.resource-reader{position:relative;width:min(760px,100%);max-height:none;margin:auto;padding:34px;border:1px solid #ffffff20;border-radius:24px;background:linear-gradient(145deg,#111e31,#091321);box-shadow:0 30px 100px #000b}
+.resource-reader h2{max-width:650px;margin:16px 0 14px;padding-right:30px;color:#f1f8ff;font-size:clamp(25px,4vw,36px);font-weight:800;line-height:1.15;letter-spacing:-.035em}
+.reader-meta{display:flex;gap:10px;color:#9fb1c5;font-size:11px}
+.reader-meta span{padding:6px 10px;border:1px solid #ffffff17;border-radius:20px;background:#ffffff08}
+.reader-excerpt{margin:22px 0;padding:15px 17px;border-left:2px solid #5ee3e8;border-radius:0 10px 10px 0;background:#55dce90c;color:#c4d7e7;font-size:14px;line-height:1.8}
+.reader-content{white-space:pre-wrap;color:#c2d0df;font-size:14px;line-height:1.95}
+@media(max-width:600px){.resource-reader{padding:25px 19px;border-radius:18px}.resource-backdrop{padding:12px}}
