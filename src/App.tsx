@@ -34,6 +34,7 @@ export default function App() {
   const [authMessage, setAuthMessage] = useState('')
   const [authBusy, setAuthBusy] = useState(false)
   const [savedIds, setSavedIds] = useState<string[]>([])
+  const [panoramaMode, setPanoramaMode] = useState<'panorama' | 'network'>('panorama')
 
   useEffect(() => {
     if (!supabase) return
@@ -135,6 +136,29 @@ export default function App() {
             <div className="data-widget widget-a"><span>NETWORK TRAFFIC</span><strong>↗ <b>+24.8%</b></strong><div className="mini-bars">{[24,38,30,52,42,68,50,78,62,92,72,100].map((v,i)=><i key={i} style={{height:v+'%'}}/>)}</div></div>
             <div className="data-widget widget-b"><span>DATA FLOW</span><div className="flow-ring"><b>98<span>%</span></b></div><small>Conexiones activas</small></div>
           </div>
+        </div>
+      </section>
+      <section id="panorama" className="panorama-section mx-auto max-w-7xl px-5 py-16 sm:px-8">
+        <div className="panorama-heading"><div><span className="section-kicker">INTERACTIVE / 3D WORLD</span><h2>Explora la tecnología <span className="gradient-text">en otra dimensión.</span></h2><p>Un recorrido visual por las áreas que mueven el universo digital. Cambia la vista y descubre cada zona.</p></div><div className="panorama-switch" role="group" aria-label="Cambiar visualización"><button className={panoramaMode === 'panorama' ? 'chosen' : ''} onClick={() => setPanoramaMode('panorama')}>Panorama 3D</button><button className={panoramaMode === 'network' ? 'chosen' : ''} onClick={() => setPanoramaMode('network')}>Red conectada</button></div></div>
+        <div className={'panorama-stage '+(panoramaMode === 'network' ? 'network-mode' : '')}>
+          <div className="panorama-sky"/><div className="panorama-horizon"/>
+          <div className="panorama-world" aria-label="Escena tecnológica tridimensional interactiva">
+            <div className="world-ring ring-one"/><div className="world-ring ring-two"/><div className="world-ring ring-three"/>
+            <div className="world-platform platform-back"/><div className="world-platform platform-mid"/><div className="world-platform platform-front"/>
+            <div className="world-tower tower-one"><i/><i/><i/><span>AI / CORE</span></div>
+            <div className="world-tower tower-two"><i/><i/><i/><span>DATA</span></div>
+            <div className="world-tower tower-three"><i/><i/><i/><span>CYBER</span></div>
+            <div className="world-cube cube-one"><b/></div><div className="world-cube cube-two"><b/></div><div className="world-cube cube-three"><b/></div>
+            <div className="world-beam beam-one"/><div className="world-beam beam-two"/><div className="world-beam beam-three"/>
+            <div className="world-node node-one"/><div className="world-node node-two"/><div className="world-node node-three"/><div className="world-node node-four"/>
+            <div className="world-center"><div className="center-orbit"/><Layers3 size={42}/><b>BRIFAN</b><small>TECH ECOSYSTEM</small></div>
+          </div>
+          <div className="panorama-label label-top"><span className="live-indicator"/> DIGITAL UNIVERSE <small>REAL-TIME EXPERIENCE</small></div>
+          <button className="hotspot hotspot-network" onClick={() => {setActive('Redes y conectividad');document.getElementById('explorar')?.scrollIntoView({behavior:'smooth'})}}><Network size={15}/><span>Redes y conectividad</span><i/></button>
+          <button className="hotspot hotspot-ai" onClick={() => {setActive('Inteligencia artificial');document.getElementById('explorar')?.scrollIntoView({behavior:'smooth'})}}><BrainCircuit size={15}/><span>Inteligencia artificial</span><i/></button>
+          <button className="hotspot hotspot-security" onClick={() => {setActive('Ciberseguridad');document.getElementById('explorar')?.scrollIntoView({behavior:'smooth'})}}><ShieldCheck size={15}/><span>Ciberseguridad</span><i/></button>
+          <div className="panorama-caption"><b>{panoramaMode === 'panorama' ? '01 / PANORAMA INMERSIVO' : '02 / MAPA DE CONEXIONES'}</b><span>{panoramaMode === 'panorama' ? 'Arquitectura digital · Profundidad 3D · Movimiento ambiental' : 'Nodos activos · Rutas de datos · Ecosistema conectado'}</span></div>
+          <div className="panorama-coordinates">BRIFAN TECH <span>•</span> 3D EXPERIENCE <span>•</span> 2026</div>
         </div>
       </section>
       <section className="border-y border-white/[.07] bg-white/[.018]"><div className="mx-auto grid max-w-7xl gap-6 px-5 py-7 sm:grid-cols-3 sm:px-8"><div className="flex items-center gap-4"><span className="stat-icon"><BookOpen size={19}/></span><div><b className="block text-sm">Conocimiento compartido</b><span className="text-xs text-slate-500">Experiencias que ayudan a crecer</span></div></div><div className="flex items-center gap-4"><span className="stat-icon"><FileText size={19}/></span><div><b className="block text-sm">Recursos prácticos</b><span className="text-xs text-slate-500">Material para aprender haciendo</span></div></div><div className="flex items-center gap-4"><span className="stat-icon"><Globe2 size={19}/></span><div><b className="block text-sm">Comunidad tecnológica</b><span className="text-xs text-slate-500">Distintas áreas, una misma pasión</span></div></div></div></section>
