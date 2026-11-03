@@ -56,13 +56,24 @@ export default function App() {
     if (!supabase) { setAuthMessage('El servicio de autenticación no está configurado.'); return }
     setAuthBusy(true)
     setAuthMessage('')
-    const result = authMode === 'signup'
-      ? await supabase.auth.signUp({ email: authEmail.trim(), password: authPassword, options: { data: { display_name: authName.trim() } } })
-      : await supabase.auth.signInWithPassword({ email: authEmail.trim(), password: authPassword })
-    setAuthBusy(false)
-    if (result.error) { setAuthMessage(result.error.message); return }
-    if (authMode === 'signup') setAuthMessage('Cuenta creada. Si la confirmación por correo está activada, revisa tu bandeja de entrada.')
-    else { setAuthOpen(false); setAuthPassword('') }
+    try {
+      const result = authMode === 'signup'
+        ? await supabase.auth.signUp({ email: authEmail.trim(), password: authPassword, options: { data: { display_name: authName.trim() } } })
+        : await supabase.auth.signInWithPassword({ email: authEmail.trim(), password: authPassword })
+      if (result.error) { setAuthMessage(result.error.message); return }
+      if (authMode === 'signup') {
+        setAuthMessage(result.data.session
+          ? 'Tu cuenta está lista. Ya puedes participar en BRIFAN TECH.'
+          : 'Cuenta creada. Revisa tu correo para confirmar el registro.')
+      } else {
+        setAuthOpen(false)
+        setAuthPassword('')
+      }
+    } catch {
+      setAuthMessage('No fue posible conectar con el servicio. Comprueba tu conexión e inténtalo de nuevo.')
+    } finally {
+      setAuthBusy(false)
+    }
   }
 
   async function toggleBookmark(articleId?: string) {
@@ -104,7 +115,7 @@ export default function App() {
       <div className="hidden items-center gap-3 md:flex">{session ? <><span className="text-xs text-slate-400">{session.user.email}</span><button className="btn-ghost" onClick={() => void supabase?.auth.signOut()}><LogOut size={15}/> Salir</button></> : <><button className="btn-ghost" onClick={() => {setAuthMode('signin');setAuthOpen(true);setAuthMessage('')}}>Iniciar sesión</button><button className="btn-primary" onClick={() => {setAuthMode('signup');setAuthOpen(true);setAuthMessage('')}}>Únete gratis <ArrowUpRight size={16}/></button></>}</div>
       <button className="rounded-xl border border-white/10 p-2 md:hidden" onClick={() => setMenu(!menu)} aria-label="Abrir menú">{menu ? <X/> : <Menu/>}</button>
     </header>
-    {menu && <div className="relative z-30 mx-5 rounded-2xl border border-white/10 bg-slate-900 p-5 md:hidden"><div className="flex flex-col gap-4 text-sm text-slate-300"><a href="#explorar" onClick={() => setMenu(false)}>Explorar</a><a href="#categorias" onClick={() => setMenu(false)}>Categorías</a><a href="#comunidad" onClick={() => setMenu(false)}>Comunidad</a></div></div>}
+    {menu && <div className="relative z-30 mx-5 rounded-2xl border border-white/10 bg-slate-900 p-5 md:hidden"><div className="flex flex-col gap-4 text-sm text-slate-300"><a href="#explorar" onClick={() => setMenu(false)}>Explorar</a><a href="#categorias" onClick={() => setMenu(false)}>Categorías</a><a href="#comunidad" onClick={() => setMenu(false)}>Comunidad</a><a href="#nosotros" onClick={() => setMenu(false)}>Acerca de</a><div className="border-t border-white/10 pt-4">{session ? <div className="flex flex-col gap-3"><span className="break-all text-xs text-slate-400">{session.user.email}</span><button className="btn-ghost justify-start" onClick={() => { void supabase?.auth.signOut(); setMenu(false) }}><LogOut size={15}/> Cerrar sesión</button></div> : <div className="flex flex-col gap-2"><button className="btn-ghost justify-start" onClick={() => {setAuthMode('signin');setAuthOpen(true);setAuthMessage('');setMenu(false)}}>Iniciar sesión</button><button className="btn-primary" onClick={() => {setAuthMode('signup');setAuthOpen(true);setAuthMessage('');setMenu(false)}}>Únete gratis <ArrowUpRight size={16}/></button></div>}</div></div></div>}
     <main className="relative z-10">
       <section className="mx-auto grid max-w-7xl items-center gap-12 px-5 pb-20 pt-16 sm:px-8 lg:grid-cols-[1.08fr_.92fr] lg:pb-28 lg:pt-24">
         <div><div className="eyebrow"><span className="pulse-dot"/> CONOCIMIENTO QUE CONECTA</div><h1 className="mt-7 max-w-3xl text-5xl font-black leading-[1.05] tracking-tight sm:text-6xl lg:text-7xl">El conocimiento<br/>tecnológico <span className="gradient-text">no tiene límites.</span></h1><p className="mt-7 max-w-xl text-lg leading-8 text-slate-400">Aprende, comparte y descubre. Una comunidad para explorar el mundo de la tecnología, desde los fundamentos hasta las ideas que están transformando el futuro.</p><div className="mt-9 flex flex-wrap gap-3"><a href="#explorar" className="btn-primary px-6 py-3.5">Explorar contenido <ArrowRight size={17}/></a><a href="#comunidad" className="btn-secondary px-6 py-3.5">Conoce la comunidad</a></div><div className="mt-12 flex flex-wrap gap-x-8 gap-y-3 border-t border-white/10 pt-7 text-xs font-semibold uppercase tracking-[.16em] text-slate-500"><span className="flex items-center gap-2"><BookOpen size={15} className="text-cyan-300"/> Guías y tutoriales</span><span className="flex items-center gap-2"><Globe2 size={15} className="text-cyan-300"/> Comunidad abierta</span><span className="flex items-center gap-2"><Sparkles size={15} className="text-cyan-300"/> Aprende a tu ritmo</span></div></div>
