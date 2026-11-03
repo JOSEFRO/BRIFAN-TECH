@@ -184,3 +184,90 @@ footer{background:rgba(5,10,19,.7)}
  .resource-art{height:190px}
 }
 @media(prefers-reduced-motion:reduce){header *,main *{scroll-behavior:auto!important;animation-duration:.01ms!important;transition-duration:.01ms!important}}
+
+
+/* Responsive layout refinements — mobile, tablet and desktop */
+html,body,#root{width:100%;max-width:100%;overflow-x:clip}
+img,svg,video,canvas{max-width:100%}
+button,a,input,select,textarea{touch-action:manipulation}
+.resource-card,.category-card,.community-panel,.signal-panel,.panorama-stage{min-width:0}
+.resource-card h3,.resource-card p,.category-card h3,.reader-content{overflow-wrap:anywhere}
+.filter-pill{flex:0 0 auto}
+@media(max-width:760px){
+  header{gap:12px}
+  header>a{min-width:0;gap:9px}
+  header>a>span:last-child{font-size:clamp(13px,4vw,17px);letter-spacing:.1em}
+  header .brand-mark{width:38px;height:38px;flex:0 0 auto}
+  header>button[aria-label="Abrir menú"]{flex:0 0 auto}
+  main>section:first-child>div{min-width:0}
+  main>section:first-child h1{max-width:100%;overflow-wrap:anywhere}
+  .hero-visual{width:100%;max-width:430px;margin-inline:auto;transform:scale(.76);transform-origin:center}
+  .float-card{max-width:44%;padding:9px 10px}
+  .float-card b{font-size:10px}
+  .float-card small{font-size:8px}
+  .signal-panel{grid-template-columns:minmax(0,1fr)}
+  .data-visual{min-width:0}
+  .section-heading{gap:12px}
+  .section-heading h2,.panorama-heading h2{font-size:clamp(27px,7vw,36px)}
+  #explorar .flex.flex-wrap{flex-wrap:nowrap;max-width:100%;overflow-x:auto;padding-bottom:7px;scrollbar-width:thin}
+  #explorar .search-box{width:100%;min-width:0}
+  .resource-card h3{min-height:0}
+  .resource-card p{min-height:0}
+  .resource-card>div:last-child{padding:18px!important}
+  .panorama-stage{min-height:390px}
+  .panorama-world{max-width:100%}
+  .panorama-switch{max-width:100%;flex-wrap:wrap}
+  .panorama-switch button{flex:1 1 auto}
+  .community-panel{padding:28px 22px}
+  .community-symbol{right:-42px;bottom:10px}
+  .community-symbol svg{width:76px;height:76px}
+  .resource-reader,.auth-modal{max-width:100%;overflow-wrap:anywhere}
+  .publish-form input[type="file"]{font-size:11px}
+  .upload-list li{align-items:flex-start;flex-wrap:wrap}
+  footer>div{align-items:flex-start}
+}
+@media(max-width:480px){
+  header{padding:10px 12px!important}
+  header>a>span:last-child{font-size:12px;letter-spacing:.08em}
+  header .brand-mark{width:34px;height:34px}
+  header>button[aria-label="Abrir menú"]{padding:7px}
+  main>section:first-child{padding-inline:16px!important}
+  main>section:first-child h1{font-size:clamp(2.35rem,11vw,3.2rem)}
+  main>section:first-child p{font-size:14px;line-height:1.75}
+  .hero-visual{height:330px;transform:scale(.68);margin-top:-28px;margin-bottom:-34px}
+  .float-card{gap:7px;max-width:46%;padding:8px}
+  .float-icon{width:28px;height:28px}
+  .float-card-top{left:0}
+  .float-card-right{right:0}
+  .float-card-bottom{left:8px}
+  .chip-left,.chip-right{display:none}
+  .category-card{min-height:170px;padding:18px}
+  .category-card h3{font-size:15px}
+  .category-card:after{width:52px;height:52px}
+  .resource-art{height:165px}
+  .resource-card>div:last-child{padding:16px!important}
+  .resource-card h3{font-size:16px}
+  .resource-card>div:last-child>div:last-child{align-items:flex-start;gap:8px}
+  .resource-card>div:last-child>div:last-child>span{max-width:52%;line-height:1.6}
+  .panorama-stage{min-height:350px}
+  .panorama-world{transform:translate(-50%,-50%) perspective(650px) rotateX(58deg) rotateZ(-18deg) scale(.52)}
+  .panorama-stage.network-mode .panorama-world{transform:translate(-50%,-50%) perspective(650px) rotateX(8deg) rotateZ(0deg) scale(.48)}
+  .panorama-caption{max-width:72%}
+  .panorama-caption span{line-height:1.5}
+  .panorama-coordinates{display:none}
+  .data-widget{padding:9px 10px}
+  .widget-a{width:126px}
+  .widget-b{transform:scale(.76);transform-origin:bottom right}
+  .reader-content{font-size:13px;line-height:1.8}
+  .resource-reader{padding:22px 16px}
+  .modal-backdrop{padding:10px}
+  .auth-modal{padding:23px 17px}
+  .community-panel{min-height:330px}
+  .community-panel h2{font-size:27px}
+  footer>div{gap:12px}
+}
+@media(min-width:761px) and (max-width:1024px){
+  .hero-visual{transform:scale(.88)}
+  .panorama-world{transform:translate(-50%,-50%) perspective(800px) rotateX(58deg) rotateZ(-18deg) scale(.78)}
+  .panorama-stage.network-mode .panorama-world{transform:translate(-50%,-50%) perspective(800px) rotateX(8deg) rotateZ(0deg) scale(.72)}
+}
