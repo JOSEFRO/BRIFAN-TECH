@@ -1,3 +1,4 @@
+import Header from './components/Header'
 import { ArrowRight, ArrowUpRight, BookOpen, Bookmark, BrainCircuit, Code2, Cpu, Database, FileText, Globe2, Layers3, LogOut, Menu, Network, Search, ShieldCheck, Sparkles, Terminal, X } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import type { Session } from '@supabase/supabase-js'
@@ -249,21 +250,23 @@ export default function App() {
   }, [])
   const resources = liveResources.length > 0 ? liveResources : demoResources
   const [active, setActive] = useState('Todo')
-  const [menu, setMenu] = useState(false)
-  const filtered = useMemo(() => resources.filter((r) =>
+    const filtered = useMemo(() => resources.filter((r) =>
     (active === 'Todo' || r.category === active) &&
     (r.title + r.category + r.type).toLowerCase().includes(query.toLowerCase())
   ), [active, query])
 
   return <div className="min-h-screen overflow-hidden bg-[#080d18] text-slate-100">
     <div className="ambient ambient-one" /><div className="ambient ambient-two" />
-    <header className="relative z-20 mx-auto flex max-w-7xl items-center justify-between px-5 py-5 sm:px-8">
-      <a href="#" className="flex items-center gap-3"><span className="brand-mark"><Layers3 size={21}/></span><span className="text-lg font-black tracking-[.16em]">BRIFAN<span className="text-cyan-300">.</span>TECH</span></a>
-      <nav className="hidden items-center gap-8 text-sm text-slate-400 md:flex"><a className="nav-link active" href="#explorar">Explorar</a><a className="nav-link" href="#categorias">Categorías</a><a className="nav-link" href="#comunidad">Comunidad</a><a className="nav-link" href="#nosotros">Acerca de</a></nav>
-      <div className="hidden items-center gap-3 md:flex">{session ? <><button className="btn-primary" onClick={() => {setPublishMessage('');setPublishOpen(true)}}><FileText size={15}/> Publicar</button>{isAdmin && <button className="btn-secondary" onClick={() => {setAdminOpen(true);setAdminMessage('');void loadPendingArticles()}}><ShieldCheck size={15}/> Administración</button>}<span className="text-xs text-slate-400">{session.user.email}</span><button className="btn-ghost" onClick={() => void supabase?.auth.signOut()}><LogOut size={15}/> Salir</button></> : <><button className="btn-ghost" onClick={() => {setAuthMode('signin');setAuthOpen(true);setAuthMessage('')}}>Iniciar sesión</button><button className="btn-primary" onClick={() => {setAuthMode('signup');setAuthOpen(true);setAuthMessage('')}}>Únete gratis <ArrowUpRight size={16}/></button></>}</div>
-      <button className="rounded-xl border border-white/10 p-2 md:hidden" onClick={() => setMenu(!menu)} aria-label="Abrir menú">{menu ? <X/> : <Menu/>}</button>
-    </header>
-    {menu && <div className="relative z-30 mx-5 rounded-2xl border border-white/10 bg-slate-900 p-5 md:hidden"><div className="flex flex-col gap-4 text-sm text-slate-300"><a href="#explorar" onClick={() => setMenu(false)}>Explorar</a><a href="#categorias" onClick={() => setMenu(false)}>Categorías</a><a href="#comunidad" onClick={() => setMenu(false)}>Comunidad</a><a href="#nosotros" onClick={() => setMenu(false)}>Acerca de</a><div className="border-t border-white/10 pt-4">{session ? <div className="flex flex-col gap-3"><span className="break-all text-xs text-slate-400">{session.user.email}</span><button className="btn-primary justify-start" onClick={() => {setPublishMessage('');setPublishOpen(true);setMenu(false)}}><FileText size={15}/> Publicar contenido</button>{isAdmin && <button className="btn-secondary justify-start" onClick={() => {setAdminOpen(true);setAdminMessage('');void loadPendingArticles();setMenu(false)}}><ShieldCheck size={15}/> Administración</button>}<button className="btn-ghost justify-start" onClick={() => { void supabase?.auth.signOut(); setMenu(false) }}><LogOut size={15}/> Cerrar sesión</button></div> : <div className="flex flex-col gap-2"><button className="btn-ghost justify-start" onClick={() => {setAuthMode('signin');setAuthOpen(true);setAuthMessage('');setMenu(false)}}>Iniciar sesión</button><button className="btn-primary" onClick={() => {setAuthMode('signup');setAuthOpen(true);setAuthMessage('');setMenu(false)}}>Únete gratis <ArrowUpRight size={16}/></button></div>}</div></div></div>}
+    <Header
+      session={session}
+      isAdmin={isAdmin}
+      onPublish={() => { setPublishMessage(''); setPublishOpen(true) }}
+      onAdmin={() => { setAdminOpen(true); setAdminMessage(''); void loadPendingArticles() }}
+      onSignIn={() => { setAuthMode('signin'); setAuthOpen(true); setAuthMessage('') }}
+      onSignUp={() => { setAuthMode('signup'); setAuthOpen(true); setAuthMessage('') }}
+      onSignOut={() => { void supabase?.auth.signOut() }}
+      onLoadPending={loadPendingArticles}
+    />
     <main className="relative z-10">
       <section className="mx-auto grid max-w-7xl items-center gap-12 px-5 pb-20 pt-16 sm:px-8 lg:grid-cols-[1.08fr_.92fr] lg:pb-28 lg:pt-24">
         <div><div className="eyebrow"><span className="pulse-dot"/> PLATAFORMA DE APRENDIZAJE TECNOLÓGICO</div><h1 className="mt-7 max-w-3xl text-5xl font-black leading-[1.05] tracking-tight sm:text-6xl lg:text-7xl">El conocimiento<br/>tecnológico <span className="gradient-text">no tiene límites.</span></h1><p className="mt-7 max-w-xl text-lg leading-8 text-slate-400">Aprende, comparte y descubre. Una comunidad para explorar el mundo de la tecnología, desde los fundamentos hasta las ideas que están transformando el futuro.</p><div className="mt-9 flex flex-wrap gap-3"><a href="#explorar" className="btn-primary px-6 py-3.5">Explorar contenido <ArrowRight size={17}/></a><a href="#comunidad" className="btn-secondary px-6 py-3.5">Conoce la comunidad</a></div><div className="mt-12 flex flex-wrap gap-x-8 gap-y-3 border-t border-white/10 pt-7 text-xs font-semibold uppercase tracking-[.16em] text-slate-500"><span className="flex items-center gap-2"><BookOpen size={15} className="text-cyan-300"/> Guías y tutoriales</span><span className="flex items-center gap-2"><Globe2 size={15} className="text-cyan-300"/> Comunidad abierta</span><span className="flex items-center gap-2"><Sparkles size={15} className="text-cyan-300"/> Aprende a tu ritmo</span></div></div>
