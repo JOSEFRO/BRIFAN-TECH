@@ -54,6 +54,8 @@ export default function App() {
   const [publishBody, setPublishBody] = useState('')
   const [publishMessage, setPublishMessage] = useState('')
   const [publishBusy, setPublishBusy] = useState(false)
+  const [publishFiles, setPublishFiles] = useState<File[]>([])
+  const [readerAttachments, setReaderAttachments] = useState<Array<{ name: string; type: string; url: string }>>([])
 
   useEffect(() => {
     if (!supabase) return
@@ -135,12 +137,26 @@ export default function App() {
         difficulty: publishLevel,
         status: 'pending',
         reading_minutes: Math.max(1, Math.ceil(publishBody.trim().split(/\\s+/).length / 180)),
-      })
-      if (result.error) throw result.error
-      setPublishMessage('¡Enviado! Tu publicación quedó pendiente de revisión. Cuando sea aprobada aparecerá en la biblioteca.')
+      }).select('id').single()
+      if (result.error || !result.data) throw result.error ?? new Error('No se pudo crear la publicación.')
+      const uploaded: Array<{ path: string; name: string; type: string }> = []
+      for (const file of publishFiles) {
+        const safeName = file.name.normalize('NFD').replace(/[\\u0300-\\u036f]/g, '').replace(/[^a-zA-Z0-9._-]/g, '-').slice(-100)
+        const path = `${session.user.id}/${result.data.id}/${crypto.randomUUID()}-${safeName}`
+        const { error: uploadError } = await supabase.storage.from('brifan-articles').upload(path, file, { contentType: file.type, upsert: false })
+        if (uploadError) throw uploadError
+        uploaded.push({ path, name: file.name, type: file.type })
+      }
+      if (uploaded.length) {
+        const attachmentBlock = `\\n\\n<!--BRIFAN_ATTACHMENTS:${JSON.stringify(uploaded)}-->`
+        const { error: updateError } = await supabase.from('articles').update({ body_md: publishBody.trim() + attachmentBlock }).eq('id', result.data.id)
+        if (updateError) throw updateError
+      }
+      setPublishMessage('¡Enviado! Tu publicación y sus archivos quedaron pendientes de revisión. Aparecerán en la biblioteca cuando se aprueben.')
       setPublishTitle('')
       setPublishExcerpt('')
       setPublishBody('')
+      setPublishFiles([])
     } catch (error: any) {
       setPublishMessage(error?.message || 'No se pudo enviar la publicación. Inténtalo de nuevo.')
     } finally {
@@ -154,7 +170,14 @@ export default function App() {
       if (!supabase) { setLoadingResources(false); return }
       const { data, error } = await supabase.from('articles').select('id,title,excerpt,body_md,content_type,difficulty,reading_minutes,categories(name)').eq('status', 'published').order('published_at', { ascending: false }).limit(18)
       if (!active) return
-      if (!error && data) setLiveResources(data.map((item: any) => ({ id: item.id, excerpt: item.excerpt, body: item.body_md, type: String(item.content_type ?? 'article').toUpperCase(), title: item.title, category: item.categories?.name ?? 'Tecnología', level: item.difficulty === 'beginner' ? 'Principiante' : item.difficulty === 'advanced' ? 'Avanzado' : item.difficulty === 'all' ? 'Todos' : 'Intermedio', time: (item.reading_minutes ?? 1) + ' min', icon: BookOpen, color: 'blue' })))
+      if (!error && data) setLiveResources(data.map((item: any) => {
+        const rawBody = item.body_md ?? ''
+        const attachmentMatch = rawBody.match(/<!--BRIFAN_ATTACHMENTS:(.*?)-->/s)
+        let attachments: Array<{ path: string; name: string; type: string }> = []
+        try { if (attachmentMatch) attachments = JSON.parse(attachmentMatch[1]) } catch { attachments = [] }
+        const cleanBody = rawBody.replace(/\\n?<!--BRIFAN_ATTACHMENTS:.*?-->/s, '').trim()
+        return { id: item.id, excerpt: item.excerpt, body: cleanBody, attachments, type: String(item.content_type ?? 'article').toUpperCase(), title: item.title, category: item.categories?.name ?? 'Tecnología', level: item.difficulty === 'beginner' ? 'Principiante' : item.difficulty === 'advanced' ? 'Avanzado' : item.difficulty === 'all' ? 'Todos' : 'Intermedio', time: (item.reading_minutes ?? 1) + ' min', icon: BookOpen, color: 'blue' }
+      }))
       setLoadingResources(false)
     }
     void loadResources()
@@ -242,11 +265,29 @@ export default function App() {
           </div>
           <label>Resumen<textarea value={publishExcerpt} onChange={e => setPublishExcerpt(e.target.value)} maxLength={400} required rows={2} placeholder="Explica brevemente qué aprenderá el lector."/></label>
           <label>Contenido<textarea value={publishBody} onChange={e => setPublishBody(e.target.value)} minLength={40} required rows={10} placeholder="Escribe aquí tu guía. Puedes separar los temas con títulos y párrafos."/></label>
+          <label>Imágenes y archivos<input type="file" multiple accept="image/jpeg,image/png,image/webp,image/gif,application/pdf,text/plain,text/markdown,text/csv,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation,application/zip" onChange={event => { const incoming = Array.from(event.target.files ?? []); setPublishFiles(current => [...current, ...incoming].slice(0, 8)); event.target.value = '' }} /></label>
+          <p className="upload-help">Hasta 8 archivos por publicación · máximo 50 MB por archivo. Imágenes, PDF, Office, CSV, texto y ZIP.</p>
+          {publishFiles.length > 0 && <ul className="upload-list">{publishFiles.map((file, index) => <li key={file.name + file.lastModified + index}><span>{file.name} <small>{(file.size / 1024 / 1024).toFixed(2)} MB</small></span><button type="button" onClick={() => setPublishFiles(current => current.filter((_, i) => i !== index))}>Quitar</button></li>)}</ul>}
           {publishMessage && <p className="auth-message" role="status">{publishMessage}</p>}
           <button className="btn-primary auth-submit" type="submit" disabled={publishBusy}>{publishBusy ? 'Enviando…' : 'Enviar a revisión'}</button>
         </form>
       </section>
     </div>}
+  useEffect(() => {
+    let active = true
+    async function loadReaderAttachments() {
+      setReaderAttachments([])
+      if (!selectedResource?.attachments?.length || !supabase) return
+      const signed = await Promise.all(selectedResource.attachments.map(async (file: { path: string; name: string; type: string }) => {
+        const { data } = await supabase!.storage.from('brifan-articles').createSignedUrl(file.path, 3600)
+        return data?.signedUrl ? { name: file.name, type: file.type, url: data.signedUrl } : null
+      }))
+      if (active) setReaderAttachments(signed.filter(Boolean) as Array<{ name: string; type: string; url: string }>)
+    }
+    void loadReaderAttachments()
+    return () => { active = false }
+  }, [selectedResource])
+
     {selectedResource && <div className="modal-backdrop resource-backdrop" role="presentation" onMouseDown={(event) => {if(event.target === event.currentTarget) setSelectedResource(null)}}>
       <section className="resource-reader" role="dialog" aria-modal="true" aria-labelledby="resource-reader-title">
         <button className="modal-close" onClick={() => setSelectedResource(null)} aria-label="Cerrar guía"><X size={18}/></button>
@@ -255,6 +296,7 @@ export default function App() {
         <div className="reader-meta"><span>{selectedResource.level}</span><span>{selectedResource.time}</span></div>
         {selectedResource.excerpt && <p className="reader-excerpt">{selectedResource.excerpt}</p>}
         <div className="reader-content">{selectedResource.body || selectedResource.body_md || selectedResource.content || 'Este recurso todavía no tiene contenido disponible. Vuelve a intentarlo más adelante.'}</div>
+        {readerAttachments.length > 0 && <div className="reader-attachments"><h3>Archivos adjuntos</h3><div>{readerAttachments.map(file => file.type.startsWith('image/') ? <a href={file.url} target="_blank" rel="noreferrer" key={file.url}><img src={file.url} alt={file.name}/><span>{file.name}</span></a> : <a className="reader-file" href={file.url} target="_blank" rel="noreferrer" key={file.url}><FileText size={18}/><span>{file.name}</span><ArrowUpRight size={14}/></a>)}</div></div>}
       </section>
     </div>}
     {authOpen && <div className="modal-backdrop" role="presentation" onMouseDown={(event) => {if(event.target === event.currentTarget) setAuthOpen(false)}}>
