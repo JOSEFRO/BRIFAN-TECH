@@ -56,6 +56,10 @@ export default function App() {
   const [publishBusy, setPublishBusy] = useState(false)
   const [publishFiles, setPublishFiles] = useState<File[]>([])
   const [readerAttachments, setReaderAttachments] = useState<Array<{ name: string; type: string; url: string }>>([])
+  const [isAdmin, setIsAdmin] = useState(false)
+  const [adminOpen, setAdminOpen] = useState(false)
+  const [pendingArticles, setPendingArticles] = useState<any[]>([])
+  const [adminMessage, setAdminMessage] = useState('')
 
   useEffect(() => {
     if (!supabase) return
@@ -124,6 +128,38 @@ export default function App() {
     void loadReaderAttachments()
     return () => { active = false }
   }, [selectedResource])
+
+  useEffect(() => {
+    let active = true
+    async function loadAdminAccess() {
+      setIsAdmin(false)
+      if (!supabase || !session?.user.id) return
+      const { data } = await supabase.from('profiles').select('role').eq('id', session.user.id).maybeSingle()
+      if (active) setIsAdmin(data?.role === 'admin')
+    }
+    void loadAdminAccess()
+    return () => { active = false }
+  }, [session?.user.id])
+
+  async function loadPendingArticles() {
+    if (!supabase || !isAdmin) return
+    const { data, error } = await supabase.from('articles').select('id,title,excerpt,created_at,author_id,categories(name)').eq('status','pending').order('created_at',{ascending:true})
+    if (error) { setAdminMessage(error.message); return }
+    setPendingArticles(data ?? [])
+    setAdminMessage('')
+  }
+
+  async function moderateArticle(articleId: string, status: 'published' | 'rejected') {
+    if (!supabase || !isAdmin) return
+    const { error } = await supabase.from('articles').update({ status, ...(status === 'published' ? { published_at: new Date().toISOString() } : {}) }).eq('id', articleId)
+    if (error) { setAdminMessage(error.message); return }
+    setAdminMessage(status === 'published' ? 'Publicación aprobada.' : 'Publicación rechazada.')
+    await loadPendingArticles()
+    if (status === 'published') {
+      const { data } = await supabase.from('articles').select('id,title,excerpt,body_md,content_type,difficulty,reading_minutes,categories(name)').eq('status','published').order('published_at',{ascending:false}).limit(18)
+      if (data) setLiveResources(data.map((item:any)=>({id:item.id,excerpt:item.excerpt,body:item.body_md,type:String(item.content_type ?? 'article').toUpperCase(),title:item.title,category:item.categories?.name ?? 'Tecnología',level:item.difficulty==='beginner'?'Principiante':item.difficulty==='advanced'?'Avanzado':item.difficulty==='all'?'Todos':'Intermedio',time:(item.reading_minutes ?? 1)+' min',icon:BookOpen,color:'blue'})))
+    }
+  }
 
   async function submitArticle(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -211,10 +247,10 @@ export default function App() {
     <header className="relative z-20 mx-auto flex max-w-7xl items-center justify-between px-5 py-5 sm:px-8">
       <a href="#" className="flex items-center gap-3"><span className="brand-mark"><Layers3 size={21}/></span><span className="text-lg font-black tracking-[.16em]">BRIFAN<span className="text-cyan-300">.</span>TECH</span></a>
       <nav className="hidden items-center gap-8 text-sm text-slate-400 md:flex"><a className="nav-link active" href="#explorar">Explorar</a><a className="nav-link" href="#categorias">Categorías</a><a className="nav-link" href="#comunidad">Comunidad</a><a className="nav-link" href="#nosotros">Acerca de</a></nav>
-      <div className="hidden items-center gap-3 md:flex">{session ? <><button className="btn-primary" onClick={() => {setPublishMessage('');setPublishOpen(true)}}><FileText size={15}/> Publicar</button><span className="text-xs text-slate-400">{session.user.email}</span><button className="btn-ghost" onClick={() => void supabase?.auth.signOut()}><LogOut size={15}/> Salir</button></> : <><button className="btn-ghost" onClick={() => {setAuthMode('signin');setAuthOpen(true);setAuthMessage('')}}>Iniciar sesión</button><button className="btn-primary" onClick={() => {setAuthMode('signup');setAuthOpen(true);setAuthMessage('')}}>Únete gratis <ArrowUpRight size={16}/></button></>}</div>
+      <div className="hidden items-center gap-3 md:flex">{session ? <><button className="btn-primary" onClick={() => {setPublishMessage('');setPublishOpen(true)}}><FileText size={15}/> Publicar</button>{isAdmin && <button className="btn-secondary" onClick={() => {setAdminOpen(true);setAdminMessage('');void loadPendingArticles()}}><ShieldCheck size={15}/> Administración</button>}<span className="text-xs text-slate-400">{session.user.email}</span><button className="btn-ghost" onClick={() => void supabase?.auth.signOut()}><LogOut size={15}/> Salir</button></> : <><button className="btn-ghost" onClick={() => {setAuthMode('signin');setAuthOpen(true);setAuthMessage('')}}>Iniciar sesión</button><button className="btn-primary" onClick={() => {setAuthMode('signup');setAuthOpen(true);setAuthMessage('')}}>Únete gratis <ArrowUpRight size={16}/></button></>}</div>
       <button className="rounded-xl border border-white/10 p-2 md:hidden" onClick={() => setMenu(!menu)} aria-label="Abrir menú">{menu ? <X/> : <Menu/>}</button>
     </header>
-    {menu && <div className="relative z-30 mx-5 rounded-2xl border border-white/10 bg-slate-900 p-5 md:hidden"><div className="flex flex-col gap-4 text-sm text-slate-300"><a href="#explorar" onClick={() => setMenu(false)}>Explorar</a><a href="#categorias" onClick={() => setMenu(false)}>Categorías</a><a href="#comunidad" onClick={() => setMenu(false)}>Comunidad</a><a href="#nosotros" onClick={() => setMenu(false)}>Acerca de</a><div className="border-t border-white/10 pt-4">{session ? <div className="flex flex-col gap-3"><span className="break-all text-xs text-slate-400">{session.user.email}</span><button className="btn-primary justify-start" onClick={() => {setPublishMessage('');setPublishOpen(true);setMenu(false)}}><FileText size={15}/> Publicar contenido</button><button className="btn-ghost justify-start" onClick={() => { void supabase?.auth.signOut(); setMenu(false) }}><LogOut size={15}/> Cerrar sesión</button></div> : <div className="flex flex-col gap-2"><button className="btn-ghost justify-start" onClick={() => {setAuthMode('signin');setAuthOpen(true);setAuthMessage('');setMenu(false)}}>Iniciar sesión</button><button className="btn-primary" onClick={() => {setAuthMode('signup');setAuthOpen(true);setAuthMessage('');setMenu(false)}}>Únete gratis <ArrowUpRight size={16}/></button></div>}</div></div></div>}
+    {menu && <div className="relative z-30 mx-5 rounded-2xl border border-white/10 bg-slate-900 p-5 md:hidden"><div className="flex flex-col gap-4 text-sm text-slate-300"><a href="#explorar" onClick={() => setMenu(false)}>Explorar</a><a href="#categorias" onClick={() => setMenu(false)}>Categorías</a><a href="#comunidad" onClick={() => setMenu(false)}>Comunidad</a><a href="#nosotros" onClick={() => setMenu(false)}>Acerca de</a><div className="border-t border-white/10 pt-4">{session ? <div className="flex flex-col gap-3"><span className="break-all text-xs text-slate-400">{session.user.email}</span><button className="btn-primary justify-start" onClick={() => {setPublishMessage('');setPublishOpen(true);setMenu(false)}}><FileText size={15}/> Publicar contenido</button>{isAdmin && <button className="btn-secondary justify-start" onClick={() => {setAdminOpen(true);setAdminMessage('');void loadPendingArticles();setMenu(false)}}><ShieldCheck size={15}/> Administración</button>}<button className="btn-ghost justify-start" onClick={() => { void supabase?.auth.signOut(); setMenu(false) }}><LogOut size={15}/> Cerrar sesión</button></div> : <div className="flex flex-col gap-2"><button className="btn-ghost justify-start" onClick={() => {setAuthMode('signin');setAuthOpen(true);setAuthMessage('');setMenu(false)}}>Iniciar sesión</button><button className="btn-primary" onClick={() => {setAuthMode('signup');setAuthOpen(true);setAuthMessage('');setMenu(false)}}>Únete gratis <ArrowUpRight size={16}/></button></div>}</div></div></div>}
     <main className="relative z-10">
       <section className="mx-auto grid max-w-7xl items-center gap-12 px-5 pb-20 pt-16 sm:px-8 lg:grid-cols-[1.08fr_.92fr] lg:pb-28 lg:pt-24">
         <div><div className="eyebrow"><span className="pulse-dot"/> CONOCIMIENTO QUE CONECTA</div><h1 className="mt-7 max-w-3xl text-5xl font-black leading-[1.05] tracking-tight sm:text-6xl lg:text-7xl">El conocimiento<br/>tecnológico <span className="gradient-text">no tiene límites.</span></h1><p className="mt-7 max-w-xl text-lg leading-8 text-slate-400">Aprende, comparte y descubre. Una comunidad para explorar el mundo de la tecnología, desde los fundamentos hasta las ideas que están transformando el futuro.</p><div className="mt-9 flex flex-wrap gap-3"><a href="#explorar" className="btn-primary px-6 py-3.5">Explorar contenido <ArrowRight size={17}/></a><a href="#comunidad" className="btn-secondary px-6 py-3.5">Conoce la comunidad</a></div><div className="mt-12 flex flex-wrap gap-x-8 gap-y-3 border-t border-white/10 pt-7 text-xs font-semibold uppercase tracking-[.16em] text-slate-500"><span className="flex items-center gap-2"><BookOpen size={15} className="text-cyan-300"/> Guías y tutoriales</span><span className="flex items-center gap-2"><Globe2 size={15} className="text-cyan-300"/> Comunidad abierta</span><span className="flex items-center gap-2"><Sparkles size={15} className="text-cyan-300"/> Aprende a tu ritmo</span></div></div>
@@ -265,6 +301,16 @@ export default function App() {
       <section id="comunidad" className="mx-auto max-w-7xl px-5 py-20 sm:px-8"><div className="community-panel"><div className="relative z-10 max-w-2xl"><span className="section-kicker">03 / CONSTRUYAMOS JUNTOS</span><h2 className="mt-4 text-3xl font-black sm:text-4xl">Tu experiencia también puede <span className="gradient-text">inspirar.</span></h2><p className="mt-4 max-w-xl text-sm leading-7 text-slate-400">BRIFAN TECH busca reunir a estudiantes, profesionales y entusiastas para compartir soluciones, documentar aprendizajes y hacer crecer la comunidad tecnológica.</p><button className="btn-primary mt-7" onClick={() => {setAuthMode("signup");setAuthOpen(true);setAuthMessage("")}}>Crear cuenta gratis <ArrowUpRight size={16}/></button></div><div className="community-symbol"><Layers3 size={100} strokeWidth={.7}/></div></div></section>
     </main>
     <footer id="nosotros" className="border-t border-white/[.08]"><div className="mx-auto flex max-w-7xl flex-col gap-5 px-5 py-8 text-xs text-slate-500 sm:px-8 md:flex-row md:items-center md:justify-between"><div className="flex items-center gap-3"><span className="brand-mark small"><Layers3 size={16}/></span><b className="tracking-[.14em] text-slate-300">BRIFAN.TECH</b><span>© 2026</span></div><p>Explora. Aprende. Comparte.</p><a href="https://github.com/JOSEFRO/BRIFAN-TECH" target="_blank" rel="noreferrer" className="hover:text-cyan-300">Código en GitHub <ArrowUpRight size={13} className="inline"/></a></div></footer>
+    {adminOpen && isAdmin && <div className="modal-backdrop resource-backdrop" role="presentation" onMouseDown={event=>{if(event.target===event.currentTarget)setAdminOpen(false)}}>
+      <section className="resource-reader publish-reader" role="dialog" aria-modal="true" aria-labelledby="admin-title">
+        <button className="modal-close" onClick={()=>setAdminOpen(false)} aria-label="Cerrar"><X size={18}/></button>
+        <span className="section-kicker">BRIFAN / CEO CONTROL</span><h2 id="admin-title">Administración de publicaciones</h2>
+        <p className="reader-excerpt">Revisa los aportes de la comunidad antes de publicarlos.</p>
+        {adminMessage && <p className="auth-message" role="status">{adminMessage}</p>}
+        {pendingArticles.length===0 ? <p className="py-8 text-sm text-slate-400">No hay publicaciones pendientes de revisión.</p> : <div className="grid gap-3">{pendingArticles.map(article=><article key={article.id} className="rounded-xl border border-white/10 bg-white/[.03] p-4"><span className="text-xs text-cyan-300">{article.categories?.name ?? 'Tecnología'}</span><h3 className="mt-2 font-bold text-white">{article.title}</h3><p className="mt-2 text-sm text-slate-400">{article.excerpt}</p><div className="mt-4 flex flex-wrap gap-2"><button className="btn-primary" onClick={()=>void moderateArticle(article.id,'published')}>Aprobar y publicar</button><button className="btn-secondary" onClick={()=>void moderateArticle(article.id,'rejected')}>Rechazar</button></div></article>)}</div>}
+        <button className="btn-secondary mt-5" onClick={()=>void loadPendingArticles()}>Actualizar lista</button>
+      </section>
+    </div>}
     {publishOpen && <div className="modal-backdrop resource-backdrop" role="presentation" onMouseDown={(event) => {if(event.target === event.currentTarget && !publishBusy) setPublishOpen(false)}}>
       <section className="resource-reader publish-reader" role="dialog" aria-modal="true" aria-labelledby="publish-title">
         <button className="modal-close" onClick={() => setPublishOpen(false)} aria-label="Cerrar" disabled={publishBusy}><X size={18}/></button>
