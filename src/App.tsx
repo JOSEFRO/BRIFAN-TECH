@@ -110,6 +110,21 @@ export default function App() {
   }
 
 
+  useEffect(() => {
+    let active = true
+    async function loadReaderAttachments() {
+      setReaderAttachments([])
+      if (!selectedResource?.attachments?.length || !supabase) return
+      const signed = await Promise.all(selectedResource.attachments.map(async (file: { path: string; name: string; type: string }) => {
+        const { data } = await supabase!.storage.from('brifan-articles').createSignedUrl(file.path, 3600)
+        return data?.signedUrl ? { name: file.name, type: file.type, url: data.signedUrl } : null
+      }))
+      if (active) setReaderAttachments(signed.filter(Boolean) as Array<{ name: string; type: string; url: string }>)
+    }
+    void loadReaderAttachments()
+    return () => { active = false }
+  }, [selectedResource])
+
   async function submitArticle(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
     if (!supabase || !session) {
@@ -273,21 +288,6 @@ export default function App() {
         </form>
       </section>
     </div>}
-  useEffect(() => {
-    let active = true
-    async function loadReaderAttachments() {
-      setReaderAttachments([])
-      if (!selectedResource?.attachments?.length || !supabase) return
-      const signed = await Promise.all(selectedResource.attachments.map(async (file: { path: string; name: string; type: string }) => {
-        const { data } = await supabase!.storage.from('brifan-articles').createSignedUrl(file.path, 3600)
-        return data?.signedUrl ? { name: file.name, type: file.type, url: data.signedUrl } : null
-      }))
-      if (active) setReaderAttachments(signed.filter(Boolean) as Array<{ name: string; type: string; url: string }>)
-    }
-    void loadReaderAttachments()
-    return () => { active = false }
-  }, [selectedResource])
-
     {selectedResource && <div className="modal-backdrop resource-backdrop" role="presentation" onMouseDown={(event) => {if(event.target === event.currentTarget) setSelectedResource(null)}}>
       <section className="resource-reader" role="dialog" aria-modal="true" aria-labelledby="resource-reader-title">
         <button className="modal-close" onClick={() => setSelectedResource(null)} aria-label="Cerrar guía"><X size={18}/></button>
