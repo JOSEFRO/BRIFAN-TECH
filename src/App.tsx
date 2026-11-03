@@ -175,7 +175,7 @@ export default function App() {
         const attachmentMatch = rawBody.match(/<!--BRIFAN_ATTACHMENTS:(.*?)-->/s)
         let attachments: Array<{ path: string; name: string; type: string }> = []
         try { if (attachmentMatch) attachments = JSON.parse(attachmentMatch[1]) } catch { attachments = [] }
-        const cleanBody = rawBody.replace(/\\n?<!--BRIFAN_ATTACHMENTS:.*?-->/s, '').trim()
+        const cleanBody = attachmentMatch ? rawBody.slice(0, attachmentMatch.index).trim() : rawBody.trim()
         return { id: item.id, excerpt: item.excerpt, body: cleanBody, attachments, type: String(item.content_type ?? 'article').toUpperCase(), title: item.title, category: item.categories?.name ?? 'Tecnología', level: item.difficulty === 'beginner' ? 'Principiante' : item.difficulty === 'advanced' ? 'Avanzado' : item.difficulty === 'all' ? 'Todos' : 'Intermedio', time: (item.reading_minutes ?? 1) + ' min', icon: BookOpen, color: 'blue' }
       }))
       setLoadingResources(false)
