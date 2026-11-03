@@ -10,6 +10,10 @@ const categories = [
   { name: 'Inteligencia artificial', icon: BrainCircuit, tone: 'pink' },
   { name: 'Sistemas operativos', icon: Terminal, tone: 'green' },
   { name: 'Bases de datos', icon: Database, tone: 'orange' },
+  { name: 'Cloud y DevOps', icon: Layers3, tone: 'blue' },
+  { name: 'Hardware y electrónica', icon: Cpu, tone: 'green' },
+  { name: 'Soporte técnico', icon: FileText, tone: 'violet' },
+  { name: 'Certificaciones y formación', icon: Sparkles, tone: 'pink' },
 ]
 const demoResources = [
   { type: 'GUÍA', title: 'Fundamentos de redes: de cero a tu primera topología', category: 'Redes y conectividad', level: 'Principiante', time: '12 min', icon: Network, color: 'blue' },
