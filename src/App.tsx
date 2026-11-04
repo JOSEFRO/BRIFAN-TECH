@@ -1,5 +1,7 @@
 import Header from './components/Header'
 import WelcomeExperience from './components/WelcomeExperience'
+import LearningHub from './components/LearningHub'
+import { learningGuides } from './data/learningGuides'
 import { ArrowRight, ArrowUpRight, BookOpen, Bookmark, BrainCircuit, Code2, Cpu, Database, FileText, Globe2, Layers3, Network, Search, ShieldCheck, Sparkles, Terminal, X } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import type { Session } from '@supabase/supabase-js'
@@ -30,20 +32,8 @@ const categoryVisuals: Record<string, string> = {
   'Soporte técnico': 'https://images.unsplash.com/photo-1581092918056-0c4c3ffd7d5a?auto=format&fit=crop&w=1000&q=85',
   'Certificaciones y formación': 'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?auto=format&fit=crop&w=1000&q=85',
 }
-const demoResources = [
-  { type: 'GUÍA', title: 'Fundamentos de redes: de cero a tu primera topología', category: 'Redes y conectividad', level: 'Principiante', time: '12 min', excerpt: 'Aprende qué es una red, cómo se comunican los dispositivos y cómo construir tu primera topología.', body: 'Una red informática conecta dispositivos para intercambiar información.\n\n## Conceptos básicos\nUna LAN conecta equipos en un área limitada. Una WAN conecta redes a grandes distancias.\n\n## Dispositivos principales\n- Router: conecta redes diferentes.\n- Switch: conecta dispositivos dentro de una red local.\n- Punto de acceso: permite conexiones Wi-Fi.\n\n## Direccionamiento IP\nCada dispositivo necesita una dirección IP para comunicarse.\n\n## Práctica en Packet Tracer\nColoca dos computadoras y un switch, conecta ambos equipos, asigna direcciones IP de la misma subred y comprueba la comunicación con ping.', icon: Network, color: 'blue' },
-  { type: 'TUTORIAL', title: 'Cómo funciona la autenticación moderna en aplicaciones web', category: 'Programación', level: 'Intermedio', time: '18 min', excerpt: 'Conoce el flujo de registro, inicio de sesión y sesiones seguras en una aplicación web.', body: 'La autenticación permite comprobar quién intenta acceder a una aplicación.\n\n## Registro e inicio de sesión\nEl servicio valida las credenciales del usuario. Las contraseñas deben almacenarse mediante hash seguro, nunca como texto plano.\n\n## Sesiones\nDespués de iniciar sesión, la aplicación mantiene una sesión mediante tokens o cookies protegidas.\n\n## Buenas prácticas\n- Usa HTTPS.\n- Valida los datos en el servidor.\n- Protege las sesiones.\n- No guardes secretos en el código del navegador.', icon: Code2, color: 'violet' },
-  { type: 'RECURSO', title: 'Laboratorio práctico: conceptos esenciales de Linux', category: 'Sistemas operativos', level: 'Principiante', time: '25 min', excerpt: 'Familiarízate con la terminal, el sistema de archivos y los comandos esenciales de Linux.', body: 'Linux es un sistema operativo muy utilizado en servidores y redes.\n\n## Comandos iniciales\n- pwd: muestra la ruta actual.\n- ls: lista archivos y carpetas.\n- cd: cambia de directorio.\n- mkdir: crea una carpeta.\n- cp y mv: copian y mueven archivos.\n- man: abre el manual de un comando.\n\n## Práctica\nConsulta tu ubicación con pwd, lista el contenido con ls y crea una carpeta con mkdir laboratorio.', icon: Terminal, color: 'green' },
-  { type: 'GUÍA', title: 'Primeros pasos para proteger una red doméstica', category: 'Ciberseguridad', level: 'Principiante', time: '15 min', excerpt: 'Identifica riesgos comunes y aplica medidas básicas de protección en tu red.', body: '## 1. Conoce tu red\nIdentifica el router, los dispositivos conectados y los servicios que utilizas.\n\n## 2. Refuerza el acceso\nCambia la contraseña de administración predeterminada y utiliza una frase de acceso larga y única para el Wi-Fi.\n\n## 3. Mantén todo actualizado\nInstala las actualizaciones del router, computadoras y teléfonos desde sus fuentes oficiales.\n\n## 4. Separa invitados\nActiva una red de invitados para dispositivos que no administras.\n\n## 5. Revisa periódicamente\nComprueba los dispositivos conectados y desactiva funciones que no utilices. Nunca compartas contraseñas ni códigos de acceso.', icon: ShieldCheck, color: 'violet' },
-  { type: 'TUTORIAL', title: 'HTML, CSS y JavaScript: construye tu primera página', category: 'Programación', level: 'Principiante', time: '20 min', excerpt: 'Comprende cómo se estructura, diseña y hace interactiva una página web.', body: '## HTML: estructura\nHTML define el contenido: títulos, párrafos, enlaces, imágenes y formularios.\n\n## CSS: presentación\nCSS controla colores, tamaños, espacios y distribución.\n\n## JavaScript: interacción\nJavaScript responde a acciones del usuario y modifica la página.\n\n## Mini proyecto\nCrea index.html, styles.css y app.js. Añade un título en HTML, cambia su color con CSS y utiliza un evento click para mostrar un mensaje.\n\n## Buenas prácticas\nUsa etiquetas semánticas, nombres claros y prueba el diseño en móvil.', icon: Code2, color: 'violet' },
-  { type: 'GUÍA', title: 'Inteligencia artificial: conceptos y primeros usos', category: 'Inteligencia artificial', level: 'Principiante', time: '14 min', excerpt: 'Aprende qué son los modelos de IA, cómo se entrenan y cómo evaluar sus respuestas.', body: '## ¿Qué es la IA?\nEs un campo que desarrolla sistemas capaces de realizar tareas como reconocer patrones, generar texto o clasificar información.\n\n## Aprendizaje automático\nLos modelos identifican patrones a partir de datos. La calidad y representatividad de esos datos influyen en sus resultados.\n\n## IA generativa\nPuede producir texto, imágenes, audio o código. Sus respuestas pueden contener errores.\n\n## Cómo utilizarla responsablemente\nDefine el objetivo, aporta contexto, verifica datos importantes y evita compartir información privada.\n\n## Ejercicio\nPide a una IA que explique DHCP a un principiante y luego contrasta la explicación con documentación técnica.', icon: BrainCircuit, color: 'violet' },
-  { type: 'RECURSO', title: 'Linux desde la terminal: archivos, permisos y procesos', category: 'Sistemas operativos', level: 'Principiante', time: '25 min', excerpt: 'Practica navegación, permisos y consulta de procesos en un entorno Linux.', body: '## Navegación\npwd muestra la ruta actual, ls lista el contenido y cd cambia de directorio.\n\n## Archivos y carpetas\nmkdir crea directorios, touch crea archivos vacíos, cp copia y mv mueve o renombra.\n\n## Permisos\nls -l permite consultar permisos. chmod modifica permisos; úsalo con cuidado y entiende primero el alcance.\n\n## Procesos\nps muestra procesos y top permite observar su actividad.\n\n## Laboratorio\nCrea una carpeta laboratorio, entra en ella, crea notas.txt y verifica su ubicación con pwd y ls.', icon: Terminal, color: 'green' },
-  { type: 'GUÍA', title: 'Bases de datos relacionales y SQL desde cero', category: 'Bases de datos', level: 'Principiante', time: '18 min', excerpt: 'Entiende tablas, claves y consultas SQL con un ejemplo sencillo.', body: '## ¿Qué es una base de datos?\nOrganiza información para almacenarla, consultarla y mantenerla. En una base relacional los datos se estructuran en tablas.\n\n## Tablas y claves\nUna fila representa un registro y una columna un atributo. La clave primaria identifica cada fila; una clave foránea relaciona tablas.\n\n## SQL básico\nSELECT consulta datos, INSERT agrega registros, UPDATE modifica y DELETE elimina.\n\n## Ejemplo\nSELECT nombre, correo FROM usuarios WHERE activo = true;\n\n## Buenas prácticas\nValida entradas, utiliza consultas parametrizadas y realiza copias de seguridad.', icon: Database, color: 'green' },
-  { type: 'TUTORIAL', title: 'Cloud y DevOps: entiende el flujo de despliegue', category: 'Cloud y DevOps', level: 'Intermedio', time: '22 min', excerpt: 'Conoce repositorios, integración continua, pruebas y despliegue de aplicaciones.', body: '## Computación en la nube\nPermite utilizar infraestructura y servicios bajo demanda a través de Internet.\n\n## Control de versiones\nGit registra cambios y facilita trabajar con ramas y revisiones.\n\n## CI/CD\nLa integración continua ejecuta comprobaciones al incorporar cambios. El despliegue continuo automatiza la entrega cuando se cumplen las condiciones.\n\n## Flujo básico\n1. Guardar cambios en Git.\n2. Ejecutar pruebas y compilación.\n3. Revisar errores.\n4. Publicar en un entorno de despliegue.\n\n## Seguridad\nGuarda credenciales en secretos del entorno y nunca en el repositorio.', icon: Layers3, color: 'blue' },
-  { type: 'GUÍA', title: 'Componentes de una computadora y cómo se relacionan', category: 'Hardware y electrónica', level: 'Principiante', time: '16 min', excerpt: 'Identifica CPU, RAM, almacenamiento, placa base y fuente de alimentación.', body: '## Procesador (CPU)\nEjecuta instrucciones y coordina operaciones.\n\n## Memoria RAM\nMantiene temporalmente los datos que utilizan los programas en ejecución.\n\n## Almacenamiento\nSSD y HDD conservan archivos incluso cuando el equipo está apagado.\n\n## Placa base\nConecta los componentes y permite su comunicación.\n\n## Fuente de alimentación\nEntrega energía eléctrica adecuada a los componentes.\n\n## Diagnóstico inicial\nAntes de cambiar piezas, revisa conexiones, mensajes del sistema y documentación del fabricante. Desconecta el equipo de la corriente antes de cualquier inspección interna.', icon: Cpu, color: 'green' },
-  { type: 'TUTORIAL', title: 'Método de diagnóstico para resolver problemas de soporte', category: 'Soporte técnico', level: 'Principiante', time: '12 min', excerpt: 'Sigue un proceso ordenado para identificar, documentar y resolver incidencias.', body: '## 1. Recopila información\nPregunta qué ocurre, desde cuándo y qué cambios recientes hubo. Registra el mensaje de error exacto.\n\n## 2. Define el alcance\nDetermina si afecta a un usuario, un equipo, una aplicación o a toda la red.\n\n## 3. Comprueba lo básico\nVerifica alimentación, cables, conectividad, estado del servicio y configuración.\n\n## 4. Prueba una hipótesis a la vez\nCambia un solo elemento y registra el resultado. Evita modificaciones innecesarias.\n\n## 5. Documenta y valida\nConfirma con el usuario que el servicio funciona y registra causa, solución y prevención.', icon: FileText, color: 'blue' },
-  { type: 'RECURSO', title: 'Ruta de aprendizaje para certificaciones de redes', category: 'Certificaciones y formación', level: 'Principiante', time: '10 min', excerpt: 'Organiza el estudio de redes, laboratorios y preparación para certificaciones.', body: '## Fundamentos\nEstudia modelos OSI y TCP/IP, IPv4, subredes, Ethernet y dispositivos de red.\n\n## Práctica\nConstruye topologías pequeñas, configura direcciones IP, VLAN, trunk y enrutamiento básico en un simulador.\n\n## Diagnóstico\nPractica ping, ipconfig/ifconfig, traceroute y lectura de tablas de rutas.\n\n## Preparación\nConsulta siempre el temario oficial y la versión vigente del examen. Divide el contenido en objetivos semanales y realiza laboratorios para cada tema.\n\n## Portafolio\nDocumenta topologías, configuraciones y problemas resueltos sin publicar contraseñas ni datos privados.', icon: Sparkles, color: 'violet' },
-]
+const demoResources = learningGuides
+
 
 function mapArticleToResource(item: any) {
   const rawBody = item.body_md ?? ''
@@ -101,6 +91,15 @@ export default function App() {
   const [adminOpen, setAdminOpen] = useState(false)
   const [pendingArticles, setPendingArticles] = useState<any[]>([])
   const [adminMessage, setAdminMessage] = useState('')
+  const [readerComments, setReaderComments] = useState<any[]>([])
+  const [commentDraft, setCommentDraft] = useState('')
+  const [commentBusy, setCommentBusy] = useState(false)
+  const [commentMessage, setCommentMessage] = useState('')
+  const [profileOpen, setProfileOpen] = useState(false)
+  const [profileBusy, setProfileBusy] = useState(false)
+  const [profileSaving, setProfileSaving] = useState(false)
+  const [profileMessage, setProfileMessage] = useState('')
+  const [profileForm, setProfileForm] = useState({ display_name: '', username: '', bio: '', website: '' })
 
   useEffect(() => {
     if (!supabase) return
@@ -152,6 +151,91 @@ export default function App() {
       : await supabase.from('bookmarks').insert({ user_id: session.user.id, article_id: articleId })
     if (result.error) { setAuthMessage('No se pudo actualizar el guardado. Inténtalo de nuevo.'); return }
     setSavedIds(current => isSaved ? current.filter(id => id !== articleId) : [...current, articleId])
+  }
+
+
+  useEffect(() => {
+    let active = true
+    async function loadComments() {
+      setReaderComments([])
+      setCommentMessage('')
+      if (!supabase || !selectedResource?.id) return
+      const { data, error } = await supabase.from('comments')
+        .select('id,body,created_at,author_id,profiles(display_name,username)')
+        .eq('article_id', selectedResource.id).eq('is_hidden', false)
+        .order('created_at', { ascending: true }).limit(100)
+      if (!active) return
+      if (error) setCommentMessage('No fue posible cargar los comentarios.')
+      else setReaderComments(data ?? [])
+    }
+    void loadComments()
+    return () => { active = false }
+  }, [selectedResource?.id])
+
+  async function submitComment(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    if (!supabase || !session || !selectedResource?.id) {
+      setAuthMode('signin'); setAuthOpen(true)
+      setAuthMessage('Inicia sesión para participar en la conversación.')
+      return
+    }
+    const body = commentDraft.trim()
+    if (!body || body.length > 3000) return
+    setCommentBusy(true); setCommentMessage('')
+    const { error } = await supabase.from('comments').insert({ article_id: selectedResource.id, author_id: session.user.id, body })
+    if (error) setCommentMessage('No se pudo publicar el comentario. Comprueba tu sesión e inténtalo de nuevo.')
+    else {
+      setCommentDraft('')
+      const { data, error: refreshError } = await supabase.from('comments')
+        .select('id,body,created_at,author_id,profiles(display_name,username)')
+        .eq('article_id', selectedResource.id).eq('is_hidden', false)
+        .order('created_at', { ascending: true }).limit(100)
+      if (!refreshError) setReaderComments(data ?? [])
+      setCommentMessage('Comentario publicado.')
+    }
+    setCommentBusy(false)
+  }
+
+  async function openProfile() {
+    if (!session || !supabase) {
+      setAuthMode('signin'); setAuthOpen(true)
+      setAuthMessage('Inicia sesión para editar tu perfil.')
+      return
+    }
+    setProfileOpen(true); setProfileBusy(true); setProfileMessage('')
+    const { data, error } = await supabase.from('profiles')
+      .select('display_name,username,bio,website').eq('id', session.user.id).maybeSingle()
+    if (error) setProfileMessage('No se pudo cargar tu perfil. Inténtalo de nuevo.')
+    else setProfileForm({
+      display_name: data?.display_name ?? String(session.user.user_metadata?.display_name ?? ''),
+      username: data?.username ?? '', bio: data?.bio ?? '', website: data?.website ?? '',
+    })
+    setProfileBusy(false)
+  }
+
+  async function saveProfile(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    if (!supabase || !session) return
+    const username = profileForm.username.trim().toLowerCase()
+    if (username && !/^[a-z0-9_]{3,24}$/.test(username)) {
+      setProfileMessage('El usuario debe tener entre 3 y 24 caracteres: letras, números o guion bajo.')
+      return
+    }
+    const website = profileForm.website.trim()
+    if (website) {
+      try { new URL(website) } catch {
+        setProfileMessage('Introduce una dirección web válida, incluyendo https://.')
+        return
+      }
+    }
+    setProfileSaving(true); setProfileMessage('')
+    const { data, error } = await supabase.from('profiles').update({
+      display_name: profileForm.display_name.trim() || null,
+      username: username || null, bio: profileForm.bio.trim(), website: website || null,
+    }).eq('id', session.user.id).select('id').maybeSingle()
+    if (error || !data) setProfileMessage(error?.code === '23505' ? 'Ese nombre de usuario ya está ocupado.' : 'No se pudo guardar el perfil. Comprueba los datos e inténtalo de nuevo.')
+    else setProfileMessage('Perfil actualizado correctamente.')
+    setProfileSaving(false)
   }
 
 
@@ -281,6 +365,7 @@ export default function App() {
     <Header
       session={session}
       isAdmin={isAdmin}
+      onProfile={() => void openProfile()}
       onPublish={() => { setPublishMessage(''); setPublishOpen(true) }}
       onAdmin={() => { setAdminOpen(true); setAdminMessage(''); void loadPendingArticles() }}
       onSignIn={() => { setAuthMode('signin'); setAuthOpen(true); setAuthMessage('') }}
@@ -333,6 +418,7 @@ export default function App() {
       </section>
       <section className="border-y border-white/[.07] bg-white/[.018]"><div className="mx-auto grid max-w-7xl gap-6 px-5 py-7 sm:grid-cols-3 sm:px-8"><div className="flex items-center gap-4"><span className="stat-icon"><BookOpen size={19}/></span><div><b className="block text-sm">Conocimiento compartido</b><span className="text-xs text-slate-500">Experiencias que ayudan a crecer</span></div></div><div className="flex items-center gap-4"><span className="stat-icon"><FileText size={19}/></span><div><b className="block text-sm">Recursos prácticos</b><span className="text-xs text-slate-500">Material para aprender haciendo</span></div></div><div className="flex items-center gap-4"><span className="stat-icon"><Globe2 size={19}/></span><div><b className="block text-sm">Comunidad tecnológica</b><span className="text-xs text-slate-500">Distintas áreas, una misma pasión</span></div></div></div></section>
       <section id="categorias" className="mx-auto max-w-7xl px-5 py-20 sm:px-8"><div className="section-heading"><div><span className="section-kicker">01 / EXPLORA POR ÁREA</span><h2>Un universo de <span className="gradient-text">posibilidades.</span></h2></div><a href="#explorar" className="text-sm font-semibold text-cyan-300">Ver contenido <ArrowUpRight size={15} className="inline"/></a></div><div className="mt-9 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{categories.map(({name,icon:Icon,tone},i)=><button key={name} onClick={()=>{setActive(name);document.getElementById('explorar')?.scrollIntoView({behavior:'smooth'})}} className="category-card group text-left"><div className={'category-icon '+tone}><Icon size={22}/></div><div className="mt-7 flex items-end justify-between"><div><span className="mb-2 block text-xs text-slate-500">0{i+1} / ÁREA</span><h3>{name}</h3><span className="mt-2 block text-xs text-slate-500">Explorar contenido</span></div><ArrowUpRight className="text-slate-600 transition group-hover:-translate-y-1 group-hover:translate-x-1 group-hover:text-cyan-300"/></div></button>)}</div></section>
+      <LearningHub />
       <section id="explorar" className="border-y border-white/[.07] bg-[#0b1220]/80"><div className="mx-auto max-w-7xl px-5 py-20 sm:px-8"><div className="section-heading"><div><span className="section-kicker">02 / BIBLIOTECA</span><h2>Descubre algo <span className="gradient-text">nuevo.</span></h2><p className="mt-3 text-sm text-slate-400">Guías, tutoriales y recursos para llevar tus conocimientos más lejos.</p></div></div><div className="mt-8 flex flex-col gap-4 md:flex-row md:items-center md:justify-between"><div className="flex flex-wrap gap-2">{['Todo',...categories.map(c=>c.name)].map(item=><button key={item} onClick={()=>setActive(item)} className={'filter-pill '+(active===item?'selected':'')}>{item}</button>)}</div><label className="search-box"><Search size={17}/><input value={query} onChange={e=>setQuery(e.target.value)} placeholder="Buscar contenido..."/></label></div><div className="mt-8 grid gap-5 lg:grid-cols-3">{loadingResources ? <div className="col-span-full py-14 text-center text-sm text-slate-500">Cargando publicaciones...</div> : filtered.map(({id,type,title,category,level,time,color})=><article key={id ?? title} className="resource-card"><div className={'resource-art '+color} style={{backgroundImage: `linear-gradient(180deg,rgba(5,12,23,.12),rgba(5,12,23,.82)),url(${categoryVisuals[category] ?? categoryVisuals['Programación']})`}}><div className="art-orbit"/><span className="resource-type">{type}</span><span className="resource-image-caption">{category}</span></div><div className="p-5"><span className="text-xs font-semibold text-cyan-300">{category}</span><h3 className="mt-3 min-h-14 text-lg font-bold leading-snug">{title}</h3><p className="mt-2 min-h-10 text-xs leading-6 text-slate-400">{(resources.find((item: any) => item.id === id || item.title === title)?.excerpt) ?? "Abre este recurso para consultar su contenido."}</p><div className="mt-5 flex items-center justify-between border-t border-white/10 pt-4 text-xs text-slate-500"><span>{level} · {time}</span><div className="flex items-center gap-2"><button onClick={() => setSelectedResource(resources.find((item: any) => item.id === id || item.title === title))} className="rounded-lg px-3 py-2 font-semibold text-cyan-300 hover:bg-cyan-300/10">Leer guía <ArrowUpRight size={14} className="inline"/></button><button aria-label={savedIds.includes(id) ? "Quitar de guardados" : "Guardar recurso"} aria-pressed={Boolean(id && savedIds.includes(id))} onClick={() => void toggleBookmark(id)} disabled={!id} className="rounded-lg p-2 hover:bg-white/10 hover:text-cyan-300 disabled:cursor-not-allowed disabled:opacity-40"><Bookmark size={16} fill={id && savedIds.includes(id) ? "currentColor" : "none"}/></button></div></div></div></article>)}{filtered.length===0&&<div className="col-span-full rounded-2xl border border-dashed border-white/15 py-14 text-center text-sm text-slate-500">No encontramos contenido con esos filtros. Prueba otra búsqueda.</div>}</div><p className="mt-5 text-xs text-slate-600">{liveResources.length > 0 ? 'Contenido publicado desde Supabase.' : isSupabaseConfigured ? 'Mostrando recursos de ejemplo: todavía no hay artículos publicados en la biblioteca.' : 'Vista de demostración. Configura Supabase para activar la biblioteca.'}</p></div></section>
       <section id="comunidad" className="mx-auto max-w-7xl px-5 py-20 sm:px-8"><div className="community-panel"><div className="relative z-10 max-w-2xl"><span className="section-kicker">03 / CONSTRUYAMOS JUNTOS</span><h2 className="mt-4 text-3xl font-black sm:text-4xl">Tu experiencia también puede <span className="gradient-text">inspirar.</span></h2><p className="mt-4 max-w-xl text-sm leading-7 text-slate-400">BRIFAN TECH busca reunir a estudiantes, profesionales y entusiastas para compartir soluciones, documentar aprendizajes y hacer crecer la comunidad tecnológica.</p><button className="btn-primary mt-7" onClick={() => {setAuthMode("signup");setAuthOpen(true);setAuthMessage("")}}>Crear cuenta gratis <ArrowUpRight size={16}/></button></div><div className="community-symbol"><Layers3 size={100} strokeWidth={.7}/></div></div></section>
     </main>
@@ -378,7 +464,36 @@ export default function App() {
         <div className="reader-meta"><span>{selectedResource.level}</span><span>{selectedResource.time}</span></div>
         {selectedResource.excerpt && <p className="reader-excerpt">{selectedResource.excerpt}</p>}
         <div className="reader-content">{selectedResource.body || selectedResource.body_md || selectedResource.content || 'Este recurso todavía no tiene contenido disponible. Vuelve a intentarlo más adelante.'}</div>
+        <section className="reader-discussion" aria-labelledby="discussion-title">
+          <div className="discussion-heading"><div><span className="section-kicker">COMUNIDAD / DISCUSIÓN</span><h3 id="discussion-title">Comparte tu perspectiva</h3></div><span className="discussion-count">{readerComments.length} comentarios</span></div>
+          {selectedResource.id ? <>
+            <div className="discussion-list">
+              {readerComments.length === 0 ? <p className="discussion-empty">Todavía no hay comentarios. Puedes iniciar la conversación.</p> : readerComments.map(comment => <article className="discussion-item" key={comment.id}><div className="discussion-avatar">{String(comment.profiles?.display_name || comment.profiles?.username || 'U').slice(0,1).toUpperCase()}</div><div><div className="discussion-author">{comment.profiles?.display_name || comment.profiles?.username || 'Miembro'} <time>{new Date(comment.created_at).toLocaleDateString('es-DO')}</time></div><p>{comment.body}</p></div></article>)}
+            </div>
+            <form className="discussion-form" onSubmit={submitComment}>
+              <label htmlFor="comment-body">Tu comentario</label>
+              <textarea id="comment-body" value={commentDraft} onChange={event => setCommentDraft(event.target.value)} maxLength={3000} rows={3} placeholder={session ? 'Aporta una idea, pregunta o experiencia…' : 'Inicia sesión para comentar…'} required />
+              <div className="discussion-actions"><span>{commentDraft.length}/3000</span><button className="btn-primary" type="submit" disabled={commentBusy || !commentDraft.trim()}>{commentBusy ? 'Publicando…' : 'Publicar comentario'}</button></div>
+            </form>
+          </> : <p className="discussion-empty">Los comentarios estarán disponibles cuando el recurso se publique en la biblioteca.</p>}
+          {commentMessage && <p className="discussion-feedback" role="status">{commentMessage}</p>}
+        </section>
         {readerAttachments.length > 0 && <div className="reader-attachments"><h3>Archivos adjuntos</h3><div>{readerAttachments.map(file => file.type.startsWith('image/') ? <a href={file.url} target="_blank" rel="noreferrer" key={file.url}><img src={file.url} alt={file.name}/><span>{file.name}</span></a> : <a className="reader-file" href={file.url} target="_blank" rel="noreferrer" key={file.url}><FileText size={18}/><span>{file.name}</span><ArrowUpRight size={14}/></a>)}</div></div>}
+      </section>
+    </div>}
+    {profileOpen && <div className="modal-backdrop" role="presentation" onMouseDown={event => { if (event.target === event.currentTarget && !profileSaving) setProfileOpen(false) }}>
+      <section className="auth-modal profile-modal" role="dialog" aria-modal="true" aria-labelledby="profile-title">
+        <button className="modal-close" onClick={() => setProfileOpen(false)} aria-label="Cerrar perfil" disabled={profileSaving}><X size={18}/></button>
+        <span className="section-kicker">BRIFAN / PERFIL</span><h2 id="profile-title">Tu identidad en la comunidad.</h2>
+        <p>Completa los datos que otros miembros verán junto a tus aportes.</p>
+        {profileBusy ? <p className="py-8 text-sm text-slate-400">Cargando perfil…</p> : <form onSubmit={saveProfile}>
+          <label>Nombre visible<input value={profileForm.display_name} onChange={event => setProfileForm(current => ({ ...current, display_name: event.target.value }))} maxLength={60} placeholder="Cómo te conocerán"/></label>
+          <label>Nombre de usuario<input value={profileForm.username} onChange={event => setProfileForm(current => ({ ...current, username: event.target.value }))} maxLength={24} autoComplete="username" placeholder="ej. josefro_tech"/></label>
+          <label>Biografía<textarea value={profileForm.bio} onChange={event => setProfileForm(current => ({ ...current, bio: event.target.value }))} maxLength={280} rows={3} placeholder="Cuéntale a la comunidad qué te interesa aprender o compartir."/></label>
+          <label>Sitio web<input type="url" value={profileForm.website} onChange={event => setProfileForm(current => ({ ...current, website: event.target.value }))} maxLength={240} placeholder="https://tusitio.com"/></label>
+          {profileMessage && <p className="auth-message" role="status">{profileMessage}</p>}
+          <button className="btn-primary auth-submit" type="submit" disabled={profileSaving}>{profileSaving ? 'Guardando…' : 'Guardar perfil'}</button>
+        </form>}
       </section>
     </div>}
     {authOpen && <div className="modal-backdrop" role="presentation" onMouseDown={(event) => {if(event.target === event.currentTarget) setAuthOpen(false)}}>
