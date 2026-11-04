@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, type CSSProperties } from 'react'
 import { ArrowUpRight, Cpu, Layers3, Network, ShieldCheck, Sparkles } from 'lucide-react'
 
 export default function WelcomeExperience() {
@@ -18,7 +18,7 @@ export default function WelcomeExperience() {
       <div className="welcome-noise" />
       <div className="welcome-grid" />
       <div className="welcome-stars" aria-hidden="true">
-        {Array.from({ length: 28 }, (_, index) => <i key={index} style={{ '--star-index': index } as React.CSSProperties} />)}
+        {Array.from({ length: 28 }, (_, index) => <i key={index} style={{ left: `${(index * 37 + 7) % 100}%`, top: `${(index * 61 + 11) % 100}%`, '--star-index': index } as CSSProperties} />)}
       </div>
       <div className="welcome-topline"><span className="welcome-live-dot" /> DIGITAL KNOWLEDGE PLATFORM <span className="welcome-topline-year">EST. 2026</span></div>
       <div className="welcome-content">
