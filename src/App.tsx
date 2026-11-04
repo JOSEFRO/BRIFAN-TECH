@@ -1,4 +1,5 @@
 import Header from './components/Header'
+import LearningHub from './components/LearningHub'
 import { ArrowRight, ArrowUpRight, BookOpen, Bookmark, BrainCircuit, Code2, Cpu, Database, FileText, Globe2, Layers3, Network, Search, ShieldCheck, Sparkles, Terminal, X } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import type { Session } from '@supabase/supabase-js'
@@ -74,6 +75,10 @@ export default function App() {
   const [adminOpen, setAdminOpen] = useState(false)
   const [pendingArticles, setPendingArticles] = useState<any[]>([])
   const [adminMessage, setAdminMessage] = useState('')
+  const [readerComments, setReaderComments] = useState<any[]>([])
+  const [commentDraft, setCommentDraft] = useState('')
+  const [commentBusy, setCommentBusy] = useState(false)
+  const [commentMessage, setCommentMessage] = useState('')
 
   useEffect(() => {
     if (!supabase) return
@@ -127,6 +132,60 @@ export default function App() {
     setSavedIds(current => isSaved ? current.filter(id => id !== articleId) : [...current, articleId])
   }
 
+
+  useEffect(() => {
+    let active = true
+    async function loadComments() {
+      setReaderComments([])
+      setCommentMessage('')
+      if (!supabase || !selectedResource?.id) return
+      const { data, error } = await supabase
+        .from('comments')
+        .select('id,body,created_at,author_id,profiles(display_name,username)')
+        .eq('article_id', selectedResource.id)
+        .eq('is_hidden', false)
+        .order('created_at', { ascending: true })
+        .limit(100)
+      if (!active) return
+      if (error) setCommentMessage('No fue posible cargar los comentarios.')
+      else setReaderComments(data ?? [])
+    }
+    void loadComments()
+    return () => { active = false }
+  }, [selectedResource?.id])
+
+  async function submitComment(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    if (!supabase || !session || !selectedResource?.id) {
+      setAuthMode('signin')
+      setAuthOpen(true)
+      setAuthMessage('Inicia sesión para participar en la conversación.')
+      return
+    }
+    const body = commentDraft.trim()
+    if (!body || body.length > 3000) return
+    setCommentBusy(true)
+    setCommentMessage('')
+    const { error } = await supabase.from('comments').insert({
+      article_id: selectedResource.id,
+      author_id: session.user.id,
+      body,
+    })
+    if (error) setCommentMessage('No se pudo publicar el comentario. Comprueba tu sesión e inténtalo de nuevo.')
+    else {
+      setCommentDraft('')
+      const { data } = await supabase
+        .from('comments')
+        .select('id,body,created_at,author_id,profiles(display_name,username)')
+        .eq('article_id', selectedResource.id)
+        .eq('is_hidden', false)
+        .order('created_at', { ascending: true })
+        .limit(100)
+      setReaderComments(data ?? [])
+      setCommentMessage('Comentario publicado.')
+    }
+    setCommentBusy(false)
+  }
 
   useEffect(() => {
     let active = true
@@ -189,7 +248,7 @@ export default function App() {
     try {
       const { data: category, error: categoryError } = await supabase.from('categories').select('id').eq('name', publishCategory).eq('is_active', true).single()
       if (categoryError || !category) throw new Error('No se encontró la categoría seleccionada.')
-      const slugBase = publishTitle.normalize('NFD').replace(/[\\u0300-\\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 140)
+      const slugBase = publishTitle.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 140)
       const slug = `${slugBase}-${Date.now().toString(36)}`
       const result = await supabase.from('articles').insert({
         author_id: session.user.id,
@@ -201,21 +260,28 @@ export default function App() {
         content_type: publishType,
         difficulty: publishLevel,
         status: 'pending',
-        reading_minutes: Math.max(1, Math.ceil(publishBody.trim().split(/\\s+/).length / 180)),
+        reading_minutes: Math.max(1, Math.ceil(publishBody.trim().split(/\s+/).length / 180)),
       }).select('id').single()
       if (result.error || !result.data) throw result.error ?? new Error('No se pudo crear la publicación.')
       const uploaded: Array<{ path: string; name: string; type: string }> = []
-      for (const file of publishFiles) {
-        const safeName = file.name.normalize('NFD').replace(/[\\u0300-\\u036f]/g, '').replace(/[^a-zA-Z0-9._-]/g, '-').slice(-100)
-        const path = `${session.user.id}/${result.data.id}/${crypto.randomUUID()}-${safeName}`
-        const { error: uploadError } = await supabase.storage.from('brifan-articles').upload(path, file, { contentType: file.type, upsert: false })
-        if (uploadError) throw uploadError
-        uploaded.push({ path, name: file.name, type: file.type })
-      }
-      if (uploaded.length) {
-        const attachmentBlock = `\\n\\n<!--BRIFAN_ATTACHMENTS:${JSON.stringify(uploaded)}-->`
-        const { error: updateError } = await supabase.from('articles').update({ body_md: publishBody.trim() + attachmentBlock }).eq('id', result.data.id)
-        if (updateError) throw updateError
+      try {
+        for (const file of publishFiles) {
+          if (file.size > 50 * 1024 * 1024) throw new Error(`El archivo "${file.name}" supera el límite de 50 MB.`)
+          const safeName = file.name.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-zA-Z0-9._-]/g, '-').slice(-100)
+          const path = `${session.user.id}/${result.data.id}/${crypto.randomUUID()}-${safeName}`
+          const { error: uploadError } = await supabase.storage.from('brifan-articles').upload(path, file, { contentType: file.type, upsert: false })
+          if (uploadError) throw uploadError
+          uploaded.push({ path, name: file.name, type: file.type })
+        }
+        if (uploaded.length) {
+          const attachmentBlock = `\n\n<!--BRIFAN_ATTACHMENTS:${JSON.stringify(uploaded)}-->`
+          const { error: updateError } = await supabase.from('articles').update({ body_md: publishBody.trim() + attachmentBlock }).eq('id', result.data.id)
+          if (updateError) throw updateError
+        }
+      } catch (uploadFailure) {
+        if (uploaded.length) await supabase.storage.from('brifan-articles').remove(uploaded.map(file => file.path))
+        await supabase.from('articles').delete().eq('id', result.data.id).eq('author_id', session.user.id)
+        throw uploadFailure
       }
       setPublishMessage('¡Enviado! Tu publicación y sus archivos quedaron pendientes de revisión. Aparecerán en la biblioteca cuando se aprueben.')
       setPublishTitle('')
@@ -253,7 +319,7 @@ export default function App() {
     const filtered = useMemo(() => resources.filter((r) =>
     (active === 'Todo' || r.category === active) &&
     (r.title + r.category + r.type).toLowerCase().includes(query.toLowerCase())
-  ), [active, query])
+  ), [resources, active, query])
 
   return <div className="min-h-screen overflow-hidden bg-[#080d18] text-slate-100">
     <div className="ambient ambient-one" /><div className="ambient ambient-two" />
@@ -312,6 +378,7 @@ export default function App() {
       </section>
       <section className="border-y border-white/[.07] bg-white/[.018]"><div className="mx-auto grid max-w-7xl gap-6 px-5 py-7 sm:grid-cols-3 sm:px-8"><div className="flex items-center gap-4"><span className="stat-icon"><BookOpen size={19}/></span><div><b className="block text-sm">Conocimiento compartido</b><span className="text-xs text-slate-500">Experiencias que ayudan a crecer</span></div></div><div className="flex items-center gap-4"><span className="stat-icon"><FileText size={19}/></span><div><b className="block text-sm">Recursos prácticos</b><span className="text-xs text-slate-500">Material para aprender haciendo</span></div></div><div className="flex items-center gap-4"><span className="stat-icon"><Globe2 size={19}/></span><div><b className="block text-sm">Comunidad tecnológica</b><span className="text-xs text-slate-500">Distintas áreas, una misma pasión</span></div></div></div></section>
       <section id="categorias" className="mx-auto max-w-7xl px-5 py-20 sm:px-8"><div className="section-heading"><div><span className="section-kicker">01 / EXPLORA POR ÁREA</span><h2>Un universo de <span className="gradient-text">posibilidades.</span></h2></div><a href="#explorar" className="text-sm font-semibold text-cyan-300">Ver contenido <ArrowUpRight size={15} className="inline"/></a></div><div className="mt-9 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{categories.map(({name,icon:Icon,tone},i)=><button key={name} onClick={()=>{setActive(name);document.getElementById('explorar')?.scrollIntoView({behavior:'smooth'})}} className="category-card group text-left"><div className={'category-icon '+tone}><Icon size={22}/></div><div className="mt-7 flex items-end justify-between"><div><span className="mb-2 block text-xs text-slate-500">0{i+1} / ÁREA</span><h3>{name}</h3><span className="mt-2 block text-xs text-slate-500">Explorar contenido</span></div><ArrowUpRight className="text-slate-600 transition group-hover:-translate-y-1 group-hover:translate-x-1 group-hover:text-cyan-300"/></div></button>)}</div></section>
+      <LearningHub />
       <section id="explorar" className="border-y border-white/[.07] bg-[#0b1220]/80"><div className="mx-auto max-w-7xl px-5 py-20 sm:px-8"><div className="section-heading"><div><span className="section-kicker">02 / BIBLIOTECA</span><h2>Descubre algo <span className="gradient-text">nuevo.</span></h2><p className="mt-3 text-sm text-slate-400">Guías, tutoriales y recursos para llevar tus conocimientos más lejos.</p></div></div><div className="mt-8 flex flex-col gap-4 md:flex-row md:items-center md:justify-between"><div className="flex flex-wrap gap-2">{['Todo',...categories.map(c=>c.name)].map(item=><button key={item} onClick={()=>setActive(item)} className={'filter-pill '+(active===item?'selected':'')}>{item}</button>)}</div><label className="search-box"><Search size={17}/><input value={query} onChange={e=>setQuery(e.target.value)} placeholder="Buscar contenido..."/></label></div><div className="mt-8 grid gap-5 lg:grid-cols-3">{loadingResources ? <div className="col-span-full py-14 text-center text-sm text-slate-500">Cargando publicaciones...</div> : filtered.map(({id,type,title,category,level,time,color})=><article key={id ?? title} className="resource-card"><div className={'resource-art '+color} style={{backgroundImage: `linear-gradient(180deg,rgba(5,12,23,.12),rgba(5,12,23,.82)),url(${categoryVisuals[category] ?? categoryVisuals['Programación']})`}}><div className="art-orbit"/><span className="resource-type">{type}</span><span className="resource-image-caption">{category}</span></div><div className="p-5"><span className="text-xs font-semibold text-cyan-300">{category}</span><h3 className="mt-3 min-h-14 text-lg font-bold leading-snug">{title}</h3><p className="mt-2 min-h-10 text-xs leading-6 text-slate-400">{(resources.find((item: any) => item.id === id || item.title === title)?.excerpt) ?? "Abre este recurso para consultar su contenido."}</p><div className="mt-5 flex items-center justify-between border-t border-white/10 pt-4 text-xs text-slate-500"><span>{level} · {time}</span><div className="flex items-center gap-2"><button onClick={() => setSelectedResource(resources.find((item: any) => item.id === id || item.title === title))} className="rounded-lg px-3 py-2 font-semibold text-cyan-300 hover:bg-cyan-300/10">Leer guía <ArrowUpRight size={14} className="inline"/></button><button aria-label={savedIds.includes(id) ? "Quitar de guardados" : "Guardar recurso"} aria-pressed={Boolean(id && savedIds.includes(id))} onClick={() => void toggleBookmark(id)} disabled={!id} className="rounded-lg p-2 hover:bg-white/10 hover:text-cyan-300 disabled:cursor-not-allowed disabled:opacity-40"><Bookmark size={16} fill={id && savedIds.includes(id) ? "currentColor" : "none"}/></button></div></div></div></article>)}{filtered.length===0&&<div className="col-span-full rounded-2xl border border-dashed border-white/15 py-14 text-center text-sm text-slate-500">No encontramos contenido con esos filtros. Prueba otra búsqueda.</div>}</div><p className="mt-5 text-xs text-slate-600">{liveResources.length > 0 ? 'Contenido publicado desde Supabase.' : isSupabaseConfigured ? 'Mostrando recursos de ejemplo: todavía no hay artículos publicados en la biblioteca.' : 'Vista de demostración. Configura Supabase para activar la biblioteca.'}</p></div></section>
       <section id="comunidad" className="mx-auto max-w-7xl px-5 py-20 sm:px-8"><div className="community-panel"><div className="relative z-10 max-w-2xl"><span className="section-kicker">03 / CONSTRUYAMOS JUNTOS</span><h2 className="mt-4 text-3xl font-black sm:text-4xl">Tu experiencia también puede <span className="gradient-text">inspirar.</span></h2><p className="mt-4 max-w-xl text-sm leading-7 text-slate-400">BRIFAN TECH busca reunir a estudiantes, profesionales y entusiastas para compartir soluciones, documentar aprendizajes y hacer crecer la comunidad tecnológica.</p><button className="btn-primary mt-7" onClick={() => {setAuthMode("signup");setAuthOpen(true);setAuthMessage("")}}>Crear cuenta gratis <ArrowUpRight size={16}/></button></div><div className="community-symbol"><Layers3 size={100} strokeWidth={.7}/></div></div></section>
     </main>
@@ -357,6 +424,20 @@ export default function App() {
         <div className="reader-meta"><span>{selectedResource.level}</span><span>{selectedResource.time}</span></div>
         {selectedResource.excerpt && <p className="reader-excerpt">{selectedResource.excerpt}</p>}
         <div className="reader-content">{selectedResource.body || selectedResource.body_md || selectedResource.content || 'Este recurso todavía no tiene contenido disponible. Vuelve a intentarlo más adelante.'}</div>
+        <section className="reader-discussion" aria-labelledby="discussion-title">
+          <div className="discussion-heading"><div><span className="section-kicker">COMUNIDAD / DISCUSIÓN</span><h3 id="discussion-title">Comparte tu perspectiva</h3></div><span className="discussion-count">{readerComments.length} comentarios</span></div>
+          {selectedResource.id ? <>
+            <div className="discussion-list">
+              {readerComments.length === 0 ? <p className="discussion-empty">Todavía no hay comentarios. Puedes iniciar la conversación.</p> : readerComments.map(comment => <article className="discussion-item" key={comment.id}><div className="discussion-avatar">{String(comment.profiles?.display_name || comment.profiles?.username || 'U').slice(0,1).toUpperCase()}</div><div><div className="discussion-author">{comment.profiles?.display_name || comment.profiles?.username || 'Miembro'} <time>{new Date(comment.created_at).toLocaleDateString('es-DO')}</time></div><p>{comment.body}</p></div></article>)}
+            </div>
+            <form className="discussion-form" onSubmit={submitComment}>
+              <label htmlFor="comment-body">Tu comentario</label>
+              <textarea id="comment-body" value={commentDraft} onChange={event => setCommentDraft(event.target.value)} maxLength={3000} rows={3} placeholder={session ? 'Aporta una idea, pregunta o experiencia…' : 'Inicia sesión para comentar…'} required />
+              <div className="discussion-actions"><span>{commentDraft.length}/3000</span><button className="btn-primary" type="submit" disabled={commentBusy || !commentDraft.trim()}>{commentBusy ? 'Publicando…' : 'Publicar comentario'}</button></div>
+            </form>
+          </> : <p className="discussion-empty">Los comentarios estarán disponibles cuando el recurso se publique en la biblioteca.</p>}
+          {commentMessage && <p className="discussion-feedback" role="status">{commentMessage}</p>}
+        </section>
         {readerAttachments.length > 0 && <div className="reader-attachments"><h3>Archivos adjuntos</h3><div>{readerAttachments.map(file => file.type.startsWith('image/') ? <a href={file.url} target="_blank" rel="noreferrer" key={file.url}><img src={file.url} alt={file.name}/><span>{file.name}</span></a> : <a className="reader-file" href={file.url} target="_blank" rel="noreferrer" key={file.url}><FileText size={18}/><span>{file.name}</span><ArrowUpRight size={14}/></a>)}</div></div>}
       </section>
     </div>}
