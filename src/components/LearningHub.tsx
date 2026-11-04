@@ -45,6 +45,12 @@ const tracks: LearningTrack[] = [
   },
 ]
 
+const trackImages: Record<string, string> = {
+  'network-foundations': 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=1200&q=85',
+  'cyber-basics': 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&w=1200&q=85',
+  'web-development': 'https://images.unsplash.com/photo-1515879218367-8466d910aaa4?auto=format&fit=crop&w=1200&q=85',
+}
+
 const STORAGE_KEY = 'brifan-learning-progress-v1'
 
 export default function LearningHub() {
@@ -108,6 +114,9 @@ export default function LearningHub() {
           const percent = Math.round((completed.length / track.lessons.length) * 100)
           return (
             <article className={`learning-card ${isOpen ? 'is-expanded' : ''}`} key={track.id}>
+              <div className="learning-card-cover" style={{ backgroundImage: `linear-gradient(180deg,rgba(5,12,23,.04),rgba(5,12,23,.68)),url(${trackImages[track.id]})` }} role="img" aria-label={`Imagen de ${track.area}`}>
+                <span>{track.area}</span>
+              </div>
               <div className="learning-card-top">
                 <span className="learning-icon"><Icon size={22} /></span>
                 <span className="learning-level">{track.level}</span>
