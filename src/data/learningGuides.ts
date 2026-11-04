@@ -1,5 +1,3 @@
-import { BrainCircuit, Code2, Cpu, Database, FileText, Layers3, Network, ShieldCheck, Sparkles, Terminal } from 'lucide-react'
-
 /**
  * Biblioteca editorial de BRIFAN TECH.
  * Cada guía combina fundamentos, arquitectura, ejemplos, diagnóstico y práctica.
@@ -73,7 +71,7 @@ Un usuario recibe una dirección 169.254.x.x y no puede navegar, pero sus compa�
 
 ## 9. Glosario
 Broadcast: trama enviada a todos los equipos de una VLAN. Gateway: siguiente salto para salir de la red local. Trunk: enlace que transporta múltiples VLAN. CIDR: notación de prefijos IP. MTU: tamaño máximo de unidad de transmisión. Latencia: tiempo que tarda un paquete en recorrer el trayecto.',
-    icon: Network, color: 'blue',
+    color: 'blue',
   },
   {
     id: 'guide-cyber-defense',
@@ -120,7 +118,7 @@ Escenario: varias cuentas reciben avisos de inicio de sesión inusual. Sin ejecu
 Mide porcentaje de activos inventariados, tiempo de aplicación de parches críticos, cobertura MFA, éxito de restauraciones, tiempo de detección y tiempo de recuperación. Los indicadores deben impulsar mejoras, no ocultar incidentes.
 
 **Lecturas de referencia:** NIST Cybersecurity Framework 2.0, CIS Critical Security Controls y guías de seguridad de CISA. Consulta siempre las versiones oficiales vigentes.',
-    icon: ShieldCheck, color: 'violet',
+    color: 'violet',
   },
   {
     id: 'guide-web-engineering',
@@ -173,7 +171,7 @@ Construye un pequeño gestor de incidencias: listado, creación, filtro por esta
 
 ## 9. Reto
 La aplicación funciona en local pero falla al desplegar. Elabora un checklist que incluya rutas base, variables de entorno, mayúsculas/minúsculas en nombres de archivos, errores de consola, respuestas de API, CORS, permisos y logs del servidor.',
-    icon: Code2, color: 'violet',
+    color: 'violet',
   },
   {
     id: 'guide-linux-operations',
@@ -217,7 +215,7 @@ En una máquina virtual propia crea un usuario de práctica, un grupo, un direct
 
 ## 9. Diagnóstico
 Un servicio no inicia después de reiniciar. Revisa estado, logs, configuración, permisos, puertos ocupados, dependencias y espacio disponible. Formula hipótesis y cambia una variable a la vez.',
-    icon: Terminal, color: 'green',
+    color: 'green',
   },
   {
     id: 'guide-data-sql',
@@ -273,7 +271,7 @@ Crea tablas de departamentos, empleados y tickets. Inserta datos ficticios, cons
 
 ## 9. Reto de optimización
 Una consulta tarda demasiado. Revisa el plan, cardinalidad, filtros, índices y volumen de datos. No agregues índices a ciegas: identifica primero qué operación consume tiempo.',
-    icon: Database, color: 'green',
+    color: 'green',
   },
   {
     id: 'guide-cloud-devops',
@@ -316,7 +314,7 @@ En un repositorio de prueba, crea una aplicación sencilla, agrega pruebas y con
 
 ## 10. Reto
 Un despliegue pasa las pruebas pero el servicio no responde en producción. Revisa salud de instancias, reglas de red, DNS, certificado, variables, logs, dependencias y cambios recientes. Decide si corresponde rollback mientras investigas.',
-    icon: Layers3, color: 'blue',
+    color: 'blue',
   },
   {
     id: 'guide-hardware',
@@ -357,7 +355,7 @@ En un equipo propio o una máquina virtual, documenta CPU, RAM, almacenamiento, 
 
 ## 9. Reto
 Un portátil se vuelve lento después de varios minutos de uso. Diseña una secuencia de observación para distinguir saturación de memoria, carga de CPU, temperatura, almacenamiento y procesos en segundo plano sin asumir una causa.',
-    icon: Cpu, color: 'green',
+    color: 'green',
   },
   {
     id: 'guide-it-support',
@@ -404,7 +402,7 @@ Un departamento reporta que no puede imprimir. Registra el caso, delimita si afe
 
 ## 10. Reto
 Un usuario solicita acceso administrativo para instalar una aplicación. Describe cómo validar la necesidad, revisar política, buscar una alternativa aprobada y escalar sin compartir credenciales ni saltarse controles.',
-    icon: FileText, color: 'blue',
+    color: 'blue',
   },
   {
     id: 'guide-ai-literacy',
@@ -442,7 +440,7 @@ Crea un conjunto de diez preguntas técnicas con respuestas verificadas. Compara
 
 ## 9. Reto
 Una IA propone una configuración de red incorrecta con mucha seguridad. Diseña una verificación basada en documentación del fabricante, simulación controlada y revisión humana antes de aplicar cambios.',
-    icon: BrainCircuit, color: 'violet',
+    color: 'violet',
   },
   {
     id: 'guide-certification-roadmap',
@@ -480,6 +478,6 @@ Semana 1: diagnóstico de conocimientos y fundamentos. Semana 2: laboratorio gui
 
 ## 9. Reto
 Elige una competencia de una vacante real. Diseña una práctica que produzca evidencia verificable y explica qué conocimientos previos necesitas, cómo medirás el resultado y qué limitaciones tiene tu laboratorio.`,
-    icon: Sparkles, color: 'violet',
+    color: 'violet',
   },
 ]
