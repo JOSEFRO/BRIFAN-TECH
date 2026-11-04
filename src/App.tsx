@@ -1,4 +1,5 @@
 import Header from './components/Header'
+import WelcomeExperience from './components/WelcomeExperience'
 import { ArrowRight, ArrowUpRight, BookOpen, Bookmark, BrainCircuit, Code2, Cpu, Database, FileText, Globe2, Layers3, Network, Search, ShieldCheck, Sparkles, Terminal, X } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import type { Session } from '@supabase/supabase-js'
@@ -257,6 +258,7 @@ export default function App() {
 
   return <div className="min-h-screen overflow-hidden bg-[#080d18] text-slate-100">
     <div className="ambient ambient-one" /><div className="ambient ambient-two" />
+    <WelcomeExperience />
     <Header
       session={session}
       isAdmin={isAdmin}
