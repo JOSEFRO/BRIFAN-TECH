@@ -61,7 +61,7 @@ En una red pequeña, el enrutamiento entre VLAN puede realizarse con un router-o
 6. Revisa VLAN, trunk, tabla MAC, ARP y rutas según el punto de fallo.
 7. Cambia una variable a la vez, documenta el resultado y valida con el usuario.
 
-Herramientas: `ipconfig /all`, `ip addr`, `ip route`, `ping`, `tracert`/`traceroute`, `nslookup`, `dig` y la consulta de estado de interfaces del fabricante.
+Herramientas: 'ipconfig /all', 'ip addr', 'ip route', 'ping', 'tracert'/'traceroute', 'nslookup', 'dig' y la consulta de estado de interfaces del fabricante.
 
 ## 7. Laboratorio guiado
 En Packet Tracer o un entorno propio, crea tres VLAN, conecta dos switches con un trunk y coloca un equipo en cada VLAN. Configura direccionamiento estático inicialmente. Comprueba que dos equipos de la misma VLAN se comunican y que equipos de VLAN distintas necesitan routing. Después incorpora DHCP y DNS de laboratorio.
@@ -72,7 +72,7 @@ En Packet Tracer o un entorno propio, crea tres VLAN, conecta dos switches con u
 Un usuario recibe una dirección 169.254.x.x y no puede navegar, pero sus compañeros sí. Explica qué indica esa dirección, qué servicio investigarías primero, qué evidencias recopilarías y cómo descartarías un problema de VLAN o de servidor DHCP.
 
 ## 9. Glosario
-Broadcast: trama enviada a todos los equipos de una VLAN. Gateway: siguiente salto para salir de la red local. Trunk: enlace que transporta múltiples VLAN. CIDR: notación de prefijos IP. MTU: tamaño máximo de unidad de transmisión. Latencia: tiempo que tarda un paquete en recorrer el trayecto.`,
+Broadcast: trama enviada a todos los equipos de una VLAN. Gateway: siguiente salto para salir de la red local. Trunk: enlace que transporta múltiples VLAN. CIDR: notación de prefijos IP. MTU: tamaño máximo de unidad de transmisión. Latencia: tiempo que tarda un paquete en recorrer el trayecto.',
     icon: Network, color: 'blue',
   },
   {
@@ -83,7 +83,7 @@ Broadcast: trama enviada a todos los equipos de una VLAN. Gateway: siguiente sal
     level: 'Intermedio',
     time: '40–55 min',
     excerpt: 'Construye un modelo de protección basado en activos, amenazas, controles, monitoreo y recuperación.',
-    body: `# Ciberseguridad defensiva: proteger, detectar y recuperar
+    body: '# Ciberseguridad defensiva: proteger, detectar y recuperar
 
 ## 1. Seguridad basada en riesgo
 La ciberseguridad busca preservar confidencialidad, integridad y disponibilidad. No existe una medida que elimine todo riesgo; el objetivo es reducirlo a un nivel aceptable y poder responder cuando un control falla.
@@ -119,7 +119,7 @@ Escenario: varias cuentas reciben avisos de inicio de sesión inusual. Sin ejecu
 ## 10. Indicadores para mejorar
 Mide porcentaje de activos inventariados, tiempo de aplicación de parches críticos, cobertura MFA, éxito de restauraciones, tiempo de detección y tiempo de recuperación. Los indicadores deben impulsar mejoras, no ocultar incidentes.
 
-**Lecturas de referencia:** NIST Cybersecurity Framework 2.0, CIS Critical Security Controls y guías de seguridad de CISA. Consulta siempre las versiones oficiales vigentes.`,
+**Lecturas de referencia:** NIST Cybersecurity Framework 2.0, CIS Critical Security Controls y guías de seguridad de CISA. Consulta siempre las versiones oficiales vigentes.',
     icon: ShieldCheck, color: 'violet',
   },
   {
@@ -130,7 +130,7 @@ Mide porcentaje de activos inventariados, tiempo de aplicación de parches crít
     level: 'Intermedio',
     time: '45–60 min',
     excerpt: 'Comprende HTTP, arquitectura frontend/backend, APIs, validación, pruebas y despliegue.',
-    body: `# Desarrollo web moderno: arquitectura y ciclo de entrega
+    body: '# Desarrollo web moderno: arquitectura y ciclo de entrega
 
 ## 1. Qué sucede al abrir una web
 El navegador resuelve el dominio mediante DNS, establece una conexión con el servidor y negocia HTTPS mediante TLS. Luego envía una petición HTTP. La respuesta incluye un código de estado, cabeceras y, normalmente, un cuerpo con HTML, JSON, CSS, JavaScript o recursos multimedia.
@@ -146,14 +146,14 @@ HTML semántico aporta estructura accesible; CSS controla presentación; JavaScr
 Una API define rutas, métodos, parámetros, respuestas y errores. GET consulta, POST crea o ejecuta una operación, PUT reemplaza, PATCH modifica parcialmente y DELETE elimina. Los códigos HTTP comunican el resultado: 200, 201, 204, 400, 401, 403, 404, 409, 422 y 500 tienen significados distintos.
 
 Ejemplo de respuesta JSON:
-```json
+'''json
 {
   "id": "ticket-1042",
   "status": "open",
   "priority": "high",
   "createdAt": "2026-10-12T14:30:00Z"
 }
-```
+'''
 Documenta campos obligatorios, formatos, límites, autenticación y comportamiento ante errores.
 
 ## 4. Validación y seguridad
@@ -172,7 +172,7 @@ Trabaja en ramas, realiza commits pequeños y descriptivos, abre pull requests y
 Construye un pequeño gestor de incidencias: listado, creación, filtro por estado y detalle. Define un contrato JSON, valida entradas, simula errores HTTP y añade pruebas. Publica el frontend y documenta variables de entorno sin incluir secretos.
 
 ## 9. Reto
-La aplicación funciona en local pero falla al desplegar. Elabora un checklist que incluya rutas base, variables de entorno, mayúsculas/minúsculas en nombres de archivos, errores de consola, respuestas de API, CORS, permisos y logs del servidor.`,
+La aplicación funciona en local pero falla al desplegar. Elabora un checklist que incluya rutas base, variables de entorno, mayúsculas/minúsculas en nombres de archivos, errores de consola, respuestas de API, CORS, permisos y logs del servidor.',
     icon: Code2, color: 'violet',
   },
   {
@@ -183,7 +183,7 @@ La aplicación funciona en local pero falla al desplegar. Elabora un checklist q
     level: 'Intermedio',
     time: '40–50 min',
     excerpt: 'Administra archivos, usuarios, permisos, procesos, systemd, almacenamiento y registros con criterio.',
-    body: `# Linux para administración de sistemas
+    body: '# Linux para administración de sistemas
 
 ## 1. Arquitectura esencial
 Linux combina kernel, espacio de usuario, bibliotecas, herramientas y servicios. El kernel administra procesos, memoria, dispositivos y red. Las distribuciones empaquetan estos componentes con gestores de paquetes y ciclos de actualización distintos.
@@ -191,23 +191,23 @@ Linux combina kernel, espacio de usuario, bibliotecas, herramientas y servicios.
 La jerarquía de archivos parte de /. /etc contiene configuración, /var almacena datos variables y logs, /home contiene directorios personales, /tmp guarda temporales y /proc expone información del kernel y procesos.
 
 ## 2. Navegación y manipulación segura
-`pwd` muestra la ubicación, `ls -la` lista archivos, `find` localiza elementos, `grep` busca texto y `less` permite leer archivos extensos. Antes de ejecutar una operación recursiva, confirma ruta y alcance. Usa `--help` y `man` para consultar opciones.
+'pwd' muestra la ubicación, 'ls -la' lista archivos, 'find' localiza elementos, 'grep' busca texto y 'less' permite leer archivos extensos. Antes de ejecutar una operación recursiva, confirma ruta y alcance. Usa '--help' y 'man' para consultar opciones.
 
 ## 3. Usuarios, grupos y permisos
-Cada archivo tiene propietario, grupo y permisos para usuario, grupo y otros. Los permisos básicos son lectura (r), escritura (w) y ejecución (x). `id`, `getent passwd`, `groups` y `ls -l` ayudan a inspeccionar identidades y permisos.
+Cada archivo tiene propietario, grupo y permisos para usuario, grupo y otros. Los permisos básicos son lectura (r), escritura (w) y ejecución (x). 'id', 'getent passwd', 'groups' y 'ls -l' ayudan a inspeccionar identidades y permisos.
 
-Evita conceder permisos amplios por comodidad. El bit de ejecución en directorios permite atravesarlos; el permiso de escritura permite crear o eliminar entradas según los permisos del directorio. `sudo` debe reservarse para tareas justificadas y auditables.
+Evita conceder permisos amplios por comodidad. El bit de ejecución en directorios permite atravesarlos; el permiso de escritura permite crear o eliminar entradas según los permisos del directorio. 'sudo' debe reservarse para tareas justificadas y auditables.
 
 ## 4. Procesos y recursos
-Un proceso tiene PID, usuario, estado y consumo de recursos. `ps aux`, `top` o `htop` permiten observar actividad. `free -h` resume memoria; `df -h` muestra espacio de sistemas de archivos y `du -sh` estima uso de directorios.
+Un proceso tiene PID, usuario, estado y consumo de recursos. 'ps aux', 'top' o 'htop' permiten observar actividad. 'free -h' resume memoria; 'df -h' muestra espacio de sistemas de archivos y 'du -sh' estima uso de directorios.
 
 No finalices procesos desconocidos sin investigar su función. Identifica servicio, propietario, dependencias y logs antes de intervenir.
 
 ## 5. Servicios con systemd
-`systemctl status nombre-servicio` consulta estado; `systemctl is-enabled` revisa habilitación al arranque. `journalctl -u nombre-servicio` permite revisar eventos del servicio. Distingue un servicio detenido de uno que falla al iniciar por configuración, permisos o dependencias.
+'systemctl status nombre-servicio' consulta estado; 'systemctl is-enabled' revisa habilitación al arranque. 'journalctl -u nombre-servicio' permite revisar eventos del servicio. Distingue un servicio detenido de uno que falla al iniciar por configuración, permisos o dependencias.
 
 ## 6. Red y resolución de nombres
-`ip addr` muestra interfaces y direcciones; `ip route` muestra rutas; `ss -tulpn` resume sockets en escucha; `resolvectl status` muestra información del resolvedor en sistemas compatibles. Comprueba conectividad IP, ruta y DNS como pruebas separadas.
+'ip addr' muestra interfaces y direcciones; 'ip route' muestra rutas; 'ss -tulpn' resume sockets en escucha; 'resolvectl status' muestra información del resolvedor en sistemas compatibles. Comprueba conectividad IP, ruta y DNS como pruebas separadas.
 
 ## 7. Actualización y mantenimiento
 Usa repositorios oficiales y el gestor de paquetes de tu distribución. Lee cambios importantes, conserva respaldos de configuración y programa reinicios cuando corresponda. No mezcles repositorios incompatibles sin comprender dependencias.
@@ -216,7 +216,7 @@ Usa repositorios oficiales y el gestor de paquetes de tu distribución. Lee camb
 En una máquina virtual propia crea un usuario de práctica, un grupo, un directorio compartido y un archivo de log. Comprueba permisos con dos cuentas distintas. Instala un servicio de prueba desde los repositorios de la distribución, consulta su estado y revisa sus logs. Documenta qué cambia al modificar propietario o permisos.
 
 ## 9. Diagnóstico
-Un servicio no inicia después de reiniciar. Revisa estado, logs, configuración, permisos, puertos ocupados, dependencias y espacio disponible. Formula hipótesis y cambia una variable a la vez.`,
+Un servicio no inicia después de reiniciar. Revisa estado, logs, configuración, permisos, puertos ocupados, dependencias y espacio disponible. Formula hipótesis y cambia una variable a la vez.',
     icon: Terminal, color: 'green',
   },
   {
@@ -227,7 +227,7 @@ Un servicio no inicia después de reiniciar. Revisa estado, logs, configuración
     level: 'Intermedio',
     time: '45 min',
     excerpt: 'Diseña un modelo relacional, consulta con JOIN, comprende transacciones e índices y evita errores comunes.',
-    body: `# Bases de datos relacionales y SQL aplicado
+    body: '# Bases de datos relacionales y SQL aplicado
 
 ## 1. Modelar antes de consultar
 Una base de datos relacional representa entidades mediante tablas. Una fila representa una instancia y una columna un atributo. Define tipos, restricciones y relaciones antes de crear tablas. Evita almacenar listas separadas por comas en una columna cuando representan entidades relacionadas.
@@ -238,7 +238,7 @@ La clave primaria identifica de forma única cada fila. Una clave foránea manti
 ## 3. Modelo de ejemplo
 Un sistema de soporte puede incluir usuarios, tickets y comentarios. Cada ticket pertenece a un usuario; cada comentario pertenece a un ticket y a su autor.
 
-```sql
+'''sql
 CREATE TABLE tickets (
   id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
   requester_id BIGINT NOT NULL,
@@ -246,17 +246,17 @@ CREATE TABLE tickets (
   status TEXT NOT NULL CHECK (status IN ('open','in_progress','closed')),
   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
-```
+'''
 
 En un proyecto real, requester_id debe referenciar la tabla de usuarios y las reglas de acceso deben implementarse en el servidor o mediante políticas adecuadas de la plataforma.
 
 ## 4. Consultas y relaciones
-```sql
+'''sql
 SELECT status, COUNT(*) AS total
 FROM tickets
 GROUP BY status
 ORDER BY total DESC;
-```
+'''
 JOIN combina registros relacionados. INNER JOIN devuelve coincidencias; LEFT JOIN conserva todas las filas de la tabla izquierda aunque no exista relación coincidente. Aprende a filtrar antes de agregar y a interpretar resultados duplicados por relaciones uno-a-muchos.
 
 ## 5. Escrituras y transacciones
@@ -272,7 +272,7 @@ Usa parámetros en consultas, roles con mínimo privilegio, copias de seguridad 
 Crea tablas de departamentos, empleados y tickets. Inserta datos ficticios, consulta con JOIN, agrupa tickets por estado y crea una transacción que actualice dos tablas. Comprueba restricciones y explica qué sucede cuando una clave foránea apunta a un registro inexistente.
 
 ## 9. Reto de optimización
-Una consulta tarda demasiado. Revisa el plan, cardinalidad, filtros, índices y volumen de datos. No agregues índices a ciegas: identifica primero qué operación consume tiempo.`,
+Una consulta tarda demasiado. Revisa el plan, cardinalidad, filtros, índices y volumen de datos. No agregues índices a ciegas: identifica primero qué operación consume tiempo.',
     icon: Database, color: 'green',
   },
   {
@@ -283,7 +283,7 @@ Una consulta tarda demasiado. Revisa el plan, cardinalidad, filtros, índices y 
     level: 'Intermedio',
     time: '45–55 min',
     excerpt: 'Relaciona redes cloud, cómputo, almacenamiento, automatización, despliegues y operación confiable.',
-    body: `# Cloud y DevOps: diseñar y operar servicios
+    body: '# Cloud y DevOps: diseñar y operar servicios
 
 ## 1. Modelos de servicio
 IaaS ofrece recursos de infraestructura; PaaS abstrae parte de la plataforma; SaaS entrega una aplicación administrada. La nube pública comparte infraestructura bajo controles del proveedor, mientras que nube privada y modelos híbridos responden a requisitos distintos.
@@ -315,7 +315,7 @@ Etiqueta recursos, define presupuestos, apaga entornos temporales y revisa almac
 En un repositorio de prueba, crea una aplicación sencilla, agrega pruebas y configura un pipeline que compile en cada pull request. Publica primero en un entorno de prueba. Documenta variables, secretos, artefacto generado y procedimiento de reversión.
 
 ## 10. Reto
-Un despliegue pasa las pruebas pero el servicio no responde en producción. Revisa salud de instancias, reglas de red, DNS, certificado, variables, logs, dependencias y cambios recientes. Decide si corresponde rollback mientras investigas.`,
+Un despliegue pasa las pruebas pero el servicio no responde en producción. Revisa salud de instancias, reglas de red, DNS, certificado, variables, logs, dependencias y cambios recientes. Decide si corresponde rollback mientras investigas.',
     icon: Layers3, color: 'blue',
   },
   {
@@ -326,7 +326,7 @@ Un despliegue pasa las pruebas pero el servicio no responde en producción. Revi
     level: 'Intermedio',
     time: '35–45 min',
     excerpt: 'Relaciona CPU, memoria, almacenamiento, firmware, energía y síntomas para diagnosticar equipos.',
-    body: `# Hardware y arquitectura de computadoras
+    body: '# Hardware y arquitectura de computadoras
 
 ## 1. Cómo se organiza un equipo
 La CPU ejecuta instrucciones; la RAM mantiene datos de trabajo; el almacenamiento conserva información; la placa base conecta componentes y buses; la fuente convierte energía para alimentar el sistema. La GPU procesa gráficos y cargas paralelas. Cada componente tiene límites térmicos, eléctricos y de compatibilidad.
@@ -356,7 +356,7 @@ Registra síntoma y contexto, realiza una inspección externa, consulta logs y d
 En un equipo propio o una máquina virtual, documenta CPU, RAM, almacenamiento, sistema operativo y versión de firmware disponible. Relaciona cada componente con su función y crea una ficha de mantenimiento preventivo.
 
 ## 9. Reto
-Un portátil se vuelve lento después de varios minutos de uso. Diseña una secuencia de observación para distinguir saturación de memoria, carga de CPU, temperatura, almacenamiento y procesos en segundo plano sin asumir una causa.`,
+Un portátil se vuelve lento después de varios minutos de uso. Diseña una secuencia de observación para distinguir saturación de memoria, carga de CPU, temperatura, almacenamiento y procesos en segundo plano sin asumir una causa.',
     icon: Cpu, color: 'green',
   },
   {
@@ -367,7 +367,7 @@ Un portátil se vuelve lento después de varios minutos de uso. Diseña una secu
     level: 'Intermedio',
     time: '35–45 min',
     excerpt: 'Aplica triage, priorización, documentación, escalamiento y comunicación centrada en el usuario.',
-    body: `# Soporte técnico profesional: del ticket a la mejora
+    body: '# Soporte técnico profesional: del ticket a la mejora
 
 ## 1. El soporte como proceso
 El objetivo no es solamente cerrar tickets: es restaurar el servicio, reducir impacto y evitar recurrencias. Distingue incidente (interrupción o degradación), solicitud de servicio (petición estándar), problema (causa subyacente) y cambio (modificación controlada).
@@ -403,7 +403,7 @@ Tiempo de primera respuesta, tiempo de resolución, resolución en primer contac
 Un departamento reporta que no puede imprimir. Registra el caso, delimita si afecta a una impresora o a todas, verifica conectividad y cola, consulta mensajes y cambios recientes. Redacta un ticket y una actualización para el usuario.
 
 ## 10. Reto
-Un usuario solicita acceso administrativo para instalar una aplicación. Describe cómo validar la necesidad, revisar política, buscar una alternativa aprobada y escalar sin compartir credenciales ni saltarse controles.`,
+Un usuario solicita acceso administrativo para instalar una aplicación. Describe cómo validar la necesidad, revisar política, buscar una alternativa aprobada y escalar sin compartir credenciales ni saltarse controles.',
     icon: FileText, color: 'blue',
   },
   {
@@ -414,7 +414,7 @@ Un usuario solicita acceso administrativo para instalar una aplicación. Describ
     level: 'Intermedio',
     time: '40–50 min',
     excerpt: 'Diferencia aprendizaje automático, redes neuronales y modelos generativos; evalúa calidad, sesgos y privacidad.',
-    body: `# Inteligencia artificial aplicada: comprender antes de implementar
+    body: '# Inteligencia artificial aplicada: comprender antes de implementar
 
 ## 1. IA, machine learning y deep learning
 Inteligencia artificial es el campo amplio de sistemas que realizan tareas asociadas con percepción, razonamiento o generación. Machine learning aprende patrones a partir de datos. Deep learning utiliza redes neuronales con múltiples capas para representar relaciones complejas.
@@ -441,7 +441,7 @@ Define qué puede hacer el modelo, qué acciones requieren aprobación humana, c
 Crea un conjunto de diez preguntas técnicas con respuestas verificadas. Compara respuestas de un modelo con la documentación oficial, registra errores, clasifica alucinaciones y mide consistencia. No utilices datos personales reales.
 
 ## 9. Reto
-Una IA propone una configuración de red incorrecta con mucha seguridad. Diseña una verificación basada en documentación del fabricante, simulación controlada y revisión humana antes de aplicar cambios.`,
+Una IA propone una configuración de red incorrecta con mucha seguridad. Diseña una verificación basada en documentación del fabricante, simulación controlada y revisión humana antes de aplicar cambios.',
     icon: BrainCircuit, color: 'violet',
   },
   {
@@ -452,7 +452,7 @@ Una IA propone una configuración de red incorrecta con mucha seguridad. Diseña
     level: 'Todos los niveles',
     time: '30–40 min',
     excerpt: 'Convierte el estudio en evidencias: objetivos, prácticas, documentación y preparación para certificaciones.',
-    body: `# Ruta profesional IT: aprender, practicar y demostrar
+    body: '# Ruta profesional IT: aprender, practicar y demostrar
 
 ## 1. Competencias antes que insignias
 Una certificación puede ordenar el aprendizaje y validar conocimientos, pero no sustituye la práctica. Define un rol objetivo —soporte, redes, sistemas, cloud o seguridad— y construye competencias observables para ese puesto.
@@ -479,7 +479,7 @@ Puedes demostrar habilidades mediante un laboratorio documentado, una guía prop
 Semana 1: diagnóstico de conocimientos y fundamentos. Semana 2: laboratorio guiado. Semana 3: resolver fallos y documentar. Semana 4: presentar el proyecto, recibir revisión y definir siguiente objetivo. Ajusta el ritmo a tu disponibilidad.
 
 ## 9. Reto
-Elige una competencia de una vacante real. Diseña una práctica que produzca evidencia verificable y explica qué conocimientos previos necesitas, cómo medirás el resultado y qué limitaciones tiene tu laboratorio.`,
+Elige una competencia de una vacante real. Diseña una práctica que produzca evidencia verificable y explica qué conocimientos previos necesitas, cómo medirás el resultado y qué limitaciones tiene tu laboratorio.',
     icon: Sparkles, color: 'violet',
   },
 ]
