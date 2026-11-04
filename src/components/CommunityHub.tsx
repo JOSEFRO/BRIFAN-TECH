@@ -32,7 +32,7 @@ function safeWebsite(value: string | null) {
   }
 }
 
-export default function CommunityHub({ onJoin }: { onJoin: () => void }) {
+export default function CommunityHub({ onJoin, onPublish, onProfile, isSignedIn }: { onJoin: () => void; onPublish: () => void; onProfile: () => void; isSignedIn: boolean }) {
   const [members, setMembers] = useState<Member[]>([])
   const [activity, setActivity] = useState<Activity[]>([])
   const [loading, setLoading] = useState(true)
@@ -83,7 +83,7 @@ export default function CommunityHub({ onJoin }: { onJoin: () => void }) {
           <h2>Conocimiento que <span className="gradient-text">conecta.</span></h2>
           <p>Conoce a quienes forman parte de BRIFAN TECH y descubre lo último que comparten.</p>
         </div>
-        <button className="btn-primary" onClick={onJoin}>Unirme a la comunidad <ArrowUpRight size={16}/></button>
+        <button className="btn-primary" onClick={isSignedIn ? onPublish : onJoin}>{isSignedIn ? "Publicar contenido" : "Unirme a la comunidad"} <ArrowUpRight size={16}/></button>
       </div>
 
       {message && <p className="community-feedback" role="status">{message}</p>}
@@ -97,7 +97,7 @@ export default function CommunityHub({ onJoin }: { onJoin: () => void }) {
               <span>{members.length} perfiles</span>
             </div>
             {members.length === 0 ? (
-              <div className="community-empty"><Users size={25}/><p>Aún no hay perfiles públicos. Sé parte de los primeros miembros.</p><button onClick={onJoin}>Crear mi perfil <ArrowUpRight size={14}/></button></div>
+              <div className="community-empty"><Users size={25}/><p>Aún no hay perfiles públicos. Sé parte de los primeros miembros.</p><button onClick={isSignedIn ? onProfile : onJoin}>{isSignedIn ? "Completar mi perfil" : "Crear mi perfil"} <ArrowUpRight size={14}/></button></div>
             ) : (
               <div className="community-members-list">
                 {members.map(member => {
@@ -125,7 +125,7 @@ export default function CommunityHub({ onJoin }: { onJoin: () => void }) {
               <a href="#explorar">Ver biblioteca <ArrowUpRight size={13}/></a>
             </div>
             {activity.length === 0 ? (
-              <div className="community-empty"><BookOpen size={25}/><p>Las nuevas guías y publicaciones aprobadas aparecerán aquí.</p><button onClick={onJoin}>Compartir conocimiento <ArrowUpRight size={14}/></button></div>
+              <div className="community-empty"><BookOpen size={25}/><p>Las nuevas guías y publicaciones aprobadas aparecerán aquí.</p><button onClick={isSignedIn ? onPublish : onJoin}>{isSignedIn ? "Compartir conocimiento" : "Crear cuenta para publicar"} <ArrowUpRight size={14}/></button></div>
             ) : (
               <div className="community-activity-list">
                 {activity.map(item => {
