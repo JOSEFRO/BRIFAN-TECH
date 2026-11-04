@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { ArrowUpRight, BookOpen, CheckCircle2, ChevronDown, Code2, Network, ShieldCheck, Sparkles } from 'lucide-react'
+import { BookOpen, CheckCircle2, ChevronDown, Code2, Network, ShieldCheck, Sparkles } from 'lucide-react'
 
 type LearningTrack = {
   id: string
