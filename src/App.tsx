@@ -29,8 +29,10 @@ const categoryVisuals: Record<string, string> = {
   'Cloud y DevOps': 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1000&q=85',
   'Hardware y electrónica': 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1000&q=85',
   'Soporte técnico': 'https://images.unsplash.com/photo-1581092918056-0c4c3ffd7d5a?auto=format&fit=crop&w=1000&q=85',
-  'Certificaciones y formación': 'https://images.unsplash.com/photo-143403021const demoResources = learningGuides datos privados.', icon: Sparkles, color: 'violet' },
-]
+  'Certificaciones y formación': 'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?auto=format&fit=crop&w=1000&q=85',
+}
+
+const demoResources = learningGuides
 
 export default function App() {
   const [query, setQuery] = useState('')
