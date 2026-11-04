@@ -1,6 +1,7 @@
 import Header from './components/Header'
 import WelcomeExperience from './components/WelcomeExperience'
 import LearningHub from './components/LearningHub'
+import GuideMarkdown from './components/GuideMarkdown'
 import { learningGuides } from './data/learningGuides'
 import { ArrowRight, ArrowUpRight, BookOpen, Bookmark, BrainCircuit, Code2, Cpu, Database, FileText, Globe2, Layers3, Network, Search, ShieldCheck, Sparkles, Terminal, X } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
@@ -463,7 +464,7 @@ export default function App() {
         <h2 id="resource-reader-title">{selectedResource.title}</h2>
         <div className="reader-meta"><span>{selectedResource.level}</span><span>{selectedResource.time}</span></div>
         {selectedResource.excerpt && <p className="reader-excerpt">{selectedResource.excerpt}</p>}
-        <div className="reader-content">{selectedResource.body || selectedResource.body_md || selectedResource.content || 'Este recurso todavía no tiene contenido disponible. Vuelve a intentarlo más adelante.'}</div>
+        <GuideMarkdown content={selectedResource.body || selectedResource.body_md || selectedResource.content || 'Este recurso todavía no tiene contenido disponible. Vuelve a intentarlo más adelante.'} />
         <section className="reader-discussion" aria-labelledby="discussion-title">
           <div className="discussion-heading"><div><span className="section-kicker">COMUNIDAD / DISCUSIÓN</span><h3 id="discussion-title">Comparte tu perspectiva</h3></div><span className="discussion-count">{readerComments.length} comentarios</span></div>
           {selectedResource.id ? <>
