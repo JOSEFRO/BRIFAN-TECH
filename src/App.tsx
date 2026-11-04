@@ -74,6 +74,10 @@ export default function App() {
   const [adminOpen, setAdminOpen] = useState(false)
   const [pendingArticles, setPendingArticles] = useState<any[]>([])
   const [adminMessage, setAdminMessage] = useState('')
+  const [readerComments, setReaderComments] = useState<any[]>([])
+  const [commentDraft, setCommentDraft] = useState('')
+  const [commentBusy, setCommentBusy] = useState(false)
+  const [commentMessage, setCommentMessage] = useState('')
 
   useEffect(() => {
     if (!supabase) return
@@ -127,6 +131,60 @@ export default function App() {
     setSavedIds(current => isSaved ? current.filter(id => id !== articleId) : [...current, articleId])
   }
 
+
+  useEffect(() => {
+    let active = true
+    async function loadComments() {
+      setReaderComments([])
+      setCommentMessage('')
+      if (!supabase || !selectedResource?.id) return
+      const { data, error } = await supabase
+        .from('comments')
+        .select('id,body,created_at,author_id,profiles(display_name,username)')
+        .eq('article_id', selectedResource.id)
+        .eq('is_hidden', false)
+        .order('created_at', { ascending: true })
+        .limit(100)
+      if (!active) return
+      if (error) setCommentMessage('No fue posible cargar los comentarios.')
+      else setReaderComments(data ?? [])
+    }
+    void loadComments()
+    return () => { active = false }
+  }, [selectedResource?.id])
+
+  async function submitComment(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    if (!supabase || !session || !selectedResource?.id) {
+      setAuthMode('signin')
+      setAuthOpen(true)
+      setAuthMessage('Inicia sesión para participar en la conversación.')
+      return
+    }
+    const body = commentDraft.trim()
+    if (!body || body.length > 3000) return
+    setCommentBusy(true)
+    setCommentMessage('')
+    const { error } = await supabase.from('comments').insert({
+      article_id: selectedResource.id,
+      author_id: session.user.id,
+      body,
+    })
+    if (error) setCommentMessage('No se pudo publicar el comentario. Comprueba tu sesión e inténtalo de nuevo.')
+    else {
+      setCommentDraft('')
+      const { data } = await supabase
+        .from('comments')
+        .select('id,body,created_at,author_id,profiles(display_name,username)')
+        .eq('article_id', selectedResource.id)
+        .eq('is_hidden', false)
+        .order('created_at', { ascending: true })
+        .limit(100)
+      setReaderComments(data ?? [])
+      setCommentMessage('Comentario publicado.')
+    }
+    setCommentBusy(false)
+  }
 
   useEffect(() => {
     let active = true
@@ -364,6 +422,20 @@ export default function App() {
         <div className="reader-meta"><span>{selectedResource.level}</span><span>{selectedResource.time}</span></div>
         {selectedResource.excerpt && <p className="reader-excerpt">{selectedResource.excerpt}</p>}
         <div className="reader-content">{selectedResource.body || selectedResource.body_md || selectedResource.content || 'Este recurso todavía no tiene contenido disponible. Vuelve a intentarlo más adelante.'}</div>
+        <section className="reader-discussion" aria-labelledby="discussion-title">
+          <div className="discussion-heading"><div><span className="section-kicker">COMUNIDAD / DISCUSIÓN</span><h3 id="discussion-title">Comparte tu perspectiva</h3></div><span className="discussion-count">{readerComments.length} comentarios</span></div>
+          {selectedResource.id ? <>
+            <div className="discussion-list">
+              {readerComments.length === 0 ? <p className="discussion-empty">Todavía no hay comentarios. Puedes iniciar la conversación.</p> : readerComments.map(comment => <article className="discussion-item" key={comment.id}><div className="discussion-avatar">{String(comment.profiles?.display_name || comment.profiles?.username || 'U').slice(0,1).toUpperCase()}</div><div><div className="discussion-author">{comment.profiles?.display_name || comment.profiles?.username || 'Miembro'} <time>{new Date(comment.created_at).toLocaleDateString('es-DO')}</time></div><p>{comment.body}</p></div></article>)}
+            </div>
+            <form className="discussion-form" onSubmit={submitComment}>
+              <label htmlFor="comment-body">Tu comentario</label>
+              <textarea id="comment-body" value={commentDraft} onChange={event => setCommentDraft(event.target.value)} maxLength={3000} rows={3} placeholder={session ? 'Aporta una idea, pregunta o experiencia…' : 'Inicia sesión para comentar…'} required />
+              <div className="discussion-actions"><span>{commentDraft.length}/3000</span><button className="btn-primary" type="submit" disabled={commentBusy || !commentDraft.trim()}>{commentBusy ? 'Publicando…' : 'Publicar comentario'}</button></div>
+            </form>
+          </> : <p className="discussion-empty">Los comentarios estarán disponibles cuando el recurso se publique en la biblioteca.</p>}
+          {commentMessage && <p className="discussion-feedback" role="status">{commentMessage}</p>}
+        </section>
         {readerAttachments.length > 0 && <div className="reader-attachments"><h3>Archivos adjuntos</h3><div>{readerAttachments.map(file => file.type.startsWith('image/') ? <a href={file.url} target="_blank" rel="noreferrer" key={file.url}><img src={file.url} alt={file.name}/><span>{file.name}</span></a> : <a className="reader-file" href={file.url} target="_blank" rel="noreferrer" key={file.url}><FileText size={18}/><span>{file.name}</span><ArrowUpRight size={14}/></a>)}</div></div>}
       </section>
     </div>}
