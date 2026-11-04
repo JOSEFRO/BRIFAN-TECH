@@ -45,6 +45,32 @@ const demoResources = [
   { type: 'RECURSO', title: 'Ruta de aprendizaje para certificaciones de redes', category: 'Certificaciones y formación', level: 'Principiante', time: '10 min', excerpt: 'Organiza el estudio de redes, laboratorios y preparación para certificaciones.', body: '## Fundamentos\nEstudia modelos OSI y TCP/IP, IPv4, subredes, Ethernet y dispositivos de red.\n\n## Práctica\nConstruye topologías pequeñas, configura direcciones IP, VLAN, trunk y enrutamiento básico en un simulador.\n\n## Diagnóstico\nPractica ping, ipconfig/ifconfig, traceroute y lectura de tablas de rutas.\n\n## Preparación\nConsulta siempre el temario oficial y la versión vigente del examen. Divide el contenido en objetivos semanales y realiza laboratorios para cada tema.\n\n## Portafolio\nDocumenta topologías, configuraciones y problemas resueltos sin publicar contraseñas ni datos privados.', icon: Sparkles, color: 'violet' },
 ]
 
+function mapArticleToResource(item: any) {
+  const rawBody = item.body_md ?? ''
+  const attachmentMatch = rawBody.match(/<!--BRIFAN_ATTACHMENTS:(.*?)-->/s)
+  let attachments: Array<{ path: string; name: string; type: string }> = []
+  try {
+    if (attachmentMatch) attachments = JSON.parse(attachmentMatch[1])
+  } catch {
+    attachments = []
+  }
+  const cleanBody = attachmentMatch ? rawBody.slice(0, attachmentMatch.index).trim() : rawBody.trim()
+
+  return {
+    id: item.id,
+    excerpt: item.excerpt,
+    body: cleanBody,
+    attachments,
+    type: String(item.content_type ?? 'article').toUpperCase(),
+    title: item.title,
+    category: item.categories?.name ?? 'Tecnología',
+    level: item.difficulty === 'beginner' ? 'Principiante' : item.difficulty === 'advanced' ? 'Avanzado' : item.difficulty === 'all' ? 'Todos' : 'Intermedio',
+    time: (item.reading_minutes ?? 1) + ' min',
+    icon: BookOpen,
+    color: 'blue',
+  }
+}
+
 export default function App() {
   const [query, setQuery] = useState('')
   const [liveResources, setLiveResources] = useState<any[]>([])
@@ -172,7 +198,7 @@ export default function App() {
     await loadPendingArticles()
     if (status === 'published') {
       const { data } = await supabase.from('articles').select('id,title,excerpt,body_md,content_type,difficulty,reading_minutes,categories(name)').eq('status','published').order('published_at',{ascending:false}).limit(18)
-      if (data) setLiveResources(data.map((item:any)=>({id:item.id,excerpt:item.excerpt,body:item.body_md,type:String(item.content_type ?? 'article').toUpperCase(),title:item.title,category:item.categories?.name ?? 'Tecnología',level:item.difficulty==='beginner'?'Principiante':item.difficulty==='advanced'?'Avanzado':item.difficulty==='all'?'Todos':'Intermedio',time:(item.reading_minutes ?? 1)+' min',icon:BookOpen,color:'blue'})))
+      if (data) setLiveResources(data.map(mapArticleToResource))
     }
   }
 
@@ -236,14 +262,7 @@ export default function App() {
       if (!supabase) { setLoadingResources(false); return }
       const { data, error } = await supabase.from('articles').select('id,title,excerpt,body_md,content_type,difficulty,reading_minutes,categories(name)').eq('status', 'published').order('published_at', { ascending: false }).limit(18)
       if (!active) return
-      if (!error && data) setLiveResources(data.map((item: any) => {
-        const rawBody = item.body_md ?? ''
-        const attachmentMatch = rawBody.match(/<!--BRIFAN_ATTACHMENTS:(.*?)-->/s)
-        let attachments: Array<{ path: string; name: string; type: string }> = []
-        try { if (attachmentMatch) attachments = JSON.parse(attachmentMatch[1]) } catch { attachments = [] }
-        const cleanBody = attachmentMatch ? rawBody.slice(0, attachmentMatch.index).trim() : rawBody.trim()
-        return { id: item.id, excerpt: item.excerpt, body: cleanBody, attachments, type: String(item.content_type ?? 'article').toUpperCase(), title: item.title, category: item.categories?.name ?? 'Tecnología', level: item.difficulty === 'beginner' ? 'Principiante' : item.difficulty === 'advanced' ? 'Avanzado' : item.difficulty === 'all' ? 'Todos' : 'Intermedio', time: (item.reading_minutes ?? 1) + ' min', icon: BookOpen, color: 'blue' }
-      }))
+      if (!error && data) setLiveResources(data.map(mapArticleToResource))
       setLoadingResources(false)
     }
     void loadResources()
@@ -253,8 +272,8 @@ export default function App() {
   const [active, setActive] = useState('Todo')
     const filtered = useMemo(() => resources.filter((r) =>
     (active === 'Todo' || r.category === active) &&
-    (r.title + r.category + r.type).toLowerCase().includes(query.toLowerCase())
-  ), [active, query])
+    (r.title + ' ' + r.category + ' ' + r.type + ' ' + (r.excerpt ?? '') + ' ' + (r.body ?? '')).toLowerCase().includes(query.trim().toLowerCase())
+  ), [resources, active, query])
 
   return <div className="min-h-screen overflow-hidden bg-[#080d18] text-slate-100">
     <div className="ambient ambient-one" /><div className="ambient ambient-two" />
