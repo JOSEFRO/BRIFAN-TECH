@@ -189,7 +189,7 @@ export default function App() {
     try {
       const { data: category, error: categoryError } = await supabase.from('categories').select('id').eq('name', publishCategory).eq('is_active', true).single()
       if (categoryError || !category) throw new Error('No se encontró la categoría seleccionada.')
-      const slugBase = publishTitle.normalize('NFD').replace(/[\\u0300-\\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 140)
+      const slugBase = publishTitle.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 140)
       const slug = `${slugBase}-${Date.now().toString(36)}`
       const result = await supabase.from('articles').insert({
         author_id: session.user.id,
@@ -201,7 +201,7 @@ export default function App() {
         content_type: publishType,
         difficulty: publishLevel,
         status: 'pending',
-        reading_minutes: Math.max(1, Math.ceil(publishBody.trim().split(/\\s+/).length / 180)),
+        reading_minutes: Math.max(1, Math.ceil(publishBody.trim().split(/\s+/).length / 180)),
       }).select('id').single()
       if (result.error || !result.data) throw result.error ?? new Error('No se pudo crear la publicación.')
       const uploaded: Array<{ path: string; name: string; type: string }> = []
@@ -253,7 +253,7 @@ export default function App() {
     const filtered = useMemo(() => resources.filter((r) =>
     (active === 'Todo' || r.category === active) &&
     (r.title + r.category + r.type).toLowerCase().includes(query.toLowerCase())
-  ), [active, query])
+  ), [resources, active, query])
 
   return <div className="min-h-screen overflow-hidden bg-[#080d18] text-slate-100">
     <div className="ambient ambient-one" /><div className="ambient ambient-two" />
@@ -267,10 +267,11 @@ export default function App() {
       onSignOut={() => { void supabase?.auth.signOut() }}
     />
     <main className="relative z-10">
-      <section className="mx-auto grid max-w-7xl items-center gap-12 px-5 pb-20 pt-16 sm:px-8 lg:grid-cols-[1.08fr_.92fr] lg:pb-28 lg:pt-24">
-        <div><div className="eyebrow"><span className="pulse-dot"/> PLATAFORMA DE APRENDIZAJE TECNOLÓGICO</div><h1 className="mt-7 max-w-3xl text-5xl font-black leading-[1.05] tracking-tight sm:text-6xl lg:text-7xl">El conocimiento<br/>tecnológico <span className="gradient-text">no tiene límites.</span></h1><p className="mt-7 max-w-xl text-lg leading-8 text-slate-400">Aprende, comparte y descubre. Una comunidad para explorar el mundo de la tecnología, desde los fundamentos hasta las ideas que están transformando el futuro.</p><div className="mt-9 flex flex-wrap gap-3"><a href="#explorar" className="btn-primary px-6 py-3.5">Explorar contenido <ArrowRight size={17}/></a><a href="#comunidad" className="btn-secondary px-6 py-3.5">Conoce la comunidad</a></div><div className="mt-12 flex flex-wrap gap-x-8 gap-y-3 border-t border-white/10 pt-7 text-xs font-semibold uppercase tracking-[.16em] text-slate-500"><span className="flex items-center gap-2"><BookOpen size={15} className="text-cyan-300"/> Guías y tutoriales</span><span className="flex items-center gap-2"><Globe2 size={15} className="text-cyan-300"/> Comunidad abierta</span><span className="flex items-center gap-2"><Sparkles size={15} className="text-cyan-300"/> Aprende a tu ritmo</span></div></div>
-        <div className="hero-visual relative mx-auto w-full max-w-xl"><div className="orbit orbit-a"/><div className="orbit orbit-b"/><div className="visual-core"><div className="core-grid"/><div className="core-icon"><Cpu size={58} strokeWidth={1.2}/></div><span className="core-label">BRIFAN / KNOWLEDGE</span></div><div className="float-card float-card-top"><span className="float-icon cyan"><Network size={18}/></span><div><b>Redes & sistemas</b><small>Conecta ideas</small></div><span className="tiny-status"/></div><div className="float-card float-card-right"><span className="float-icon purple"><ShieldCheck size={18}/></span><div><b>Cyber security</b><small>Protege el futuro</small></div></div><div className="float-card float-card-bottom"><span className="float-icon green"><Code2 size={18}/></span><div><b>Desarrollo</b><small>Construye soluciones</small></div></div><div className="float-chip chip-left">01 — EXPLORE</div><div className="float-chip chip-right">02 — LEARN</div></div>
+      <section className="hero-shell mx-auto grid max-w-7xl items-center gap-10 px-5 pb-20 pt-16 sm:px-8 lg:grid-cols-[1.05fr_.95fr] lg:pb-24 lg:pt-20">
+        <div className="hero-copy"><div className="eyebrow"><span className="pulse-dot"/> PLATAFORMA TECNOLÓGICA · REPÚBLICA DOMINICANA</div><h1 className="mt-7 max-w-3xl text-5xl font-black leading-[1.02] tracking-tight sm:text-6xl lg:text-7xl">BRIFAN <span className="gradient-text">TECH.</span><br/>El futuro se aprende.</h1><p className="mt-7 max-w-xl text-lg leading-8 text-slate-300">Explora, aprende y comparte conocimiento tecnológico. Desde redes y ciberseguridad hasta programación e inteligencia artificial: aprende haciendo, a tu propio ritmo.</p><div className="mt-9 flex flex-wrap gap-3"><a href="#explorar" className="btn-primary px-6 py-3.5">Comenzar ahora <ArrowRight size={17}/></a><a href="#panorama" className="btn-secondary px-6 py-3.5">Ver demo 3D <Globe2 size={16}/></a></div><div className="mt-10 flex flex-wrap gap-x-7 gap-y-3 border-t border-white/10 pt-6 text-xs font-semibold uppercase tracking-[.13em] text-slate-400"><span className="flex items-center gap-2"><BookOpen size={15} className="text-cyan-300"/> Aprende con guías</span><span className="flex items-center gap-2"><ShieldCheck size={15} className="text-cyan-300"/> Tecnología segura</span><span className="flex items-center gap-2"><Sparkles size={15} className="text-cyan-300"/> Crece en comunidad</span></div></div>
+        <div className="hero-visual hero-visual-premium relative mx-auto w-full max-w-xl" role="img" aria-label="Visualización futurista de un núcleo tecnológico BRIFAN"><div className="hero-halo"/><div className="orbit orbit-a"/><div className="orbit orbit-b"/><div className="visual-core"><div className="core-grid"/><div className="core-icon"><Cpu size={58} strokeWidth={1.2}/></div><span className="core-label">BRIFAN / KNOWLEDGE</span></div><div className="hero-code-card"><span> SYSTEM ONLINE</span><b> &lt;/&gt; </b><small>INNOVACIÓN · CONOCIMIENTO · TECNOLOGÍA</small></div><div className="float-card float-card-top"><span className="float-icon cyan"><Network size={18}/></span><div><b>Redes & sistemas</b><small>Conecta ideas</small></div><span className="tiny-status"/></div><div className="float-card float-card-right"><span className="float-icon purple"><ShieldCheck size={18}/></span><div><b>Ciberseguridad</b><small>Protege el futuro</small></div></div><div className="float-card float-card-bottom"><span className="float-icon green"><Code2 size={18}/></span><div><b>Desarrollo</b><small>Construye soluciones</small></div></div><div className="float-chip chip-left">01 — EXPLORA</div><div className="float-chip chip-right">02 — APRENDE</div></div>
       </section>
+      <section className="quick-features mx-auto max-w-7xl px-5 pb-14 sm:px-8"><div><Network/><b>Redes y conectividad</b><span>Aprende a conectar</span></div><div><ShieldCheck/><b>Ciberseguridad</b><span>Protege lo importante</span></div><div><Code2/><b>Programación</b><span>Construye soluciones</span></div><div><BrainCircuit/><b>Inteligencia artificial</b><span>Explora lo nuevo</span></div><div><Terminal/><b>Sistemas</b><span>Domina herramientas</span></div><div><Database/><b>Datos y cloud</b><span>Conecta información</span></div></section>
       <section className="signal-section mx-auto max-w-7xl px-5 pb-16 sm:px-8">
         <div className="signal-panel">
           <div className="signal-copy"><span className="section-kicker">LIVE / TECH ECOSYSTEM</span><h2>La tecnología está <span className="gradient-text">en movimiento.</span></h2><p>Explora cómo se conectan las ideas: redes, datos, código e inteligencia artificial en un mismo ecosistema.</p><div className="signal-points"><span><i className="signal-dot cyan-dot"/> Redes conectadas</span><span><i className="signal-dot violet-dot"/> Datos en flujo</span><span><i className="signal-dot green-dot"/> Ideas en evolución</span></div></div>
