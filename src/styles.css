@@ -271,3 +271,42 @@ button,a,input,select,textarea{touch-action:manipulation}
   .panorama-world{transform:translate(-50%,-50%) perspective(800px) rotateX(58deg) rotateZ(-18deg) scale(.78)}
   .panorama-stage.network-mode .panorama-world{transform:translate(-50%,-50%) perspective(800px) rotateX(8deg) rotateZ(0deg) scale(.72)}
 }
+
+
+/* BRIFAN TECH — visual system refresh */
+:root{--brifan-bg:#050816;--brifan-panel:#0b1430;--brifan-blue:#1e6bff;--brifan-cyan:#22d3ee;--brifan-violet:#7c3aed}
+body{background:radial-gradient(ellipse at 50% -20%,#14295a 0,transparent 48%),#050816;color:#edf5ff}
+header{width:min(1320px,calc(100% - 36px));margin:16px auto 0!important;padding:10px 16px!important;border:1px solid rgba(115,180,255,.2)!important;border-radius:999px;background:rgba(7,15,37,.82)!important;box-shadow:0 12px 40px #0005, inset 0 1px #ffffff0c}
+header:after{display:none}
+header .brand-mark{background:linear-gradient(135deg,#1e6bff,#22d3ee);box-shadow:0 0 24px #1e6bff55}
+.nav-link{transition:color .2s ease}
+.nav-link:hover,.nav-link.active{color:#7eeaff}
+.hero-shell{position:relative;isolation:isolate;min-height:610px;padding-top:76px!important}
+.hero-shell:before{content:"";position:absolute;z-index:-1;inset:22px 8px 16px;border:1px solid #4d91ff25;border-radius:34px;background:radial-gradient(ellipse at 78% 48%,#164f9b35,transparent 48%),linear-gradient(130deg,#0d1b3caa,#07112655);box-shadow:0 35px 100px #0004}
+.hero-copy h1{letter-spacing:-.065em}
+.hero-visual-premium{min-height:470px}
+.hero-halo{position:absolute;inset:9%;border-radius:50%;background:radial-gradient(circle,#1e6bff2a,transparent 68%);filter:blur(12px)}
+.hero-code-card{position:absolute;z-index:4;left:50%;bottom:12px;display:grid;gap:8px;min-width:260px;padding:15px 18px;border:1px solid #22d3ee55;border-radius:14px;background:#071326e8;box-shadow:0 15px 50px #0008;transform:translateX(-50%);text-align:center}
+.hero-code-card span{color:#6ee7b7;font:700 9px 'Space Grotesk';letter-spacing:.18em}
+.hero-code-card b{color:#7eeaff;font:800 30px 'Space Grotesk';text-shadow:0 0 24px #22d3ee88}
+.hero-code-card small{color:#8da8c8;font-size:8px;letter-spacing:.13em}
+.quick-features{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px}
+.quick-features>div{display:grid;justify-items:start;gap:7px;min-width:0;padding:17px 14px;border:1px solid #9ac7ff17;border-radius:15px;background:linear-gradient(145deg,#101e3bba,#091329cc)}
+.quick-features svg{width:19px;height:19px;color:#4edcf2}
+.quick-features b{font-size:11px;color:#e7f3ff}
+.quick-features span{font-size:10px;color:#8196b5}
+.learning-paths{padding-top:12px}
+.learning-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:15px}
+.learning-grid>a{position:relative;display:grid;align-content:start;gap:12px;min-height:205px;padding:24px;border:1px solid #8abaff20;border-radius:20px;background:linear-gradient(145deg,#122448d9,#091329f2);transition:transform .25s,border-color .25s,box-shadow .25s}
+.learning-grid>a:hover{transform:translateY(-5px);border-color:#22d3ee70;box-shadow:0 20px 55px #0005}
+.learning-grid>a>svg{width:25px;height:25px;color:#4edcf2}
+.learning-grid b{font-size:17px;color:#eff8ff}
+.learning-grid small{color:#91a6c3;font-size:12px;line-height:1.7}
+.learning-number{position:absolute;right:20px;top:18px;color:#5f7ca5;font:700 11px 'Space Grotesk'}
+.learning-link{display:flex;align-items:center;gap:5px;margin-top:5px;color:#6eeaff;font-size:11px;font-weight:700}
+.signal-panel,.panorama-stage,.community-panel{border-color:#77c9ff30}
+.category-card,.resource-card{border-color:#8abaff1c}
+footer{border-color:#8abaff20}
+@media(max-width:900px){.quick-features{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:760px){header{width:calc(100% - 20px);margin-top:10px!important;padding:9px 12px!important}.hero-shell{min-height:auto;padding-top:48px!important}.hero-shell:before{inset:10px 4px;border-radius:22px}.hero-visual-premium{min-height:390px}.hero-code-card{min-width:230px;bottom:0}.quick-features{grid-template-columns:repeat(2,minmax(0,1fr));padding-bottom:45px}.learning-grid{grid-template-columns:1fr}.learning-grid>a{min-height:175px}}
+@media(prefers-reduced-motion:reduce){.learning-grid>a,.nav-link{transition:none}}
