@@ -479,7 +479,7 @@ Puedes demostrar habilidades mediante un laboratorio documentado, una guía prop
 Semana 1: diagnóstico de conocimientos y fundamentos. Semana 2: laboratorio guiado. Semana 3: resolver fallos y documentar. Semana 4: presentar el proyecto, recibir revisión y definir siguiente objetivo. Ajusta el ritmo a tu disponibilidad.
 
 ## 9. Reto
-Elige una competencia de una vacante real. Diseña una práctica que produzca evidencia verificable y explica qué conocimientos previos necesitas, cómo medirás el resultado y qué limitaciones tiene tu laboratorio.',
+Elige una competencia de una vacante real. Diseña una práctica que produzca evidencia verificable y explica qué conocimientos previos necesitas, cómo medirás el resultado y qué limitaciones tiene tu laboratorio.`,
     icon: Sparkles, color: 'violet',
   },
 ]
