@@ -253,7 +253,7 @@ export default function App() {
     const filtered = useMemo(() => resources.filter((r) =>
     (active === 'Todo' || r.category === active) &&
     (r.title + r.category + r.type).toLowerCase().includes(query.toLowerCase())
-  ), [active, query])
+  ), [resources, active, query])
 
   return <div className="min-h-screen overflow-hidden bg-[#080d18] text-slate-100">
     <div className="ambient ambient-one" /><div className="ambient ambient-two" />
