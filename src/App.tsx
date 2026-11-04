@@ -160,7 +160,7 @@ export default function App() {
     async function loadComments() {
       setReaderComments([])
       setCommentMessage('')
-      if (!supabase || !selectedResource?.id) return
+      if (!supabase || !selectedResource?.id || !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(String(selectedResource.id))) return
       const { data, error } = await supabase.from('comments')
         .select('id,body,created_at,author_id,profiles(display_name,username)')
         .eq('article_id', selectedResource.id).eq('is_hidden', false)
@@ -175,7 +175,7 @@ export default function App() {
 
   async function submitComment(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
-    if (!supabase || !session || !selectedResource?.id) {
+    if (!supabase || !session || !selectedResource?.id || !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(String(selectedResource.id))) {
       setAuthMode('signin'); setAuthOpen(true)
       setAuthMessage('Inicia sesión para participar en la conversación.')
       return
@@ -467,7 +467,7 @@ export default function App() {
         <GuideMarkdown content={selectedResource.body || selectedResource.body_md || selectedResource.content || 'Este recurso todavía no tiene contenido disponible. Vuelve a intentarlo más adelante.'} />
         <section className="reader-discussion" aria-labelledby="discussion-title">
           <div className="discussion-heading"><div><span className="section-kicker">COMUNIDAD / DISCUSIÓN</span><h3 id="discussion-title">Comparte tu perspectiva</h3></div><span className="discussion-count">{readerComments.length} comentarios</span></div>
-          {selectedResource.id ? <>
+          {/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(String(selectedResource.id ?? '')) ? <>
             <div className="discussion-list">
               {readerComments.length === 0 ? <p className="discussion-empty">Todavía no hay comentarios. Puedes iniciar la conversación.</p> : readerComments.map(comment => <article className="discussion-item" key={comment.id}><div className="discussion-avatar">{String(comment.profiles?.display_name || comment.profiles?.username || 'U').slice(0,1).toUpperCase()}</div><div><div className="discussion-author">{comment.profiles?.display_name || comment.profiles?.username || 'Miembro'} <time>{new Date(comment.created_at).toLocaleDateString('es-DO')}</time></div><p>{comment.body}</p></div></article>)}
             </div>
@@ -476,7 +476,7 @@ export default function App() {
               <textarea id="comment-body" value={commentDraft} onChange={event => setCommentDraft(event.target.value)} maxLength={3000} rows={3} placeholder={session ? 'Aporta una idea, pregunta o experiencia…' : 'Inicia sesión para comentar…'} required />
               <div className="discussion-actions"><span>{commentDraft.length}/3000</span><button className="btn-primary" type="submit" disabled={commentBusy || !commentDraft.trim()}>{commentBusy ? 'Publicando…' : 'Publicar comentario'}</button></div>
             </form>
-          </> : <p className="discussion-empty">Los comentarios estarán disponibles cuando el recurso se publique en la biblioteca.</p>}
+          </> : <p className="discussion-empty">Los comentarios están habilitados en las publicaciones de la comunidad. Esta guía editorial es de demostración.</p>}
           {commentMessage && <p className="discussion-feedback" role="status">{commentMessage}</p>}
         </section>
         {readerAttachments.length > 0 && <div className="reader-attachments"><h3>Archivos adjuntos</h3><div>{readerAttachments.map(file => file.type.startsWith('image/') ? <a href={file.url} target="_blank" rel="noreferrer" key={file.url}><img src={file.url} alt={file.name}/><span>{file.name}</span></a> : <a className="reader-file" href={file.url} target="_blank" rel="noreferrer" key={file.url}><FileText size={18}/><span>{file.name}</span><ArrowUpRight size={14}/></a>)}</div></div>}
