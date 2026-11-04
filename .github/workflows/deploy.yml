@@ -37,6 +37,7 @@ jobs:
         env:
           VITE_SUPABASE_URL: https://htjzmsajubsyvacynyht.supabase.co
           VITE_SUPABASE_PUBLISHABLE_KEY: sb_publishable_FkbYCnsJZZmfQucGfqBTLA_lc2l0eSo
+          GITHUB_PAGES: 'true'
         run: npm run build
 
       - name: Configure GitHub Pages
