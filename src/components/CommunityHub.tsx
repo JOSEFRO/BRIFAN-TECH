@@ -22,6 +22,8 @@ type Activity = {
   categories?: { name?: string } | null
 }
 
+type Author = Pick<Member, 'id' | 'display_name' | 'username'>
+
 function safeWebsite(value: string | null) {
   if (!value) return null
   try {
@@ -34,6 +36,7 @@ function safeWebsite(value: string | null) {
 
 export default function CommunityHub({ onJoin, onPublish, onProfile, isSignedIn }: { onJoin: () => void; onPublish: () => void; onProfile: () => void; isSignedIn: boolean }) {
   const [members, setMembers] = useState<Member[]>([])
+  const [authors, setAuthors] = useState<Record<string, Author>>({})
   const [activity, setActivity] = useState<Activity[]>([])
   const [loading, setLoading] = useState(true)
   const [message, setMessage] = useState('')
@@ -63,10 +66,24 @@ export default function CommunityHub({ onJoin, onPublish, onProfile, isSignedIn 
       if (memberResult.error || activityResult.error) {
         setMessage('No se pudo cargar toda la actividad de la comunidad. Inténtalo de nuevo más tarde.')
       } else {
-        setMembers((memberResult.data ?? []) as Member[])
-        setActivity((activityResult.data ?? []) as Activity[])
+        const nextMembers = (memberResult.data ?? []) as Member[]
+        const nextActivity = (activityResult.data ?? []) as Activity[]
+        setMembers(nextMembers)
+        setActivity(nextActivity)
+
+        // Resolve authors independently from the recent-members list so older members
+        // can still receive the correct attribution on their published articles.
+        const authorIds = [...new Set(nextActivity.map(item => item.author_id).filter(Boolean))]
+        if (authorIds.length) {
+          const { data: authorRows } = await supabase.from('profiles')
+            .select('id,display_name,username')
+            .in('id', authorIds)
+          if (active && authorRows) {
+            setAuthors(Object.fromEntries((authorRows as Author[]).map(author => [author.id, author])))
+          }
+        }
       }
-      setLoading(false)
+      if (active) setLoading(false)
     }
 
     void loadCommunity()
@@ -74,6 +91,7 @@ export default function CommunityHub({ onJoin, onPublish, onProfile, isSignedIn 
   }, [])
 
   const memberById = new Map(members.map(member => [member.id, member]))
+  const authorById = new Map(Object.entries(authors))
 
   return (
     <section id="comunidad" className="community-hub mx-auto max-w-7xl px-5 py-20 sm:px-8">
@@ -129,8 +147,8 @@ export default function CommunityHub({ onJoin, onPublish, onProfile, isSignedIn 
             ) : (
               <div className="community-activity-list">
                 {activity.map(item => {
-                  const author = memberById.get(item.author_id)
-                  const authorName = author?.display_name || author?.username || 'Miembro BRIFAN'
+                  const author = authorById.get(item.author_id) ?? memberById.get(item.author_id)
+                  const authorName = author?.display_name?.trim() || author?.username || 'Miembro BRIFAN'
                   const date = item.published_at || item.created_at
                   return (
                     <article className="community-activity-card" key={item.id}>
