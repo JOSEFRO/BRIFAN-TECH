@@ -11,7 +11,6 @@ export const learningGuides = [
     category: 'Redes y conectividad',
     image: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=1400&q=85',
     level: 'Intermedio',
-    level: 'Intermedio',
     time: '45–60 min',
     excerpt: 'Diseña una LAN segmentada, entiende el recorrido de los paquetes y aprende a diagnosticar fallos por capas.',
     body: `# Ingeniería de redes: de la topología al diagnóstico
@@ -82,7 +81,6 @@ Broadcast: trama enviada a todos los equipos de una VLAN. Gateway: siguiente sal
     category: 'Ciberseguridad',
     image: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&w=1400&q=85',
     level: 'Intermedio',
-    level: 'Intermedio',
     time: '40–55 min',
     excerpt: 'Construye un modelo de protección basado en activos, amenazas, controles, monitoreo y recuperación.',
     body: '# Ciberseguridad defensiva: proteger, detectar y recuperar
@@ -130,7 +128,6 @@ Mide porcentaje de activos inventariados, tiempo de aplicación de parches crít
     title: 'Desarrollo web moderno: del navegador a producción',
     category: 'Programación',
     image: 'https://images.unsplash.com/photo-1515879218367-8466d910aaa4?auto=format&fit=crop&w=1400&q=85',
-    level: 'Intermedio',
     level: 'Intermedio',
     time: '45–60 min',
     excerpt: 'Comprende HTTP, arquitectura frontend/backend, APIs, validación, pruebas y despliegue.',
@@ -186,7 +183,6 @@ La aplicación funciona en local pero falla al desplegar. Elabora un checklist q
     category: 'Sistemas operativos',
     image: 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1400&q=85',
     level: 'Intermedio',
-    level: 'Intermedio',
     time: '40–50 min',
     excerpt: 'Administra archivos, usuarios, permisos, procesos, systemd, almacenamiento y registros con criterio.',
     body: '# Linux para administración de sistemas
@@ -231,7 +227,6 @@ Un servicio no inicia después de reiniciar. Revisa estado, logs, configuración
     title: 'Bases de datos y SQL: diseño, consultas e integridad',
     category: 'Bases de datos',
     image: 'https://images.unsplash.com/photo-1544383835-bda2bc66a55d?auto=format&fit=crop&w=1400&q=85',
-    level: 'Intermedio',
     level: 'Intermedio',
     time: '45 min',
     excerpt: 'Diseña un modelo relacional, consulta con JOIN, comprende transacciones e índices y evita errores comunes.',
@@ -290,7 +285,6 @@ Una consulta tarda demasiado. Revisa el plan, cardinalidad, filtros, índices y 
     category: 'Cloud y DevOps',
     image: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1400&q=85',
     level: 'Intermedio',
-    level: 'Intermedio',
     time: '45–55 min',
     excerpt: 'Relaciona redes cloud, cómputo, almacenamiento, automatización, despliegues y operación confiable.',
     body: '# Cloud y DevOps: diseñar y operar servicios
@@ -335,7 +329,6 @@ Un despliegue pasa las pruebas pero el servicio no responde en producción. Revi
     category: 'Hardware y electrónica',
     image: 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1400&q=85',
     level: 'Intermedio',
-    level: 'Intermedio',
     time: '35–45 min',
     excerpt: 'Relaciona CPU, memoria, almacenamiento, firmware, energía y síntomas para diagnosticar equipos.',
     body: '# Hardware y arquitectura de computadoras
@@ -377,7 +370,6 @@ Un portátil se vuelve lento después de varios minutos de uso. Diseña una secu
     title: 'Soporte técnico profesional: gestión de incidencias y SLA',
     category: 'Soporte técnico',
     image: 'https://images.unsplash.com/photo-1581092918056-0c4c3ffd7d5a?auto=format&fit=crop&w=1400&q=85',
-    level: 'Intermedio',
     level: 'Intermedio',
     time: '35–45 min',
     excerpt: 'Aplica triage, priorización, documentación, escalamiento y comunicación centrada en el usuario.',
@@ -427,7 +419,6 @@ Un usuario solicita acceso administrativo para instalar una aplicación. Describ
     category: 'Inteligencia artificial',
     image: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&w=1400&q=85',
     level: 'Intermedio',
-    level: 'Intermedio',
     time: '40–50 min',
     excerpt: 'Diferencia aprendizaje automático, redes neuronales y modelos generativos; evalúa calidad, sesgos y privacidad.',
     body: '# Inteligencia artificial aplicada: comprender antes de implementar
@@ -466,7 +457,6 @@ Una IA propone una configuración de red incorrecta con mucha seguridad. Diseña
     title: 'Ruta profesional IT: competencias, laboratorios y portafolio',
     category: 'Certificaciones y formación',
     image: 'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?auto=format&fit=crop&w=1400&q=85',
-    level: 'Todos los niveles',
     level: 'Todos los niveles',
     time: '30–40 min',
     excerpt: 'Convierte el estudio en evidencias: objetivos, prácticas, documentación y preparación para certificaciones.',
