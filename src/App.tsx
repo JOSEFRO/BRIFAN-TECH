@@ -463,7 +463,7 @@ export default function App() {
       <section className="resource-reader" role="dialog" aria-modal="true" aria-labelledby="resource-reader-title">
         <button className="modal-close" onClick={() => setSelectedResource(null)} aria-label="Cerrar guía"><X size={18}/></button>
         <span className="section-kicker">{selectedResource.type ?? 'RECURSO'} / {selectedResource.category}</span>
-        <div className="guide-cover-image" style={{ backgroundImage: `linear-gradient(180deg,rgba(4,10,20,.05),rgba(4,10,20,.78)),url(${categoryVisuals[selectedResource.category] ?? categoryVisuals['Programación']})` }} role="img" aria-label={`Imagen ilustrativa: ${selectedResource.category}`}>
+        <div className="guide-cover-image" style={{ backgroundImage: `linear-gradient(180deg,rgba(4,10,20,.05),rgba(4,10,20,.78)),url(${selectedResource.image ?? categoryVisuals[selectedResource.category] ?? categoryVisuals['Programación']})` }} role="img" aria-label={`Imagen ilustrativa: ${selectedResource.category}`}>
           <span>{selectedResource.category}</span>
         </div>
         <h2 id="resource-reader-title">{selectedResource.title}</h2>
