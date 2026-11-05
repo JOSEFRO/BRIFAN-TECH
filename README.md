@@ -23,7 +23,7 @@ BRIFAN TECH combina una experiencia de bienvenida 3D, una biblioteca técnica, r
 | Estilos | Tailwind CSS 4 + CSS propio |
 | Iconos | Lucide React |
 | Backend | Supabase JS v2 |
-| Hosting | GitHub Pages (rama `main`) |
+| Hosting | GitHub Pages (rama `main`) y proyecto Vercel Preview |
 
 ## Estructura principal
 
@@ -42,7 +42,7 @@ BRIFAN TECH combina una experiencia de bienvenida 3D, una biblioteca técnica, r
 
 ## Desarrollo local
 
-Requisitos: Node.js 22 o superior y npm.
+Requisitos: Node.js 22.x y npm.
 
 ```bash
 npm ci
@@ -50,14 +50,16 @@ cp .env.example .env.local
 npm run dev
 ```
 
-Configura en `.env.local`:
+Edita `.env.local` y reemplaza los valores de ejemplo por la URL y la clave publishable de tu proyecto Supabase:
 
 ```dotenv
 VITE_SUPABASE_URL=https://TU-PROJECT-REF.supabase.co
 VITE_SUPABASE_PUBLISHABLE_KEY=TU_CLAVE_PUBLISHABLE
 ```
 
-El repositorio incluye `package-lock.json` (lockfile v3). CI y el despliegue de GitHub Pages instalan dependencias con `npm ci` para mantener instalaciones reproducibles.
+Si no configuras Supabase, la aplicación puede arrancar con sus datos locales de demostración, pero las funciones remotas no estarán disponibles.
+
+El repositorio incluye `package-lock.json` (lockfile v3). CI y el despliegue de GitHub Pages instalan dependencias con `npm ci` para mantener instalaciones reproducibles. La versión de Node está fijada en `.nvmrc` y en el proyecto Preview de Vercel.
 
 ## Supabase
 
@@ -79,21 +81,27 @@ La auditoría de solo lectura encontró seis migraciones aplicadas en Supabase:
 
 Los archivos SQL originales aún no se han incorporado al repositorio. No recrees ni vuelvas a aplicar migraciones sobre producción sin comparar primero el historial remoto y los archivos exactos.
 
-## Variables de GitHub Actions
+## Variables de GitHub Actions y Vercel
 
-Configura en **Settings → Secrets and variables → Actions → Variables**:
+Configura en GitHub: **Settings → Secrets and variables → Actions → Variables**.
 
-- `VITE_SUPABASE_URL`
-- `VITE_SUPABASE_PUBLISHABLE_KEY`
+| Variable | Uso |
+|---|---|
+| `VITE_SUPABASE_URL` | URL pública del proyecto Supabase |
+| `VITE_SUPABASE_PUBLISHABLE_KEY` | Clave publishable de Supabase |
 
-La clave publishable está diseñada para uso en cliente y no equivale a una clave privilegiada. Nunca incluyas `service_role`, `sb_secret` ni contraseñas en el frontend, el repositorio o los logs.
+Configura los mismos dos valores en Vercel para los entornos Preview y Production que realmente vayas a utilizar. Comprueba que estén disponibles en Preview antes de validar la aplicación.
+
+La clave publishable está diseñada para uso en cliente y no equivale a una clave privilegiada. Nunca incluyas `service_role`, `sb_secret` ni contraseñas en el frontend, el repositorio o los logs. No publiques los valores de las variables en capturas o registros.
 
 ## Despliegue
 
 - Los cambios en `main` disparan el workflow de GitHub Pages.
 - Vite utiliza `/BRIFAN-TECH/` cuando `GITHUB_PAGES=true`.
 - Los pull requests hacia `main` ejecutan validación de TypeScript y build.
-- Para previsualizar una rama, se utiliza un deployment Preview independiente; no modifica el despliegue de producción.
+- El proyecto de Vercel debe tener instalada la integración oficial de GitHub y estar conectado a este repositorio para crear previews automáticos por rama.
+- Las ramas distintas de la rama de producción generan Preview deployments; no deben asignarse al dominio de producción.
+- No se debe fusionar el PR hasta que la vista previa y las pruebas funcionales hayan sido revisadas.
 
 ## Seguridad y mantenimiento
 
