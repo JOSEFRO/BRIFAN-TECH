@@ -303,8 +303,8 @@ export default function App() {
     try {
       const { data: category, error: categoryError } = await supabase.from('categories').select('id').eq('name', publishCategory).eq('is_active', true).single()
       if (categoryError || !category) throw new Error('No se encontró la categoría seleccionada.')
-      const slugBase = publishTitle.normalize('NFD').replace(/[\\u0300-\\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 140)
-      const slug = `${slugBase}-${Date.now().toString(36)}`
+      const slugBase = publishTitle.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 140)
+      const slug = slugBase + '-' + Date.now().toString(36)
       const result = await supabase.from('articles').insert({
         author_id: session.user.id,
         category_id: category.id,
@@ -315,21 +315,28 @@ export default function App() {
         content_type: publishType,
         difficulty: publishLevel,
         status: 'pending',
-        reading_minutes: Math.max(1, Math.ceil(publishBody.trim().split(/\\s+/).length / 180)),
+        reading_minutes: Math.max(1, Math.ceil(publishBody.trim().split(/\s+/).length / 180)),
       }).select('id').single()
       if (result.error || !result.data) throw result.error ?? new Error('No se pudo crear la publicación.')
       const uploaded: Array<{ path: string; name: string; type: string }> = []
-      for (const file of publishFiles) {
-        const safeName = file.name.normalize('NFD').replace(/[\\u0300-\\u036f]/g, '').replace(/[^a-zA-Z0-9._-]/g, '-').slice(-100)
-        const path = `${session.user.id}/${result.data.id}/${crypto.randomUUID()}-${safeName}`
-        const { error: uploadError } = await supabase.storage.from('brifan-articles').upload(path, file, { contentType: file.type, upsert: false })
-        if (uploadError) throw uploadError
-        uploaded.push({ path, name: file.name, type: file.type })
-      }
-      if (uploaded.length) {
-        const attachmentBlock = `\\n\\n<!--BRIFAN_ATTACHMENTS:${JSON.stringify(uploaded)}-->`
-        const { error: updateError } = await supabase.from('articles').update({ body_md: publishBody.trim() + attachmentBlock }).eq('id', result.data.id)
-        if (updateError) throw updateError
+      try {
+        for (const file of publishFiles) {
+          if (file.size > 50 * 1024 * 1024) throw new Error('El archivo "' + file.name + '" supera el límite de 50 MB.')
+          const safeName = file.name.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-zA-Z0-9._-]/g, '-').slice(-100)
+          const path = session.user.id + '/' + result.data.id + '/' + crypto.randomUUID() + '-' + safeName
+          const { error: uploadError } = await supabase.storage.from('brifan-articles').upload(path, file, { contentType: file.type, upsert: false })
+          if (uploadError) throw uploadError
+          uploaded.push({ path, name: file.name, type: file.type })
+        }
+        if (uploaded.length) {
+          const attachmentBlock = '\n\n<!--BRIFAN_ATTACHMENTS:' + JSON.stringify(uploaded) + '-->'
+          const { error: updateError } = await supabase.from('articles').update({ body_md: publishBody.trim() + attachmentBlock }).eq('id', result.data.id)
+          if (updateError) throw updateError
+        }
+      } catch (uploadFailure) {
+        if (uploaded.length) await supabase.storage.from('brifan-articles').remove(uploaded.map(file => file.path))
+        await supabase.from('articles').delete().eq('id', result.data.id).eq('author_id', session.user.id)
+        throw uploadFailure
       }
       setPublishMessage('¡Enviado! Tu publicación y sus archivos quedaron pendientes de revisión. Aparecerán en la biblioteca cuando se aprueben.')
       setPublishTitle('')
