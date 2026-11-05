@@ -1,5 +1,8 @@
 import Header from './components/Header'
+import WelcomeExperience from './components/WelcomeExperience'
 import LearningHub from './components/LearningHub'
+import CommunityHub from './components/CommunityHub'
+import GuideMarkdown from './components/GuideMarkdown'
 import { learningGuides } from './data/learningGuides'
 import { ArrowRight, ArrowUpRight, BookOpen, Bookmark, BrainCircuit, Code2, Cpu, Database, FileText, Globe2, Layers3, Network, Search, ShieldCheck, Sparkles, Terminal, X } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
@@ -31,8 +34,35 @@ const categoryVisuals: Record<string, string> = {
   'Soporte técnico': 'https://images.unsplash.com/photo-1581092918056-0c4c3ffd7d5a?auto=format&fit=crop&w=1000&q=85',
   'Certificaciones y formación': 'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?auto=format&fit=crop&w=1000&q=85',
 }
-
 const demoResources = learningGuides
+
+
+function mapArticleToResource(item: any) {
+  const rawBody = item.body_md ?? ''
+  const attachmentMatch = rawBody.match(/<!--BRIFAN_ATTACHMENTS:(.*?)-->/s)
+  let attachments: Array<{ path: string; name: string; type: string }> = []
+  try {
+    if (attachmentMatch) attachments = JSON.parse(attachmentMatch[1])
+  } catch {
+    attachments = []
+  }
+  const cleanBody = attachmentMatch ? rawBody.slice(0, attachmentMatch.index).trim() : rawBody.trim()
+
+  return {
+    id: item.id,
+    excerpt: item.excerpt,
+    body: cleanBody,
+    attachments,
+    type: String(item.content_type ?? 'article').toUpperCase(),
+    title: item.title,
+    category: item.categories?.name ?? 'Tecnología',
+    image: categoryVisuals[item.categories?.name ?? ''] ?? categoryVisuals['Programación'],
+    level: item.difficulty === 'beginner' ? 'Principiante' : item.difficulty === 'advanced' ? 'Avanzado' : item.difficulty === 'all' ? 'Todos' : 'Intermedio',
+    time: (item.reading_minutes ?? 1) + ' min',
+    icon: BookOpen,
+    color: 'blue',
+  }
+}
 
 export default function App() {
   const [query, setQuery] = useState('')
@@ -68,6 +98,11 @@ export default function App() {
   const [commentDraft, setCommentDraft] = useState('')
   const [commentBusy, setCommentBusy] = useState(false)
   const [commentMessage, setCommentMessage] = useState('')
+  const [profileOpen, setProfileOpen] = useState(false)
+  const [profileBusy, setProfileBusy] = useState(false)
+  const [profileSaving, setProfileSaving] = useState(false)
+  const [profileMessage, setProfileMessage] = useState('')
+  const [profileForm, setProfileForm] = useState({ display_name: '', username: '', bio: '', website: '' })
 
   useEffect(() => {
     if (!supabase) return
@@ -127,14 +162,11 @@ export default function App() {
     async function loadComments() {
       setReaderComments([])
       setCommentMessage('')
-      if (!supabase || !selectedResource?.id) return
-      const { data, error } = await supabase
-        .from('comments')
+      if (!supabase || !selectedResource?.id || !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(String(selectedResource.id))) return
+      const { data, error } = await supabase.from('comments')
         .select('id,body,created_at,author_id,profiles(display_name,username)')
-        .eq('article_id', selectedResource.id)
-        .eq('is_hidden', false)
-        .order('created_at', { ascending: true })
-        .limit(100)
+        .eq('article_id', selectedResource.id).eq('is_hidden', false)
+        .order('created_at', { ascending: true }).limit(100)
       if (!active) return
       if (error) setCommentMessage('No fue posible cargar los comentarios.')
       else setReaderComments(data ?? [])
@@ -145,36 +177,70 @@ export default function App() {
 
   async function submitComment(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
-    if (!supabase || !session || !selectedResource?.id) {
-      setAuthMode('signin')
-      setAuthOpen(true)
+    if (!supabase || !session || !selectedResource?.id || !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(String(selectedResource.id))) {
+      setAuthMode('signin'); setAuthOpen(true)
       setAuthMessage('Inicia sesión para participar en la conversación.')
       return
     }
     const body = commentDraft.trim()
     if (!body || body.length > 3000) return
-    setCommentBusy(true)
-    setCommentMessage('')
-    const { error } = await supabase.from('comments').insert({
-      article_id: selectedResource.id,
-      author_id: session.user.id,
-      body,
-    })
+    setCommentBusy(true); setCommentMessage('')
+    const { error } = await supabase.from('comments').insert({ article_id: selectedResource.id, author_id: session.user.id, body })
     if (error) setCommentMessage('No se pudo publicar el comentario. Comprueba tu sesión e inténtalo de nuevo.')
     else {
       setCommentDraft('')
-      const { data } = await supabase
-        .from('comments')
+      const { data, error: refreshError } = await supabase.from('comments')
         .select('id,body,created_at,author_id,profiles(display_name,username)')
-        .eq('article_id', selectedResource.id)
-        .eq('is_hidden', false)
-        .order('created_at', { ascending: true })
-        .limit(100)
-      setReaderComments(data ?? [])
+        .eq('article_id', selectedResource.id).eq('is_hidden', false)
+        .order('created_at', { ascending: true }).limit(100)
+      if (!refreshError) setReaderComments(data ?? [])
       setCommentMessage('Comentario publicado.')
     }
     setCommentBusy(false)
   }
+
+  async function openProfile() {
+    if (!session || !supabase) {
+      setAuthMode('signin'); setAuthOpen(true)
+      setAuthMessage('Inicia sesión para editar tu perfil.')
+      return
+    }
+    setProfileOpen(true); setProfileBusy(true); setProfileMessage('')
+    const { data, error } = await supabase.from('profiles')
+      .select('display_name,username,bio,website').eq('id', session.user.id).maybeSingle()
+    if (error) setProfileMessage('No se pudo cargar tu perfil. Inténtalo de nuevo.')
+    else setProfileForm({
+      display_name: data?.display_name ?? String(session.user.user_metadata?.display_name ?? ''),
+      username: data?.username ?? '', bio: data?.bio ?? '', website: data?.website ?? '',
+    })
+    setProfileBusy(false)
+  }
+
+  async function saveProfile(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    if (!supabase || !session) return
+    const username = profileForm.username.trim().toLowerCase()
+    if (username && !/^[a-z0-9_]{3,24}$/.test(username)) {
+      setProfileMessage('El usuario debe tener entre 3 y 24 caracteres: letras, números o guion bajo.')
+      return
+    }
+    const website = profileForm.website.trim()
+    if (website) {
+      try { new URL(website) } catch {
+        setProfileMessage('Introduce una dirección web válida, incluyendo https://.')
+        return
+      }
+    }
+    setProfileSaving(true); setProfileMessage('')
+    const { data, error } = await supabase.from('profiles').update({
+      display_name: profileForm.display_name.trim() || null,
+      username: username || null, bio: profileForm.bio.trim(), website: website || null,
+    }).eq('id', session.user.id).select('id').maybeSingle()
+    if (error || !data) setProfileMessage(error?.code === '23505' ? 'Ese nombre de usuario ya está ocupado.' : 'No se pudo guardar el perfil. Comprueba los datos e inténtalo de nuevo.')
+    else setProfileMessage('Perfil actualizado correctamente.')
+    setProfileSaving(false)
+  }
+
 
   useEffect(() => {
     let active = true
@@ -219,7 +285,7 @@ export default function App() {
     await loadPendingArticles()
     if (status === 'published') {
       const { data } = await supabase.from('articles').select('id,title,excerpt,body_md,content_type,difficulty,reading_minutes,categories(name)').eq('status','published').order('published_at',{ascending:false}).limit(18)
-      if (data) setLiveResources(data.map((item:any)=>({id:item.id,excerpt:item.excerpt,body:item.body_md,type:String(item.content_type ?? 'article').toUpperCase(),title:item.title,category:item.categories?.name ?? 'Tecnología',level:item.difficulty==='beginner'?'Principiante':item.difficulty==='advanced'?'Avanzado':item.difficulty==='all'?'Todos':'Intermedio',time:(item.reading_minutes ?? 1)+' min',icon:BookOpen,color:'blue'})))
+      if (data) setLiveResources(data.map(mapArticleToResource))
     }
   }
 
@@ -238,7 +304,7 @@ export default function App() {
       const { data: category, error: categoryError } = await supabase.from('categories').select('id').eq('name', publishCategory).eq('is_active', true).single()
       if (categoryError || !category) throw new Error('No se encontró la categoría seleccionada.')
       const slugBase = publishTitle.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 140)
-      const slug = `${slugBase}-${Date.now().toString(36)}`
+      const slug = slugBase + '-' + Date.now().toString(36)
       const result = await supabase.from('articles').insert({
         author_id: session.user.id,
         category_id: category.id,
@@ -255,15 +321,15 @@ export default function App() {
       const uploaded: Array<{ path: string; name: string; type: string }> = []
       try {
         for (const file of publishFiles) {
-          if (file.size > 50 * 1024 * 1024) throw new Error(`El archivo "${file.name}" supera el límite de 50 MB.`)
+          if (file.size > 50 * 1024 * 1024) throw new Error('El archivo "' + file.name + '" supera el límite de 50 MB.')
           const safeName = file.name.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-zA-Z0-9._-]/g, '-').slice(-100)
-          const path = `${session.user.id}/${result.data.id}/${crypto.randomUUID()}-${safeName}`
+          const path = session.user.id + '/' + result.data.id + '/' + crypto.randomUUID() + '-' + safeName
           const { error: uploadError } = await supabase.storage.from('brifan-articles').upload(path, file, { contentType: file.type, upsert: false })
           if (uploadError) throw uploadError
           uploaded.push({ path, name: file.name, type: file.type })
         }
         if (uploaded.length) {
-          const attachmentBlock = `\n\n<!--BRIFAN_ATTACHMENTS:${JSON.stringify(uploaded)}-->`
+          const attachmentBlock = '\n\n<!--BRIFAN_ATTACHMENTS:' + JSON.stringify(uploaded) + '-->'
           const { error: updateError } = await supabase.from('articles').update({ body_md: publishBody.trim() + attachmentBlock }).eq('id', result.data.id)
           if (updateError) throw updateError
         }
@@ -290,14 +356,7 @@ export default function App() {
       if (!supabase) { setLoadingResources(false); return }
       const { data, error } = await supabase.from('articles').select('id,title,excerpt,body_md,content_type,difficulty,reading_minutes,categories(name)').eq('status', 'published').order('published_at', { ascending: false }).limit(18)
       if (!active) return
-      if (!error && data) setLiveResources(data.map((item: any) => {
-        const rawBody = item.body_md ?? ''
-        const attachmentMatch = rawBody.match(/<!--BRIFAN_ATTACHMENTS:(.*?)-->/s)
-        let attachments: Array<{ path: string; name: string; type: string }> = []
-        try { if (attachmentMatch) attachments = JSON.parse(attachmentMatch[1]) } catch { attachments = [] }
-        const cleanBody = attachmentMatch ? rawBody.slice(0, attachmentMatch.index).trim() : rawBody.trim()
-        return { id: item.id, excerpt: item.excerpt, body: cleanBody, attachments, type: String(item.content_type ?? 'article').toUpperCase(), title: item.title, category: item.categories?.name ?? 'Tecnología', level: item.difficulty === 'beginner' ? 'Principiante' : item.difficulty === 'advanced' ? 'Avanzado' : item.difficulty === 'all' ? 'Todos' : 'Intermedio', time: (item.reading_minutes ?? 1) + ' min', icon: BookOpen, color: 'blue' }
-      }))
+      if (!error && data) setLiveResources(data.map(mapArticleToResource))
       setLoadingResources(false)
     }
     void loadResources()
@@ -307,14 +366,16 @@ export default function App() {
   const [active, setActive] = useState('Todo')
     const filtered = useMemo(() => resources.filter((r) =>
     (active === 'Todo' || r.category === active) &&
-    (r.title + r.category + r.type).toLowerCase().includes(query.toLowerCase())
+    (r.title + ' ' + r.category + ' ' + r.type + ' ' + (r.excerpt ?? '') + ' ' + (r.body ?? '')).toLowerCase().includes(query.trim().toLowerCase())
   ), [resources, active, query])
 
   return <div className="min-h-screen overflow-hidden bg-[#080d18] text-slate-100">
     <div className="ambient ambient-one" /><div className="ambient ambient-two" />
+    <WelcomeExperience />
     <Header
       session={session}
       isAdmin={isAdmin}
+      onProfile={() => void openProfile()}
       onPublish={() => { setPublishMessage(''); setPublishOpen(true) }}
       onAdmin={() => { setAdminOpen(true); setAdminMessage(''); void loadPendingArticles() }}
       onSignIn={() => { setAuthMode('signin'); setAuthOpen(true); setAuthMessage('') }}
@@ -322,21 +383,9 @@ export default function App() {
       onSignOut={() => { void supabase?.auth.signOut() }}
     />
     <main className="relative z-10">
-      <section className="deep-hero mx-auto max-w-7xl px-5 sm:px-8">
-        <div className="deep-hero-copy">
-          <div className="eyebrow"><span className="pulse-dot"/> EL CONOCIMIENTO ES TU PRÓXIMA VENTAJA</div>
-          <p className="deep-index">BRIFAN TECH <span>—</span> DIGITAL KNOWLEDGE PLATFORM / 2026</p>
-          <h1>El futuro no se<br/>espera. <span className="gradient-text">Se construye.</span></h1>
-          <p className="deep-lead">Un espacio para quienes sienten curiosidad por la tecnología. Explora redes, ciberseguridad, inteligencia artificial y desarrollo a través de recursos prácticos y una comunidad que comparte lo que sabe.</p>
-          <div className="deep-actions"><a href="#explorar" className="btn-primary">Explorar la biblioteca <ArrowRight size={17}/></a><a href="#panorama" className="deep-text-link">Entrar al universo <ArrowUpRight size={16}/></a></div>
-          <div className="deep-proof"><div><b>10</b><span>ÁREAS DE TECNOLOGÍA</span></div><i/><div><b>∞</b><span>FORMAS DE APRENDER</span></div><i/><div><b>01</b><span>COMUNIDAD ABIERTA</span></div></div>
-        </div>
-        <div className="deep-hero-art"><div className="deep-art-image" role="img" aria-label="Centro de datos tecnológico iluminado"/><div className="deep-art-shade"/><div className="deep-orbit deep-orbit-one"/><div className="deep-orbit deep-orbit-two"/>
-          <div className="deep-glass-card deep-card-top"><span className="deep-card-icon"><Network size={17}/></span><div><small>NETWORK SYSTEMS</small><b>Conecta el conocimiento</b></div><span className="deep-live">LIVE</span></div>
-          <div className="deep-glass-card deep-card-bottom"><span className="deep-card-icon purple"><BrainCircuit size={18}/></span><div><small>INTELLIGENCE / 01</small><b>Ideas que evolucionan</b></div><ArrowUpRight size={17}/></div>
-          <div className="deep-core"><div className="deep-core-inner"><Layers3 size={48}/><b>BRIFAN</b><small>TECH ECOSYSTEM</small></div></div>
-          <span className="deep-coordinate coordinate-a">18° / 70° — DIGITAL SPACE</span><span className="deep-coordinate coordinate-b">EXPLORE BEYOND LIMITS</span>
-        </div>
+      <section className="mx-auto grid max-w-7xl items-center gap-12 px-5 pb-20 pt-16 sm:px-8 lg:grid-cols-[1.08fr_.92fr] lg:pb-28 lg:pt-24">
+        <div><div className="eyebrow"><span className="pulse-dot"/> PLATAFORMA DE APRENDIZAJE TECNOLÓGICO</div><h1 className="mt-7 max-w-3xl text-5xl font-black leading-[1.05] tracking-tight sm:text-6xl lg:text-7xl">El conocimiento<br/>tecnológico <span className="gradient-text">no tiene límites.</span></h1><p className="mt-7 max-w-xl text-lg leading-8 text-slate-400">Aprende, comparte y descubre. Una comunidad para explorar el mundo de la tecnología, desde los fundamentos hasta las ideas que están transformando el futuro.</p><div className="mt-9 flex flex-wrap gap-3"><a href="#explorar" className="btn-primary px-6 py-3.5">Explorar contenido <ArrowRight size={17}/></a><a href="#comunidad" className="btn-secondary px-6 py-3.5">Conoce la comunidad</a></div><div className="mt-12 flex flex-wrap gap-x-8 gap-y-3 border-t border-white/10 pt-7 text-xs font-semibold uppercase tracking-[.16em] text-slate-500"><span className="flex items-center gap-2"><BookOpen size={15} className="text-cyan-300"/> Guías y tutoriales</span><span className="flex items-center gap-2"><Globe2 size={15} className="text-cyan-300"/> Comunidad abierta</span><span className="flex items-center gap-2"><Sparkles size={15} className="text-cyan-300"/> Aprende a tu ritmo</span></div></div>
+        <div className="hero-visual relative mx-auto w-full max-w-xl"><div className="orbit orbit-a"/><div className="orbit orbit-b"/><div className="visual-core"><div className="core-grid"/><div className="core-icon"><Cpu size={58} strokeWidth={1.2}/></div><span className="core-label">BRIFAN / KNOWLEDGE</span></div><div className="float-card float-card-top"><span className="float-icon cyan"><Network size={18}/></span><div><b>Redes & sistemas</b><small>Conecta ideas</small></div><span className="tiny-status"/></div><div className="float-card float-card-right"><span className="float-icon purple"><ShieldCheck size={18}/></span><div><b>Cyber security</b><small>Protege el futuro</small></div></div><div className="float-card float-card-bottom"><span className="float-icon green"><Code2 size={18}/></span><div><b>Desarrollo</b><small>Construye soluciones</small></div></div><div className="float-chip chip-left">01 — EXPLORE</div><div className="float-chip chip-right">02 — LEARN</div></div>
       </section>
       <section className="signal-section mx-auto max-w-7xl px-5 pb-16 sm:px-8">
         <div className="signal-panel">
@@ -378,10 +427,10 @@ export default function App() {
         </div>
       </section>
       <section className="border-y border-white/[.07] bg-white/[.018]"><div className="mx-auto grid max-w-7xl gap-6 px-5 py-7 sm:grid-cols-3 sm:px-8"><div className="flex items-center gap-4"><span className="stat-icon"><BookOpen size={19}/></span><div><b className="block text-sm">Conocimiento compartido</b><span className="text-xs text-slate-500">Experiencias que ayudan a crecer</span></div></div><div className="flex items-center gap-4"><span className="stat-icon"><FileText size={19}/></span><div><b className="block text-sm">Recursos prácticos</b><span className="text-xs text-slate-500">Material para aprender haciendo</span></div></div><div className="flex items-center gap-4"><span className="stat-icon"><Globe2 size={19}/></span><div><b className="block text-sm">Comunidad tecnológica</b><span className="text-xs text-slate-500">Distintas áreas, una misma pasión</span></div></div></div></section>
-      <section id="categorias" className="mx-auto max-w-7xl px-5 py-20 sm:px-8"><div className="section-heading"><div><span className="section-kicker">01 / EXPLORA POR ÁREA</span><h2>Un universo de <span className="gradient-text">posibilidades.</span></h2></div><a href="#explorar" className="text-sm font-semibold text-cyan-300">Ver contenido <ArrowUpRight size={15} className="inline"/></a></div><div className="mt-9 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{categories.map(({name,icon:Icon,tone},i)=><button key={name} onClick={()=>{setActive(name);document.getElementById('explorar')?.scrollIntoView({behavior:'smooth'})}} className="category-card group text-left"><div className="category-card-image" style={{backgroundImage: "linear-gradient(180deg,rgba(5,12,23,.08),rgba(5,12,23,.94)),url(" + (categoryVisuals[name] ?? categoryVisuals['Programación']) + ")"}}/><div className={'category-icon '+tone}><Icon size={22}/></div><div className="mt-7 flex items-end justify-between"><div><span className="mb-2 block text-xs text-slate-500">0{i+1} / ÁREA</span><h3>{name}</h3><span className="mt-2 block text-xs text-slate-500">Explorar contenido</span></div><ArrowUpRight className="text-slate-600 transition group-hover:-translate-y-1 group-hover:translate-x-1 group-hover:text-cyan-300"/></div></button>)}</div></section>
+      <section id="categorias" className="mx-auto max-w-7xl px-5 py-20 sm:px-8"><div className="section-heading"><div><span className="section-kicker">01 / EXPLORA POR ÁREA</span><h2>Un universo de <span className="gradient-text">posibilidades.</span></h2></div><a href="#explorar" className="text-sm font-semibold text-cyan-300">Ver contenido <ArrowUpRight size={15} className="inline"/></a></div><div className="mt-9 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{categories.map(({name,icon:Icon,tone},i)=><button key={name} onClick={()=>{setActive(name);document.getElementById('explorar')?.scrollIntoView({behavior:'smooth'})}} className="category-card group text-left"><div className={'category-icon '+tone}><Icon size={22}/></div><div className="mt-7 flex items-end justify-between"><div><span className="mb-2 block text-xs text-slate-500">0{i+1} / ÁREA</span><h3>{name}</h3><span className="mt-2 block text-xs text-slate-500">Explorar contenido</span></div><ArrowUpRight className="text-slate-600 transition group-hover:-translate-y-1 group-hover:translate-x-1 group-hover:text-cyan-300"/></div></button>)}</div></section>
       <LearningHub />
-      <section id="explorar" className="border-y border-white/[.07] bg-[#0b1220]/80"><div className="mx-auto max-w-7xl px-5 py-20 sm:px-8"><div className="section-heading"><div><span className="section-kicker">02 / BIBLIOTECA</span><h2>Descubre algo <span className="gradient-text">nuevo.</span></h2><p className="mt-3 text-sm text-slate-400">Guías, tutoriales y recursos para llevar tus conocimientos más lejos.</p></div></div><div className="mt-8 flex flex-col gap-4 md:flex-row md:items-center md:justify-between"><div className="flex flex-wrap gap-2">{['Todo',...categories.map(c=>c.name)].map(item=><button key={item} onClick={()=>setActive(item)} className={'filter-pill '+(active===item?'selected':'')}>{item}</button>)}</div><label className="search-box"><Search size={17}/><input value={query} onChange={e=>setQuery(e.target.value)} placeholder="Buscar contenido..."/></label></div><div className="mt-8 grid gap-5 lg:grid-cols-3">{loadingResources ? <div className="col-span-full py-14 text-center text-sm text-slate-500">Cargando publicaciones...</div> : filtered.map(({id,type,title,category,level,time,color})=><article key={id ?? title} className="resource-card"><div className={'resource-art '+color} style={{backgroundImage: `linear-gradient(180deg,rgba(5,12,23,.12),rgba(5,12,23,.82)),url(${categoryVisuals[category] ?? categoryVisuals['Programación']})`}}><div className="art-orbit"/><span className="resource-type">{type}</span><span className="resource-image-caption">{category}</span></div><div className="p-5"><span className="text-xs font-semibold text-cyan-300">{category}</span><h3 className="mt-3 min-h-14 text-lg font-bold leading-snug">{title}</h3><p className="mt-2 min-h-10 text-xs leading-6 text-slate-400">{(resources.find((item: any) => item.id === id || item.title === title)?.excerpt) ?? "Abre este recurso para consultar su contenido."}</p><div className="mt-5 flex items-center justify-between border-t border-white/10 pt-4 text-xs text-slate-500"><span>{level} · {time}</span><div className="flex items-center gap-2"><button onClick={() => setSelectedResource(resources.find((item: any) => item.id === id || item.title === title))} className="rounded-lg px-3 py-2 font-semibold text-cyan-300 hover:bg-cyan-300/10">Leer guía <ArrowUpRight size={14} className="inline"/></button><button aria-label={savedIds.includes(id) ? "Quitar de guardados" : "Guardar recurso"} aria-pressed={Boolean(id && savedIds.includes(id))} onClick={() => void toggleBookmark(id)} disabled={!id} className="rounded-lg p-2 hover:bg-white/10 hover:text-cyan-300 disabled:cursor-not-allowed disabled:opacity-40"><Bookmark size={16} fill={id && savedIds.includes(id) ? "currentColor" : "none"}/></button></div></div></div></article>)}{filtered.length===0&&<div className="col-span-full rounded-2xl border border-dashed border-white/15 py-14 text-center text-sm text-slate-500">No encontramos contenido con esos filtros. Prueba otra búsqueda.</div>}</div><p className="mt-5 text-xs text-slate-600">{liveResources.length > 0 ? 'Contenido publicado desde Supabase.' : isSupabaseConfigured ? 'Mostrando recursos de ejemplo: todavía no hay artículos publicados en la biblioteca.' : 'Vista de demostración. Configura Supabase para activar la biblioteca.'}</p></div></section>
-      <section id="comunidad" className="mx-auto max-w-7xl px-5 py-20 sm:px-8"><div className="community-panel"><div className="relative z-10 max-w-2xl"><span className="section-kicker">03 / CONSTRUYAMOS JUNTOS</span><h2 className="mt-4 text-3xl font-black sm:text-4xl">Tu experiencia también puede <span className="gradient-text">inspirar.</span></h2><p className="mt-4 max-w-xl text-sm leading-7 text-slate-400">BRIFAN TECH busca reunir a estudiantes, profesionales y entusiastas para compartir soluciones, documentar aprendizajes y hacer crecer la comunidad tecnológica.</p><button className="btn-primary mt-7" onClick={() => {setAuthMode("signup");setAuthOpen(true);setAuthMessage("")}}>Crear cuenta gratis <ArrowUpRight size={16}/></button></div><div className="community-symbol"><Layers3 size={100} strokeWidth={.7}/></div></div></section>
+      <section id="explorar" className="border-y border-white/[.07] bg-[#0b1220]/80"><div className="mx-auto max-w-7xl px-5 py-20 sm:px-8"><div className="section-heading"><div><span className="section-kicker">02 / BIBLIOTECA</span><h2>Descubre algo <span className="gradient-text">nuevo.</span></h2><p className="mt-3 text-sm text-slate-400">Guías, tutoriales y recursos para llevar tus conocimientos más lejos.</p></div></div><div className="mt-8 flex flex-col gap-4 md:flex-row md:items-center md:justify-between"><div className="flex flex-wrap gap-2">{['Todo',...categories.map(c=>c.name)].map(item=><button key={item} onClick={()=>setActive(item)} className={'filter-pill '+(active===item?'selected':'')}>{item}</button>)}</div><label className="search-box"><Search size={17}/><input value={query} onChange={e=>setQuery(e.target.value)} placeholder="Buscar contenido..."/></label></div><div className="mt-8 grid gap-5 lg:grid-cols-3">{loadingResources ? <div className="col-span-full py-14 text-center text-sm text-slate-500">Cargando publicaciones...</div> : filtered.map(({id,type,title,category,level,time,color,image,excerpt})=><article key={id ?? title} className="resource-card"><div className={'resource-art '+color} style={{backgroundImage: `linear-gradient(180deg,rgba(5,12,23,.12),rgba(5,12,23,.82)),url(${image ?? categoryVisuals[category] ?? categoryVisuals['Programación']})`}}><div className="art-orbit"/><span className="resource-type">{type}</span><span className="resource-image-caption">{category}</span></div><div className="p-5"><span className="text-xs font-semibold text-cyan-300">{category}</span><h3 className="mt-3 min-h-14 text-lg font-bold leading-snug">{title}</h3><p className="mt-2 min-h-10 text-xs leading-6 text-slate-400">{excerpt ?? "Abre este recurso para consultar su contenido."}</p><div className="mt-5 flex items-center justify-between border-t border-white/10 pt-4 text-xs text-slate-500"><span>{level} · {time}</span><div className="flex items-center gap-2"><button onClick={() => setSelectedResource(resources.find((item: any) => item.id === id || item.title === title))} className="rounded-lg px-3 py-2 font-semibold text-cyan-300 hover:bg-cyan-300/10">Leer guía <ArrowUpRight size={14} className="inline"/></button><button aria-label={savedIds.includes(id) ? "Quitar de guardados" : "Guardar recurso"} aria-pressed={Boolean(id && savedIds.includes(id))} onClick={() => void toggleBookmark(id)} disabled={!id} className="rounded-lg p-2 hover:bg-white/10 hover:text-cyan-300 disabled:cursor-not-allowed disabled:opacity-40"><Bookmark size={16} fill={id && savedIds.includes(id) ? "currentColor" : "none"}/></button></div></div></div></article>)}{filtered.length===0&&<div className="col-span-full rounded-2xl border border-dashed border-white/15 py-14 text-center text-sm text-slate-500">No encontramos contenido con esos filtros. Prueba otra búsqueda.</div>}</div><p className="mt-5 text-xs text-slate-600">{liveResources.length > 0 ? 'Contenido publicado desde Supabase.' : isSupabaseConfigured ? 'Mostrando recursos de ejemplo: todavía no hay artículos publicados en la biblioteca.' : 'Vista de demostración. Configura Supabase para activar la biblioteca.'}</p></div></section>
+      <CommunityHub isSignedIn={Boolean(session)} onJoin={() => { setAuthMode("signup"); setAuthOpen(true); setAuthMessage("") }} onPublish={() => { setPublishMessage(""); setPublishOpen(true) }} onProfile={() => void openProfile()} />
     </main>
     <footer id="nosotros" className="border-t border-white/[.08]"><div className="mx-auto flex max-w-7xl flex-col gap-5 px-5 py-8 text-xs text-slate-500 sm:px-8 md:flex-row md:items-center md:justify-between"><div className="flex items-center gap-3"><span className="brand-mark small"><Layers3 size={16}/></span><b className="tracking-[.14em] text-slate-300">BRIFAN.TECH</b><span>© 2026</span></div><p>Explora. Aprende. Comparte.</p><a href="https://github.com/JOSEFRO/BRIFAN-TECH" target="_blank" rel="noreferrer" className="hover:text-cyan-300">Código en GitHub <ArrowUpRight size={13} className="inline"/></a></div></footer>
     {adminOpen && isAdmin && <div className="modal-backdrop resource-backdrop" role="presentation" onMouseDown={event=>{if(event.target===event.currentTarget)setAdminOpen(false)}}>
@@ -421,13 +470,16 @@ export default function App() {
       <section className="resource-reader" role="dialog" aria-modal="true" aria-labelledby="resource-reader-title">
         <button className="modal-close" onClick={() => setSelectedResource(null)} aria-label="Cerrar guía"><X size={18}/></button>
         <span className="section-kicker">{selectedResource.type ?? 'RECURSO'} / {selectedResource.category}</span>
+        <div className="guide-cover-image" style={{ backgroundImage: `linear-gradient(180deg,rgba(4,10,20,.05),rgba(4,10,20,.78)),url(${selectedResource.image ?? categoryVisuals[selectedResource.category] ?? categoryVisuals['Programación']})` }} role="img" aria-label={`Imagen ilustrativa: ${selectedResource.category}`}>
+          <span>{selectedResource.category}</span>
+        </div>
         <h2 id="resource-reader-title">{selectedResource.title}</h2>
         <div className="reader-meta"><span>{selectedResource.level}</span><span>{selectedResource.time}</span></div>
         {selectedResource.excerpt && <p className="reader-excerpt">{selectedResource.excerpt}</p>}
-        <div className="reader-content">{selectedResource.body || selectedResource.body_md || selectedResource.content || 'Este recurso todavía no tiene contenido disponible. Vuelve a intentarlo más adelante.'}</div>
+        <GuideMarkdown content={selectedResource.body || selectedResource.body_md || selectedResource.content || 'Este recurso todavía no tiene contenido disponible. Vuelve a intentarlo más adelante.'} />
         <section className="reader-discussion" aria-labelledby="discussion-title">
           <div className="discussion-heading"><div><span className="section-kicker">COMUNIDAD / DISCUSIÓN</span><h3 id="discussion-title">Comparte tu perspectiva</h3></div><span className="discussion-count">{readerComments.length} comentarios</span></div>
-          {selectedResource.id ? <>
+          {/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(String(selectedResource.id ?? '')) ? <>
             <div className="discussion-list">
               {readerComments.length === 0 ? <p className="discussion-empty">Todavía no hay comentarios. Puedes iniciar la conversación.</p> : readerComments.map(comment => <article className="discussion-item" key={comment.id}><div className="discussion-avatar">{String(comment.profiles?.display_name || comment.profiles?.username || 'U').slice(0,1).toUpperCase()}</div><div><div className="discussion-author">{comment.profiles?.display_name || comment.profiles?.username || 'Miembro'} <time>{new Date(comment.created_at).toLocaleDateString('es-DO')}</time></div><p>{comment.body}</p></div></article>)}
             </div>
@@ -436,10 +488,25 @@ export default function App() {
               <textarea id="comment-body" value={commentDraft} onChange={event => setCommentDraft(event.target.value)} maxLength={3000} rows={3} placeholder={session ? 'Aporta una idea, pregunta o experiencia…' : 'Inicia sesión para comentar…'} required />
               <div className="discussion-actions"><span>{commentDraft.length}/3000</span><button className="btn-primary" type="submit" disabled={commentBusy || !commentDraft.trim()}>{commentBusy ? 'Publicando…' : 'Publicar comentario'}</button></div>
             </form>
-          </> : <p className="discussion-empty">Los comentarios estarán disponibles cuando el recurso se publique en la biblioteca.</p>}
+          </> : <p className="discussion-empty">Los comentarios están habilitados en las publicaciones de la comunidad. Esta guía editorial es de demostración.</p>}
           {commentMessage && <p className="discussion-feedback" role="status">{commentMessage}</p>}
         </section>
         {readerAttachments.length > 0 && <div className="reader-attachments"><h3>Archivos adjuntos</h3><div>{readerAttachments.map(file => file.type.startsWith('image/') ? <a href={file.url} target="_blank" rel="noreferrer" key={file.url}><img src={file.url} alt={file.name}/><span>{file.name}</span></a> : <a className="reader-file" href={file.url} target="_blank" rel="noreferrer" key={file.url}><FileText size={18}/><span>{file.name}</span><ArrowUpRight size={14}/></a>)}</div></div>}
+      </section>
+    </div>}
+    {profileOpen && <div className="modal-backdrop" role="presentation" onMouseDown={event => { if (event.target === event.currentTarget && !profileSaving) setProfileOpen(false) }}>
+      <section className="auth-modal profile-modal" role="dialog" aria-modal="true" aria-labelledby="profile-title">
+        <button className="modal-close" onClick={() => setProfileOpen(false)} aria-label="Cerrar perfil" disabled={profileSaving}><X size={18}/></button>
+        <span className="section-kicker">BRIFAN / PERFIL</span><h2 id="profile-title">Tu identidad en la comunidad.</h2>
+        <p>Completa los datos que otros miembros verán junto a tus aportes.</p>
+        {profileBusy ? <p className="py-8 text-sm text-slate-400">Cargando perfil…</p> : <form onSubmit={saveProfile}>
+          <label>Nombre visible<input value={profileForm.display_name} onChange={event => setProfileForm(current => ({ ...current, display_name: event.target.value }))} maxLength={60} placeholder="Cómo te conocerán"/></label>
+          <label>Nombre de usuario<input value={profileForm.username} onChange={event => setProfileForm(current => ({ ...current, username: event.target.value }))} maxLength={24} autoComplete="username" placeholder="ej. josefro_tech"/></label>
+          <label>Biografía<textarea value={profileForm.bio} onChange={event => setProfileForm(current => ({ ...current, bio: event.target.value }))} maxLength={280} rows={3} placeholder="Cuéntale a la comunidad qué te interesa aprender o compartir."/></label>
+          <label>Sitio web<input type="url" value={profileForm.website} onChange={event => setProfileForm(current => ({ ...current, website: event.target.value }))} maxLength={240} placeholder="https://tusitio.com"/></label>
+          {profileMessage && <p className="auth-message" role="status">{profileMessage}</p>}
+          <button className="btn-primary auth-submit" type="submit" disabled={profileSaving}>{profileSaving ? 'Guardando…' : 'Guardar perfil'}</button>
+        </form>}
       </section>
     </div>}
     {authOpen && <div className="modal-backdrop" role="presentation" onMouseDown={(event) => {if(event.target === event.currentTarget) setAuthOpen(false)}}>

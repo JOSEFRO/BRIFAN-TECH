@@ -1,26 +1,47 @@
-name: BRIFAN TECH CI
+name: Validate BRIFAN TECH
 
 on:
   pull_request:
     branches: [main]
-  push:
-    branches:
-      - mejora-completa-3d
 
 permissions:
   contents: read
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
-      - name: Setup Node
+        with:
+          ref: ${{ github.head_ref || github.ref_name }}
+      - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: Install dependencies
-        run: npm install
-      - name: Type check and production build
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Verify Supabase configuration
+        env:
+          VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ vars.VITE_SUPABASE_PUBLISHABLE_KEY }}
+        shell: bash
+        run: |
+          if [[ -z "${VITE_SUPABASE_URL:-}" ]]; then
+            echo "::error::Missing repository variable VITE_SUPABASE_URL."
+            exit 1
+          fi
+          if [[ -z "${VITE_SUPABASE_PUBLISHABLE_KEY:-}" ]]; then
+            echo "::error::Missing repository variable VITE_SUPABASE_PUBLISHABLE_KEY."
+            exit 1
+          fi
+      - name: Build website
+        env:
+          VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ vars.VITE_SUPABASE_PUBLISHABLE_KEY }}
         run: npm run build

@@ -1,59 +1,111 @@
 # BRIFAN TECH
 
-**Explora. Aprende. Comparte.** Una plataforma tecnológica para descubrir, publicar y compartir conocimiento, tutoriales, guías, recursos y experiencias de la comunidad IT.
+**Explora. Aprende. Comparte.** Plataforma tecnológica para aprender, publicar y compartir guías, tutoriales y experiencias de la comunidad IT.
 
-## Visión
-BRIFAN TECH no será solamente un blog: será una biblioteca tecnológica comunitaria con contenido organizado por áreas, perfiles de autores, búsqueda, recursos descargables y herramientas de aprendizaje.
+## Estado del proyecto
+
+BRIFAN TECH combina una experiencia de bienvenida 3D, una biblioteca técnica, rutas de aprendizaje, comunidad y funciones de publicación moderada.
+
+- Interfaz: React 19, TypeScript, Vite 7 y Tailwind CSS 4.
+- Backend: Supabase (PostgreSQL, Auth, Storage y Row Level Security).
+- Biblioteca: 10 guías locales de demostración; los artículos publicados se consultan desde Supabase.
+- Aprendizaje: tres rutas con seguimiento de progreso guardado localmente.
+- Comunidad: perfiles y actividad reciente consultados desde Supabase.
+- Publicación: envío de artículos a revisión, adjuntos privados y moderación administrativa.
+- Estado de datos auditado el 5 de noviembre de 2026: la tabla `articles` tenía 0 filas; por eso la biblioteca mostraba las guías locales.
 
 ## Stack
-- React + TypeScript + Vite
-- Tailwind CSS 4
-- Supabase (PostgreSQL, Auth, Storage y Row Level Security)
-- Lucide React
 
-## Estado actual
-- [x] Repositorio y proyecto Supabase creados.
-- [x] Primera interfaz responsive con navegación, categorías y búsqueda local de muestra.
-- [x] Cliente Supabase y variables de entorno de ejemplo.
-- [x] Esquema inicial: perfiles, categorías, artículos, etiquetas, comentarios y favoritos.
-- [x] Políticas RLS y buckets privados/públicos con permisos iniciales.
-- [x] Diez categorías iniciales cargadas en la base de datos.
-- [x] Registro e inicio de sesión conectados a Supabase Auth.
-- [x] Favoritos conectados a la tabla `bookmarks`.
-- [x] Lectura de artículos publicados desde Supabase.
-- [ ] Editor y publicación de contenido conectados a Supabase.
-- [ ] Comentarios, perfiles editables y moderación desde la interfaz.
-- [ ] Incorporar al repositorio los archivos SQL originales de las migraciones ya aplicadas en producción.
+| Área | Tecnología |
+|---|---|
+| UI | React 19 + TypeScript |
+| Build | Vite 7 |
+| Estilos | Tailwind CSS 4 + CSS propio |
+| Iconos | Lucide React |
+| Backend | Supabase JS v2 |
+| Hosting | GitHub Pages (rama `main`) y proyecto Vercel Preview |
+
+## Estructura principal
+
+- `src/App.tsx` — flujo principal, autenticación, biblioteca, publicación, lectura, comentarios y administración.
+- `src/components/WelcomeExperience.tsx` — entrada 3D.
+- `src/components/Header.tsx` — navegación y acciones de cuenta.
+- `src/components/LearningHub.tsx` — rutas de aprendizaje y progreso local.
+- `src/components/CommunityHub.tsx` — miembros y actividad comunitaria.
+- `src/components/GuideMarkdown.tsx` — renderizado de guías Markdown.
+- `src/data/learningGuides.ts` — diez guías de demostración.
+- `src/lib/supabase.ts` — inicialización del cliente Supabase.
+- `src/styles.css` — diseño visual y responsive.
+- `vite.config.ts` — configuración Vite y ruta base de GitHub Pages.
+- `.github/workflows/ci.yml` — validación de PR hacia `main`.
+- `.github/workflows/deploy.yml` — despliegue de GitHub Pages al actualizar `main`.
 
 ## Desarrollo local
 
-    npm install
-    cp .env.example .env.local
-    npm run dev
+Requisitos: Node.js 22.x y npm.
 
-Completa `.env.local` con la URL y la clave publishable del proyecto Supabase. Nunca coloques una clave `service_role` o `sb_secret` en el frontend ni en GitHub.
+```bash
+npm ci
+cp .env.example .env.local
+npm run dev
+```
+
+Edita `.env.local` y reemplaza los valores de ejemplo por la URL y la clave publishable de tu proyecto Supabase:
+
+```dotenv
+VITE_SUPABASE_URL=https://TU-PROJECT-REF.supabase.co
+VITE_SUPABASE_PUBLISHABLE_KEY=TU_CLAVE_PUBLISHABLE
+```
+
+Si no configuras Supabase, la aplicación puede arrancar con sus datos locales de demostración, pero las funciones remotas no estarán disponibles.
+
+El repositorio incluye `package-lock.json` (lockfile v3). CI y el despliegue de GitHub Pages instalan dependencias con `npm ci` para mantener instalaciones reproducibles. La versión de Node está fijada en `.nvmrc` y en el proyecto Preview de Vercel.
 
 ## Supabase
+
 - Project ref: `htjzmsajubsyvacynyht`
 - Región: `us-east-1`
-- Project URL: `https://htjzmsajubsyvacynyht.supabase.co`
+- Tablas públicas con RLS activo: `profiles`, `categories`, `articles`, `tags`, `article_tags`, `comments`, `bookmarks`.
+- Buckets: `brifan-avatars` (público) y `brifan-articles` (privado).
 
-## Despliegue y configuración
+### Historial remoto de migraciones
 
-- Publicación automática en GitHub Pages al actualizar la rama `main`.
-- El workflow compila con Node.js 22 y utiliza una clave publishable de Supabase como variable de entorno del frontend.
-- Para desarrollo local, configura `.env.local`; no subas archivos `.env` ni claves `service_role` o `sb_secret`.
-- Las migraciones actuales existen en el historial remoto de Supabase. Sus versiones deben exportarse y revisarse antes de incorporarlas al directorio `supabase/migrations`; no se deben recrear a ciegas ni volver a aplicar sobre producción.
+La auditoría de solo lectura encontró seis migraciones aplicadas en Supabase:
 
-## Estructura inicial
-- `src/lib/supabase.ts` — cliente de Supabase.
-- `src/App.tsx` — landing y primera navegación.
-- `src/main.tsx` — punto de entrada.
-- `src/styles.css` — diseño visual.
+1. `20261103161923_initial_content_platform_schema`
+2. `20261103191248_tighten_function_permissions_and_add_fk_indexes`
+3. `20261103194850_grant_ceo_role_and_expand_article_uploads`
+4. `20261103195022_allow_public_read_of_published_article_attachments`
+5. `20261103200957_protect_profile_roles_from_self_escalation`
+6. `20261105013258_tighten_profile_trigger_and_article_storage`
 
-## Seguridad
-- RLS está habilitado en todas las tablas públicas creadas.
-- Los usuarios solo pueden modificar los campos permitidos de su perfil.
-- Los autores pueden crear borradores y enviar contenido a revisión; la publicación queda reservada a moderación.
-- Los archivos de artículos usan un bucket privado; los avatares usan un bucket público con carpetas por usuario.
-- Los permisos administrativos se comprueban en la base de datos, no solo en la interfaz.
+Los archivos SQL originales aún no se han incorporado al repositorio. No recrees ni vuelvas a aplicar migraciones sobre producción sin comparar primero el historial remoto y los archivos exactos.
+
+## Variables de GitHub Actions y Vercel
+
+Configura en GitHub: **Settings → Secrets and variables → Actions → Variables**.
+
+| Variable | Uso |
+|---|---|
+| `VITE_SUPABASE_URL` | URL pública del proyecto Supabase |
+| `VITE_SUPABASE_PUBLISHABLE_KEY` | Clave publishable de Supabase |
+
+Configura los mismos dos valores en Vercel para los entornos Preview y Production que realmente vayas a utilizar. Comprueba que estén disponibles en Preview antes de validar la aplicación.
+
+La clave publishable está diseñada para uso en cliente y no equivale a una clave privilegiada. Nunca incluyas `service_role`, `sb_secret` ni contraseñas en el frontend, el repositorio o los logs. No publiques los valores de las variables en capturas o registros.
+
+## Despliegue
+
+- Los cambios en `main` disparan el workflow de GitHub Pages.
+- Vite utiliza `/BRIFAN-TECH/` cuando `GITHUB_PAGES=true`.
+- Los pull requests hacia `main` ejecutan validación de TypeScript y build.
+- El proyecto de Vercel debe tener instalada la integración oficial de GitHub y estar conectado a este repositorio para crear previews automáticos por rama.
+- Las ramas distintas de la rama de producción generan Preview deployments; no deben asignarse al dominio de producción.
+- No se debe fusionar el PR hasta que la vista previa y las pruebas funcionales hayan sido revisadas.
+
+## Seguridad y mantenimiento
+
+- RLS está habilitado en las siete tablas públicas.
+- Los roles y permisos administrativos se deben validar en la base de datos, no solo en la interfaz.
+- No subir archivos `.env`, claves privilegiadas ni credenciales.
+- Los cambios de esquema, políticas RLS, buckets y Auth requieren revisión explícita y aprobación separada.

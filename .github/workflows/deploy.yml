@@ -31,12 +31,27 @@ jobs:
           node-version: 22
 
       - name: Install dependencies
-        run: npm install --no-audit --no-fund
+        run: npm ci --no-audit --no-fund
+
+      - name: Verify Supabase configuration
+        env:
+          VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ vars.VITE_SUPABASE_PUBLISHABLE_KEY }}
+        shell: bash
+        run: |
+          if [[ -z "${VITE_SUPABASE_URL:-}" ]]; then
+            echo "::error::Missing repository variable VITE_SUPABASE_URL."
+            exit 1
+          fi
+          if [[ -z "${VITE_SUPABASE_PUBLISHABLE_KEY:-}" ]]; then
+            echo "::error::Missing repository variable VITE_SUPABASE_PUBLISHABLE_KEY."
+            exit 1
+          fi
 
       - name: Build website
         env:
-          VITE_SUPABASE_URL: https://htjzmsajubsyvacynyht.supabase.co
-          VITE_SUPABASE_PUBLISHABLE_KEY: sb_publishable_FkbYCnsJZZmfQucGfqBTLA_lc2l0eSo
+          VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ vars.VITE_SUPABASE_PUBLISHABLE_KEY }}
         run: npm run build
 
       - name: Configure GitHub Pages
