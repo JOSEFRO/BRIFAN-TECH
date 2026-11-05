@@ -45,7 +45,7 @@ BRIFAN TECH combina una experiencia de bienvenida 3D, una biblioteca técnica, r
 Requisitos: Node.js 22 o superior y npm.
 
 ```bash
-npm install
+npm ci
 cp .env.example .env.local
 npm run dev
 ```
@@ -57,7 +57,7 @@ VITE_SUPABASE_URL=https://TU-PROJECT-REF.supabase.co
 VITE_SUPABASE_PUBLISHABLE_KEY=TU_CLAVE_PUBLISHABLE
 ```
 
-El repositorio todavía no incluye `package-lock.json`. Mientras se incorpora el lockfile validado, CI usa `npm install` como alternativa temporal; cuando el archivo esté presente, CI ejecuta `npm ci`. No se debe presentar la instalación actual como totalmente reproducible hasta que el lockfile se agregue y se valide.
+El repositorio incluye `package-lock.json` (lockfile v3). CI y el despliegue de GitHub Pages instalan dependencias con `npm ci` para mantener instalaciones reproducibles.
 
 ## Supabase
 
