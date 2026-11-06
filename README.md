@@ -1,59 +1,118 @@
 # BRIFAN TECH
 
-**Explora. Aprende. Comparte.** Una plataforma tecnológica para descubrir, publicar y compartir conocimiento, tutoriales, guías, recursos y experiencias de la comunidad IT.
+<p align="center">
+  <img src="docs/images/brifan-tech-preview.svg" alt="Vista conceptual de BRIFAN TECH" width="100%">
+</p>
+
+**Explora. Aprende. Comparte.** Una plataforma tecnológica comunitaria para descubrir, publicar y compartir conocimiento, tutoriales, guías, recursos y experiencias del mundo IT.
+
+[Repositorio](https://github.com/JOSEFRO/BRIFAN-TECH) · [Reportar un problema](https://github.com/JOSEFRO/BRIFAN-TECH/issues)
 
 ## Visión
-BRIFAN TECH no será solamente un blog: será una biblioteca tecnológica comunitaria con contenido organizado por áreas, perfiles de autores, búsqueda, recursos descargables y herramientas de aprendizaje.
 
-## Stack
+BRIFAN TECH busca ser una biblioteca tecnológica comunitaria con contenido organizado por áreas, perfiles de autores, búsqueda, recursos descargables y herramientas de aprendizaje.
+
+## Stack tecnológico
+
 - React + TypeScript + Vite
 - Tailwind CSS 4
-- Supabase (PostgreSQL, Auth, Storage y Row Level Security)
+- Supabase: PostgreSQL, Auth y Storage
 - Lucide React
 
-## Estado actual
-- [x] Repositorio y proyecto Supabase creados.
-- [x] Primera interfaz responsive con navegación, categorías y búsqueda local de muestra.
-- [x] Cliente Supabase y variables de entorno de ejemplo.
-- [x] Esquema inicial: perfiles, categorías, artículos, etiquetas, comentarios y favoritos.
-- [x] Políticas RLS y buckets privados/públicos con permisos iniciales.
-- [x] Diez categorías iniciales cargadas en la base de datos.
-- [x] Registro e inicio de sesión conectados a Supabase Auth.
-- [x] Favoritos conectados a la tabla `bookmarks`.
-- [x] Lectura de artículos publicados desde Supabase.
-- [ ] Editor y publicación de contenido conectados a Supabase.
-- [ ] Comentarios, perfiles editables y moderación desde la interfaz.
-- [ ] Incorporar al repositorio los archivos SQL originales de las migraciones ya aplicadas en producción.
+## Funcionalidades identificadas en el código
 
-## Desarrollo local
+- Registro e inicio de sesión con Supabase Auth.
+- Publicaciones y flujo de moderación.
+- Comentarios y favoritos para usuarios autenticados.
+- Lectura de adjuntos mediante enlaces firmados de Supabase Storage.
+- Panel/consultas de administración basadas en el rol del perfil.
 
-    npm install
-    cp .env.example .env.local
-    npm run dev
+> La disponibilidad real de cada función depende de que el proyecto Supabase tenga aplicadas las migraciones, políticas RLS, buckets y variables de entorno correspondientes.
 
-Completa `.env.local` con la URL y la clave publishable del proyecto Supabase. Nunca coloques una clave `service_role` o `sb_secret` en el frontend ni en GitHub.
+## Vista previa
 
-## Supabase
-- Project ref: `htjzmsajubsyvacynyht`
-- Región: `us-east-1`
-- Project URL: `https://htjzmsajubsyvacynyht.supabase.co`
+La imagen de `docs/images/` es una maqueta conceptual de la interfaz para documentar el producto. No representa datos reales ni una captura de producción.
 
-## Despliegue y configuración
+## Requisitos
 
-- Publicación automática en GitHub Pages al actualizar la rama `main`.
-- El workflow compila con Node.js 22 y utiliza una clave publishable de Supabase como variable de entorno del frontend.
-- Para desarrollo local, configura `.env.local`; no subas archivos `.env` ni claves `service_role` o `sb_secret`.
-- Las migraciones actuales existen en el historial remoto de Supabase. Sus versiones deben exportarse y revisarse antes de incorporarlas al directorio `supabase/migrations`; no se deben recrear a ciegas ni volver a aplicar sobre producción.
+- Node.js 20 LTS o una versión compatible con la versión de Vite del proyecto.
+- npm.
+- Un proyecto Supabase propio con las migraciones y buckets requeridos.
 
-## Estructura inicial
-- `src/lib/supabase.ts` — cliente de Supabase.
-- `src/App.tsx` — landing y primera navegación.
-- `src/main.tsx` — punto de entrada.
-- `src/styles.css` — diseño visual.
+## Instalación local
+
+1. Descarga el repositorio con **Code → Download ZIP**, o clónalo:
+
+```bash
+git clone https://github.com/JOSEFRO/BRIFAN-TECH.git
+cd BRIFAN-TECH
+```
+
+2. Instala dependencias:
+
+```bash
+npm install
+```
+
+3. Crea un archivo `.env.local` en la raíz, tomando como referencia `.env.example`:
+
+```env
+VITE_SUPABASE_URL=https://TU-PROYECTO.supabase.co
+VITE_SUPABASE_ANON_KEY=TU_CLAVE_PUBLICA
+```
+
+4. Inicia el servidor de desarrollo:
+
+```bash
+npm run dev
+```
+
+5. Abre la dirección local que Vite muestre en la terminal, normalmente `http://localhost:5173`.
+
+## Compilar para producción
+
+```bash
+npm run build
+npm run preview
+```
+
+La carpeta de salida es normalmente `dist/`. Consulta los scripts reales de `package.json` si cambian entre versiones.
+
+## Configuración de Supabase
+
+Antes de probar registro, publicaciones, comentarios o archivos:
+
+1. Crea un proyecto en Supabase.
+2. Revisa y aplica las migraciones SQL incluidas en el repositorio, en orden.
+3. Configura las políticas de Row Level Security (RLS).
+4. Crea/configura los buckets de Storage con los permisos previstos.
+5. Copia la URL y la clave pública del proyecto a `.env.local`.
+6. Nunca pongas la clave `service_role` en el frontend ni la subas a GitHub.
+7. Verifica las reglas de acceso con cuentas de prueba de usuario y administrador.
+
+No publiques credenciales, tokens ni archivos `.env`.
+
+## Documentación
+
+- Revisa la carpeta `supabase/` para el esquema y migraciones.
+- Revisa `.env.example` para las variables necesarias.
+- Consulta `package.json` para los comandos disponibles.
+
+## Estado del proyecto
+
+El repositorio contiene una base funcional de frontend y conexión a Supabase. Antes de anunciarlo como servicio de producción, deben completarse pruebas integrales de permisos RLS, moderación, almacenamiento, accesibilidad, manejo de errores y despliegue.
 
 ## Seguridad
-- RLS está habilitado en todas las tablas públicas creadas.
-- Los usuarios solo pueden modificar los campos permitidos de su perfil.
-- Los autores pueden crear borradores y enviar contenido a revisión; la publicación queda reservada a moderación.
-- Los archivos de artículos usan un bucket privado; los avatares usan un bucket público con carpetas por usuario.
-- Los permisos administrativos se comprueban en la base de datos, no solo en la interfaz.
+
+- La clave pública de Supabase puede utilizarse en el cliente solo con RLS correctamente configurado.
+- La clave `service_role` es secreta y nunca debe incluirse en código cliente.
+- Las acciones administrativas deben validarse también en políticas/backend; ocultar botones en React no constituye control de acceso.
+- No subas datos personales ni credenciales de usuarios a issues o commits.
+
+## Contribuciones
+
+Abre un issue describiendo el problema o la mejora. Para cambios grandes, crea una rama y envía un Pull Request con pasos de prueba.
+
+## Licencia
+
+No se ha identificado una licencia de reutilización en este repositorio. Salvo autorización del propietario, el código y los recursos permanecen reservados.
