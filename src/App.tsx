@@ -65,6 +65,9 @@ export default function App() {
   const [adminOpen, setAdminOpen] = useState(false)
   const [pendingArticles, setPendingArticles] = useState<any[]>([])
   const [adminMessage, setAdminMessage] = useState('')
+  const [myPostsOpen, setMyPostsOpen] = useState(false)
+  const [myArticles, setMyArticles] = useState<any[]>([])
+  const [myPostsMessage, setMyPostsMessage] = useState('')
   const [readerComments, setReaderComments] = useState<any[]>([])
   const [commentDraft, setCommentDraft] = useState('')
   const [commentBusy, setCommentBusy] = useState(false)
@@ -203,6 +206,31 @@ export default function App() {
     void loadAdminAccess()
     return () => { active = false }
   }, [session?.user.id])
+
+  async function loadMyArticles() {
+    if (!supabase || !session?.user.id) return
+    setMyPostsMessage('')
+    const { data, error } = await supabase.from('articles')
+      .select('id,author_id,title,excerpt,body_md,status,created_at,updated_at,categories(name)')
+      .eq('author_id', session.user.id).order('updated_at', { ascending: false }).limit(100)
+    if (error) { setMyPostsMessage('No se pudieron cargar tus publicaciones.'); return }
+    setMyArticles(data ?? [])
+  }
+
+  async function deleteMyArticle(article: any) {
+    if (!supabase || !session?.user.id || article.author_id !== session.user.id) return
+    const match = String(article.body_md ?? '').match(/<!--BRIFAN_ATTACHMENTS:(.*?)-->/s)
+    let files: Array<{path:string}> = []
+    try { if (match) files = JSON.parse(match[1]) } catch { files = [] }
+    if (files.length) {
+      const { error: storageError } = await supabase.storage.from('brifan-articles').remove(files.map(file => file.path))
+      if (storageError) { setMyPostsMessage('No se pudieron eliminar los archivos adjuntos; la publicación se conservó.'); return }
+    }
+    const { error } = await supabase.from('articles').delete().eq('id', article.id).eq('author_id', session.user.id)
+    if (error) { setMyPostsMessage('No se pudo eliminar. Inténtalo de nuevo.'); return }
+    setMyArticles(items => items.filter(item => item.id !== article.id))
+    setMyPostsMessage('Publicación eliminada correctamente.')
+  }
 
   async function loadPendingArticles() {
     if (!supabase || !isAdmin) return
@@ -344,6 +372,7 @@ export default function App() {
       session={session}
       isAdmin={isAdmin}
       onPublish={() => { setPublishMessage(''); setPublishOpen(true) }}
+      onMyPosts={() => { setMyPostsOpen(true); void loadMyArticles() }}
       onAdmin={() => { setAdminOpen(true); setAdminMessage(''); void loadPendingArticles() }}
       onSignIn={() => { setAuthMode('signin'); setAuthOpen(true); setAuthMessage('') }}
       onSignUp={() => { setAuthMode('signup'); setAuthOpen(true); setAuthMessage('') }}
@@ -412,7 +441,21 @@ export default function App() {
       <section id="comunidad" className="mx-auto max-w-7xl px-5 py-20 sm:px-8"><div className="community-panel"><div className="relative z-10 max-w-2xl"><span className="section-kicker">03 / CONSTRUYAMOS JUNTOS</span><h2 className="mt-4 text-3xl font-black sm:text-4xl">Tu experiencia también puede <span className="gradient-text">inspirar.</span></h2><p className="mt-4 max-w-xl text-sm leading-7 text-slate-400">BRIFAN TECH busca reunir a estudiantes, profesionales y entusiastas para compartir soluciones, documentar aprendizajes y hacer crecer la comunidad tecnológica.</p><button className="btn-primary mt-7" onClick={() => {setAuthMode("signup");setAuthOpen(true);setAuthMessage("")}}>Crear cuenta gratis <ArrowUpRight size={16}/></button></div><div className="community-symbol"><Layers3 size={100} strokeWidth={.7}/></div></div></section>
     </main>
     <footer id="nosotros" className="border-t border-white/[.08]"><div className="mx-auto flex max-w-7xl flex-col gap-5 px-5 py-8 text-xs text-slate-500 sm:px-8 md:flex-row md:items-center md:justify-between"><div className="flex items-center gap-3"><span className="brand-mark small"><Layers3 size={16}/></span><b className="tracking-[.14em] text-slate-300">BRIFAN.TECH</b><span>© 2026</span></div><p>Explora. Aprende. Comparte.</p><a href="https://github.com/JOSEFRO/BRIFAN-TECH" target="_blank" rel="noreferrer" className="hover:text-cyan-300">Código en GitHub <ArrowUpRight size={13} className="inline"/></a></div></footer>
-    {adminOpen && isAdmin && <div className="modal-backdrop resource-backdrop" role="presentation" onMouseDown={event=>{if(event.target===event.currentTarget)setAdminOpen(false)}}>
+    {myPostsOpen && session && <div className="modal-backdrop resource-backdrop" role="presentation" onMouseDown={event=>{if(event.target===event.currentTarget)setMyPostsOpen(false)}}>
+      <section className="resource-reader publish-reader" role="dialog" aria-modal="true" aria-labelledby="my-posts-title">
+        <button className="modal-close" onClick={()=>setMyPostsOpen(false)} aria-label="Cerrar"><X size={18}/></button>
+        <span className="section-kicker">BRIFAN / MI ESPACIO</span><h2 id="my-posts-title">Mis publicaciones</h2>
+        <p className="reader-excerpt">Consulta tus aportes, revisa su estado y elimina los que hayas enviado por error.</p>
+        {myPostsMessage && <p className="auth-message" role="status">{myPostsMessage}</p>}
+        {myArticles.length===0 ? <p className="py-8 text-sm text-slate-400">Todavía no has enviado publicaciones.</p> : <div className="grid gap-3">{myArticles.map(article=><article key={article.id} className="rounded-xl border border-white/10 bg-white/[.03] p-4">
+          <div className="flex flex-wrap items-center justify-between gap-2"><span className="text-xs text-cyan-300">{article.categories?.name ?? 'Tecnología'}</span><span className="rounded-full border border-white/10 px-3 py-1 text-xs text-slate-300">{({draft:'Borrador',pending:'En revisión',published:'Publicada',rejected:'Rechazada',archived:'Archivada'} as Record<string,string>)[article.status] ?? article.status}</span></div>
+          <h3 className="mt-2 font-bold text-white">{article.title}</h3><p className="mt-2 text-sm text-slate-400">{article.excerpt}</p>
+          <button className="btn-ghost mt-4" onClick={()=>{if(window.confirm('¿Eliminar esta publicación y sus archivos adjuntos? Esta acción no se puede deshacer.')) void deleteMyArticle(article)}}>Eliminar publicación</button>
+        </article>)}</div>}
+        <button className="btn-secondary mt-5" onClick={()=>void loadMyArticles()}>Actualizar lista</button>
+      </section>
+    </div>}
+    {adminOpen && isAdmin && <div> className="modal-backdrop resource-backdrop" role="presentation" onMouseDown={event=>{if(event.target===event.currentTarget)setAdminOpen(false)}}>
       <section className="resource-reader publish-reader" role="dialog" aria-modal="true" aria-labelledby="admin-title">
         <button className="modal-close" onClick={()=>setAdminOpen(false)} aria-label="Cerrar"><X size={18}/></button>
         <span className="section-kicker">BRIFAN / MODERACIÓN</span><h2 id="admin-title">Administración de publicaciones</h2>
