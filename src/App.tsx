@@ -51,6 +51,7 @@ export default function App() {
   const [panoramaMode, setPanoramaMode] = useState<'panorama' | 'network'>('panorama')
   const [selectedResource, setSelectedResource] = useState<any | null>(null)
   const [publishOpen, setPublishOpen] = useState(false)
+  const [editingArticleId, setEditingArticleId] = useState<string | null>(null)
   const [publishTitle, setPublishTitle] = useState('')
   const [publishCategory, setPublishCategory] = useState(categories[0].name)
   const [publishType, setPublishType] = useState('guide')
@@ -217,6 +218,24 @@ export default function App() {
     setMyArticles(data ?? [])
   }
 
+  function editMyArticle(article: any) {
+    if (!session || article.author_id !== session.user.id || !['draft', 'pending'].includes(article.status)) return
+    const rawBody = String(article.body_md ?? '')
+    const attachmentMatch = rawBody.match(/<!--BRIFAN_ATTACHMENTS:(.*?)-->/s)
+    const cleanBody = attachmentMatch ? rawBody.slice(0, attachmentMatch.index).trim() : rawBody.trim()
+    setEditingArticleId(article.id)
+    setPublishTitle(article.title ?? '')
+    setPublishExcerpt(article.excerpt ?? '')
+    setPublishBody(cleanBody)
+    setPublishCategory(article.categories?.name ?? categories[0].name)
+    setPublishType(article.content_type ?? 'guide')
+    setPublishLevel(article.difficulty ?? 'beginner')
+    setPublishFiles([])
+    setPublishMessage('Al guardar, la publicación volverá a revisión.')
+    setMyPostsOpen(false)
+    setPublishOpen(true)
+  }
+
   async function deleteMyArticle(article: any) {
     if (!supabase || !session?.user.id || article.author_id !== session.user.id) return
     const match = String(article.body_md ?? '').match(/<!--BRIFAN_ATTACHMENTS:(.*?)-->/s)
@@ -266,6 +285,24 @@ export default function App() {
     try {
       const { data: category, error: categoryError } = await supabase.from('categories').select('id').eq('name', publishCategory).eq('is_active', true).single()
       if (categoryError || !category) throw new Error('No se encontró la categoría seleccionada.')
+      if (editingArticleId) {
+        const { error } = await supabase.from('articles').update({
+          category_id: category.id,
+          title: publishTitle.trim(),
+          excerpt: publishExcerpt.trim(),
+          body_md: publishBody.trim(),
+          content_type: publishType,
+          difficulty: publishLevel,
+          status: 'pending',
+          reading_minutes: Math.max(1, Math.ceil(publishBody.trim().split(/\\s+/).length / 180)),
+        }).eq('id', editingArticleId).eq('author_id', session.user.id)
+        if (error) throw error
+        setPublishMessage('Cambios guardados. La publicación volvió a revisión antes de mostrarse públicamente.')
+        setEditingArticleId(null)
+        setPublishTitle(''); setPublishExcerpt(''); setPublishBody(''); setPublishFiles([])
+        await loadMyArticles()
+        return
+      }
       const slugBase = publishTitle.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 140)
       const slug = `${slugBase}-${Date.now().toString(36)}`
       const result = await supabase.from('articles').insert({
@@ -450,7 +487,7 @@ export default function App() {
         {myArticles.length===0 ? <p className="py-8 text-sm text-slate-400">Todavía no has enviado publicaciones.</p> : <div className="grid gap-3">{myArticles.map(article=><article key={article.id} className="rounded-xl border border-white/10 bg-white/[.03] p-4">
           <div className="flex flex-wrap items-center justify-between gap-2"><span className="text-xs text-cyan-300">{article.categories?.name ?? 'Tecnología'}</span><span className="rounded-full border border-white/10 px-3 py-1 text-xs text-slate-300">{({draft:'Borrador',pending:'En revisión',published:'Publicada',rejected:'Rechazada',archived:'Archivada'} as Record<string,string>)[article.status] ?? article.status}</span></div>
           <h3 className="mt-2 font-bold text-white">{article.title}</h3><p className="mt-2 text-sm text-slate-400">{article.excerpt}</p>
-          <button className="btn-ghost mt-4" onClick={()=>{if(window.confirm('¿Eliminar esta publicación y sus archivos adjuntos? Esta acción no se puede deshacer.')) void deleteMyArticle(article)}}>Eliminar publicación</button>
+          <div className="mt-4 flex flex-wrap gap-2">{['draft','pending'].includes(article.status) && <button className="btn-secondary" onClick={()=>editMyArticle(article)}>Editar publicación</button>}<button className="btn-ghost" onClick={()=>{if(window.confirm('¿Eliminar esta publicación y sus archivos adjuntos? Esta acción no se puede deshacer.')) void deleteMyArticle(article)}}>Eliminar publicación</button></div>
         </article>)}</div>}
         <button className="btn-secondary mt-5" onClick={()=>void loadMyArticles()}>Actualizar lista</button>
       </section>
@@ -469,8 +506,8 @@ export default function App() {
       <section className="resource-reader publish-reader" role="dialog" aria-modal="true" aria-labelledby="publish-title">
         <button className="modal-close" onClick={() => setPublishOpen(false)} aria-label="Cerrar" disabled={publishBusy}><X size={18}/></button>
         <span className="section-kicker">BRIFAN / CONTRIBUCIONES</span>
-        <h2 id="publish-title">Comparte tu conocimiento.</h2>
-        <p className="reader-excerpt">Crea una guía, tutorial o recurso. Tu contenido se enviará a revisión antes de aparecer públicamente en la biblioteca.</p>
+        <h2 id="publish-title">{editingArticleId ? 'Edita tu publicación.' : 'Comparte tu conocimiento.'}</h2>
+        <p className="reader-excerpt">{editingArticleId ? 'Actualiza el contenido. Al guardar, volverá a revisión antes de publicarse.' : 'Crea una guía, tutorial o recurso. Tu contenido se enviará a revisión antes de aparecer públicamente en la biblioteca.'}</p>
         <form className="publish-form" onSubmit={submitArticle}>
           <label>Título<input value={publishTitle} onChange={e => setPublishTitle(e.target.value)} minLength={8} maxLength={180} required placeholder="Ej. Configuración básica de VLAN"/></label>
           <div className="publish-fields">
@@ -484,7 +521,7 @@ export default function App() {
           <p className="upload-help">Hasta 8 archivos por publicación · máximo 50 MB por archivo. Imágenes, PDF, Office, CSV, texto y ZIP.</p>
           {publishFiles.length > 0 && <ul className="upload-list">{publishFiles.map((file, index) => <li key={file.name + file.lastModified + index}><span>{file.name} <small>{(file.size / 1024 / 1024).toFixed(2)} MB</small></span><button type="button" onClick={() => setPublishFiles(current => current.filter((_, i) => i !== index))}>Quitar</button></li>)}</ul>}
           {publishMessage && <p className="auth-message" role="status">{publishMessage}</p>}
-          <button className="btn-primary auth-submit" type="submit" disabled={publishBusy}>{publishBusy ? 'Enviando…' : 'Enviar a revisión'}</button>
+          <button className="btn-primary auth-submit" type="submit" disabled={publishBusy}>{publishBusy ? 'Guardando…' : editingArticleId ? 'Guardar cambios y enviar a revisión' : 'Enviar a revisión'}</button>
         </form>
       </section>
     </div>}
