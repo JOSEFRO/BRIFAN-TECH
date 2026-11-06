@@ -344,3 +344,27 @@ button,a,input,select,textarea{touch-action:manipulation}
 @media(max-width:900px){.deep-hero{grid-template-columns:1fr;gap:10px;padding-top:60px;padding-bottom:65px}.deep-hero-copy{max-width:720px}.deep-hero-art{min-height:450px;width:min(100%,650px);margin:0 auto}}
 @media(max-width:560px){.deep-hero-copy h1{font-size:clamp(43px,12vw,62px)}.deep-hero-art{min-height:370px;transform:scale(.92);margin:-5px -15px}.deep-orbit-one{width:330px;height:330px}.deep-orbit-two{width:290px;height:390px}.deep-core{width:175px;height:175px}.deep-card-top{left:-2px;top:40px}.deep-card-bottom{right:-2px;bottom:38px}.deep-glass-card{padding:10px 11px}.deep-glass-card b{font-size:9px}.deep-proof{gap:12px}.deep-proof span{font-size:7px}.deep-proof b{font-size:20px}}
 @media(prefers-reduced-motion:reduce){.deep-core{animation:none}}
+
+
+/* BRIFAN TECH — refinamiento visual y accesibilidad */
+:root{color-scheme:dark;scroll-padding-top:88px}
+body{overflow-x:hidden;background-color:#080d18}
+::selection{color:#04131c;background:#75e7e9}
+a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:2px solid #72e8ee;outline-offset:3px}
+button:disabled{cursor:not-allowed;opacity:.58}
+.nav-link{position:relative;padding-block:8px}
+.nav-link:after{position:absolute;right:0;bottom:0;left:0;height:1px;content:"";background:linear-gradient(90deg,#62e5eb,#a78bfa);transform:scaleX(0);transform-origin:left;transition:transform .25s}
+.nav-link:hover:after,.nav-link.active:after{transform:scaleX(1)}
+.hero-visual{isolation:isolate}
+.visual-core{border-radius:34%;transform:rotate(-8deg);box-shadow:0 0 100px #20b7d52e,inset 0 0 55px #5ce7e71f}
+.visual-core:after{position:absolute;inset:-15px;border:1px solid #75e5ed35;border-radius:38%;content:"";transform:rotate(16deg)}
+.category-card,.resource-card,.community-panel,.signal-panel{box-shadow:0 18px 55px #00000020}
+.category-card:focus-within,.resource-card:focus-within{border-color:#70e3e977;box-shadow:0 0 0 3px #70e3e91a,0 18px 50px #0004}
+.resource-card{display:flex;flex-direction:column}
+.resource-card>div:last-child{flex:1}
+.resource-art{background-image:linear-gradient(135deg,#ffffff08 1px,transparent 1px);background-size:22px 22px}
+.community-panel:before{position:absolute;inset:12px;border:1px solid #ffffff0b;border-radius:17px;content:"";pointer-events:none}
+.signal-panel{position:relative}
+.signal-panel:after{position:absolute;inset:0;border:1px solid #ffffff08;border-radius:inherit;content:"";pointer-events:none}
+@media(max-width:700px){.hero-visual{overflow:visible}.float-card{max-width:170px}.float-card small{font-size:8px}}
+@media(prefers-reduced-motion:reduce){.visual-core,.core-icon,.orbit-a,.orbit-b,.float-card,.ambient-one,.ambient-two{animation:none!important}}
