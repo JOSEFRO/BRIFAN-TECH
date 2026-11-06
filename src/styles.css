@@ -566,3 +566,27 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible,
 .resource-art:after{content:'';position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,rgba(5,12,23,.08),rgba(5,12,23,.82))}
 .resource-art .art-orbit,.resource-art .resource-type,.resource-art .resource-image-caption{z-index:1}
 @media(prefers-reduced-motion:reduce){.category-card-image img,.resource-art .resource-photo{transition:none!important}}
+
+
+/* BRIFAN writing studio */
+.publish-editor-wrap{border:1px solid #38516f;border-radius:16px;overflow:hidden;background:#071426}
+.publish-editor-heading{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:14px 16px;border-bottom:1px solid #ffffff18;color:#eaf2ff}
+.publish-editor-heading span,.editor-tip{font-size:12px;color:#91a7c4}
+.publish-editor-tabs{display:flex;gap:6px;padding:10px 12px 0}
+.publish-editor-tabs button,.publish-toolbar button{border:1px solid #ffffff20;border-radius:8px;padding:7px 11px;color:#aebed3;background:#0d1d32;font-size:12px}
+.publish-editor-tabs button.active{background:#552038;color:#fff;border-color:#ff5877}
+.publish-toolbar{display:flex;flex-wrap:wrap;gap:6px;padding:12px;border-bottom:1px solid #ffffff18}
+.publish-toolbar button:hover{border-color:#ff5877;color:#fff}
+.publish-editor-wrap textarea{display:block;width:100%;min-height:300px;resize:vertical;border:0!important;border-radius:0!important;background:#09182b!important;color:#e7effb;padding:18px;line-height:1.8;font:inherit;outline:none!important;box-shadow:none!important}
+.editor-tip{padding:0 16px 14px;margin:0}
+.publish-live-preview{min-height:300px;padding:22px;background:#f7f8fb;color:#202938;line-height:1.8}
+.publish-live-preview h1,.reader-content h1{font-size:2rem;font-weight:800;margin:1.2em 0 .5em}
+.publish-live-preview h2,.reader-content h2{font-size:1.55rem;font-weight:750;margin:1.1em 0 .45em}
+.publish-live-preview h3,.reader-content h3{font-size:1.2rem;font-weight:700;margin:1em 0 .4em}
+.publish-live-preview p,.reader-content p{margin:.65em 0;white-space:pre-wrap}
+.publish-live-preview blockquote,.reader-content blockquote{border-left:3px solid #ff496b;padding:8px 14px;color:#53647a;margin:14px 0}
+.article-inline-image{display:block;max-width:100%;height:auto;max-height:560px;object-fit:contain;border-radius:12px;margin:14px auto}
+.article-video{position:relative;width:100%;aspect-ratio:16/9;margin:18px 0;border-radius:14px;overflow:hidden;background:#030914}
+.article-video iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.preview-empty{color:#7b8798;font-style:italic}
+@media(max-width:640px){.publish-editor-heading{align-items:flex-start;flex-direction:column;gap:3px}.publish-toolbar button{font-size:11px;padding:7px 8px}}
