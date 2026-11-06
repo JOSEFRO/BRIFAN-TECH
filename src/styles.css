@@ -368,3 +368,154 @@ button:disabled{cursor:not-allowed;opacity:.58}
 .signal-panel:after{position:absolute;inset:0;border:1px solid #ffffff08;border-radius:inherit;content:"";pointer-events:none}
 @media(max-width:700px){.hero-visual{overflow:visible}.float-card{max-width:170px}.float-card small{font-size:8px}}
 @media(prefers-reduced-motion:reduce){.visual-core,.core-icon,.orbit-a,.orbit-b,.float-card,.ambient-one,.ambient-two{animation:none!important}}
+
+
+/* BRIFAN TECH / RED ELECTRIC CINEMATIC SYSTEM */
+:root{
+  --brifan-night:#050a14;
+  --brifan-navy:#08162b;
+  --brifan-panel:#0c1b31;
+  --brifan-red:#ff2348;
+  --brifan-red-hot:#ff3158;
+  --brifan-blue:#174a86;
+  --brifan-ice:#dcecff;
+  --brifan-muted:#8fa4bf;
+  color-scheme:dark;
+}
+html{background:var(--brifan-night);scroll-behavior:smooth}
+body{color:var(--brifan-ice);background:radial-gradient(ellipse at 12% 10%,#102b4d66,transparent 34%),radial-gradient(ellipse at 92% 28%,#4d0c2538,transparent 30%),var(--brifan-night)}
+::selection{color:white;background:var(--brifan-red)}
+.ambient-one{background:#123f75;opacity:.24}
+.ambient-two{background:#ed123e;opacity:.13}
+.brand-mark{border-color:#ff315866;color:#ff526e;background:linear-gradient(145deg,#301629,#0c1d35);box-shadow:0 0 32px #ff21452a,inset 0 0 18px #ff21451a}
+header .text-cyan-300{color:#ff4565}
+header .nav-link:hover,header .nav-link.active{color:#fff}
+header .nav-link:after{background:linear-gradient(90deg,var(--brifan-red),#397dce)}
+header>div button,.btn-primary,.btn-secondary,.btn-ghost{transition:transform .35s cubic-bezier(.2,.8,.2,1),box-shadow .35s,background .35s,border-color .35s}
+.btn-primary{color:#fff;background:linear-gradient(105deg,#f01842 0%,#ff3158 48%,#b5123c 100%);box-shadow:0 9px 34px #ff17442c,inset 0 1px #ffffff40;border:1px solid #ff617b77}
+.btn-primary:hover{transform:translateY(-3px) scale(1.015);box-shadow:0 15px 42px #ff17445c,0 0 0 1px #ff536b66}
+.btn-secondary{border-color:#37618d80;background:linear-gradient(110deg,#102b4b,#0d1b30);color:#d7eaff}
+.btn-secondary:hover,.btn-ghost:hover{border-color:#ff365c;color:#fff;box-shadow:0 0 24px #ff234826}
+.btn-ghost{color:#a9bbd1}
+.eyebrow,.section-kicker{color:#ff637c}
+.pulse-dot,.tiny-status{background:#ff3158;box-shadow:0 0 16px #ff3158}
+.gradient-text{background:linear-gradient(100deg,#ff3158 0%,#ff7182 42%,#79b9ff 100%);background-clip:text;color:transparent}
+.deep-hero{min-height:730px}
+.deep-index{color:#7d94b2}
+.deep-index span{color:#ff4565}
+.deep-hero-copy h1{color:#f4f7ff;text-shadow:0 8px 55px #0008}
+.deep-lead{color:#a1b3ca}
+.deep-text-link:hover{color:#ff617b}
+.deep-proof{border-color:#ffffff18}
+.deep-proof b{color:#fff}
+.deep-hero-art{perspective:1300px;transform-style:preserve-3d}
+.deep-art-image{border-color:#ff345b66;background-image:linear-gradient(135deg,#07152a44,#07152a22),url('https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1400&q=90');filter:saturate(.9) contrast(1.08);box-shadow:0 40px 110px #000b,0 0 85px #ff23451c;animation:brifanImageBreath 12s ease-in-out infinite alternate}
+.deep-art-shade{background:linear-gradient(125deg,#06122577,#07101dcc 80%),linear-gradient(0deg,#06101f 0%,transparent 72%)}
+.deep-orbit{border-color:#ff416a88;box-shadow:0 0 28px #ff23452b}
+.deep-orbit-one{animation:brifanOrbit 22s linear infinite}
+.deep-orbit-two{border-color:#4b9fff88;animation:brifanOrbitReverse 29s linear infinite}
+.deep-core{border-color:#ff7a8e99;background:radial-gradient(circle at 35% 22%,#ff6176 0%,#9f244e 18%,#12365c 52%,#061224 80%);box-shadow:0 0 30px #ff23457a,0 0 105px #ff234538,inset 0 0 60px #6fbaff45;animation:deepFloat 7s ease-in-out infinite,brifanCoreGlow 4.5s ease-in-out infinite}
+.deep-core:before{border-color:#ff536eaa;box-shadow:0 0 24px #ff214533}
+.deep-core:after{border-color:#65aaff88}
+.deep-core-inner{color:#fff;text-shadow:0 0 22px #ff718a}
+.deep-core-inner small{color:#b8d9ff}
+.deep-glass-card{border-color:#ff526b4d;background:linear-gradient(130deg,#111f35eF,#081629e8);box-shadow:0 20px 55px #0009,0 0 35px #ff23451a}
+.deep-card-icon{color:#ff617a;background:#7e1b344d;border:1px solid #ff536b45}
+.deep-card-icon.purple{color:#85bdff;background:#173d684d;border-color:#68aaff44}
+.deep-glass-card small{color:#83a4c8}
+.deep-live{color:#ff6b83}
+.deep-coordinate{color:#9cb9d9}
+.signal-panel{border-color:#ff36542e;background:radial-gradient(ellipse at 82% 48%,#173d65 0%,transparent 48%),linear-gradient(120deg,#101e33,#0a1425 60%,#1b1022)}
+.signal-copy h2{color:#f6f8ff}
+.signal-copy p{color:#a0b3cb}
+.signal-dot.cyan-dot{color:#ff365d;background:#ff365d}
+.signal-dot.violet-dot{color:#6faeff;background:#6faeff}
+.signal-dot.green-dot{color:#ff8798;background:#ff8798}
+.data-visual{background:radial-gradient(ellipse at 50% 50%,#183d68aa,transparent 65%)}
+.data-grid{background-image:linear-gradient(#ff49630e 1px,transparent 1px),linear-gradient(90deg,#ff49630e 1px,transparent 1px)}
+.network-svg{filter:drop-shadow(0 0 16px #ff345b55)}
+.network-svg defs linearGradient stop:first-child{stop-color:#ff3158}
+.network-svg defs linearGradient stop:last-child{stop-color:#65adff}
+.network-pulse{stroke:#ff526e}
+.network-pulse.delay{stroke:#64aaff}
+.network-nodes circle{fill:#ff6078;stroke:#ffd0d9}
+.network-nodes circle:nth-child(3n){fill:#68b3ff;stroke:#d0e7ff}
+.data-widget{border-color:#ff496344;background:#07162aeF;box-shadow:0 18px 45px #0008,0 0 24px #ff23451a}
+.data-widget strong{color:#ff6078}
+.mini-bars i{background:linear-gradient(0deg,#a31338,#ff7189)}
+.flow-ring{background:radial-gradient(closest-side,#07162a 78%,transparent 80% 99%),conic-gradient(#ff365d 0 98%,#ffffff18)}
+.flow-ring b{color:#fff}
+.flow-ring b span{color:#ff7d91}
+.panorama-stage{border-color:#ff3c5d55;background:radial-gradient(ellipse at 50% 58%,#153b68 0%,#0c1e39 40%,#050c18 80%);box-shadow:0 30px 100px #0008,0 0 55px #ff1d4520,inset 0 0 100px #559fff12}
+.panorama-sky{background-image:radial-gradient(circle at 15% 22%,#ff6b8b88 0 1px,transparent 2px),radial-gradient(circle at 72% 18%,#7dbaff88 0 1px,transparent 2px),radial-gradient(circle at 88% 36%,#ffb0c255 0 1px,transparent 2px),radial-gradient(circle at 40% 12%,#ffffff55 0 1px,transparent 2px)}
+.panorama-horizon{background:linear-gradient(transparent,#071326e8 80%),repeating-linear-gradient(90deg,#ff52600e 0 1px,transparent 1px 52px)}
+.world-ring{border-color:#ff416a66;box-shadow:0 0 22px #ff234533}
+.world-ring.ring-two{border-color:#65aaff66}
+.world-platform{background:linear-gradient(135deg,#102c4c,#0a1426);border-color:#ff49634d;box-shadow:0 12px 45px #0009,0 0 28px #ff23451a}
+.world-tower{border-color:#ff526a88;background:linear-gradient(160deg,#1a3556,#0a1527);box-shadow:0 0 35px #ff23452a}
+.world-tower i{background:linear-gradient(90deg,#ff3158,#ff8a9b)}
+.world-tower.tower-two{border-color:#63aaff88}
+.world-tower.tower-two i{background:linear-gradient(90deg,#327bd0,#9bcaff)}
+.world-cube{border-color:#ff6b83;background:linear-gradient(145deg,#ff365d55,#11294a);box-shadow:0 0 25px #ff234566}
+.world-beam{background:linear-gradient(180deg,#ff3158aa,transparent)}
+.world-beam.beam-two{background:linear-gradient(180deg,#65aaffaa,transparent)}
+.world-node{background:#ff526e;box-shadow:0 0 18px #ff3158}
+.world-node.node-two,.world-node.node-four{background:#6eb6ff;box-shadow:0 0 18px #4b9eff}
+.world-center{border-color:#ff5972;background:radial-gradient(circle,#17385b,#081528 75%);box-shadow:0 0 65px #ff234555}
+.world-center>svg{color:#ff607a}
+.hotspot{border-color:#ff4d6c66;background:#07162ae8;color:#f1f6ff;box-shadow:0 12px 35px #0008,0 0 22px #ff23451c;backdrop-filter:blur(14px)}
+.hotspot:hover{border-color:#ff6680;background:#351426}
+.hotspot i{background:#ff4766;box-shadow:0 0 12px #ff4766}
+.panorama-label,.panorama-caption,.panorama-coordinates{color:#a4bbd8}
+.live-indicator{background:#ff4968;box-shadow:0 0 12px #ff4968}
+.panorama-switch{border-color:#ffffff20;background:#071326}
+.panorama-switch button.chosen{color:#fff;background:linear-gradient(110deg,#a51337,#173e6d);box-shadow:0 4px 22px #ff23452e}
+.panorama-heading p{color:#9eb1ca}
+.stat-icon{border-color:#ff526b44;color:#ff6078;background:#601a3040}
+.category-card{border-color:#ffffff14;background:linear-gradient(145deg,#10213a,#0a1424)}
+.category-card:hover{border-color:#ff4a6b99;box-shadow:0 20px 55px #0008,0 0 28px #ff23451a}
+.category-card:after{background:linear-gradient(110deg,#061225ed 5%,#091a30b9 65%,#0a152755)}
+.category-card .category-icon{color:#ff6b83;border-color:#ff536b55;background:#3c152cbb}
+.category-card:nth-child(3n+2) .category-icon{color:#7bbaff;border-color:#64aaff55;background:#14345abb}
+.category-card:nth-child(3n) .category-icon{color:#ff9aab}
+.category-card h3{color:#f1f6ff}
+.category-card .text-slate-500{color:#90a4c0}
+.category-card .group-hover\:text-cyan-300{color:#ff6b83}
+.filter-pill{border-color:#ffffff18;color:#94a9c3;background:#091629}
+.filter-pill:hover,.filter-pill.selected{border-color:#ff4568;color:#fff;background:#6a193344;box-shadow:0 0 18px #ff23451c}
+.search-box{border-color:#42628a66;background:#07162a}
+.search-box:focus-within{border-color:#ff4b6b;box-shadow:0 0 0 3px #ff23451c}
+.resource-card{border-color:#ffffff16;background:linear-gradient(155deg,#11223b,#091525)}
+.resource-card:hover{border-color:#ff456b88;box-shadow:0 18px 50px #0008,0 0 25px #ff23451a}
+.resource-art{background:radial-gradient(circle at 50% 50%,#183d67,#0a172b 68%)}
+.resource-art.violet,.resource-art.green{background:radial-gradient(circle at 50% 50%,#48213c,#0b172b 68%)}
+.resource-type{border-color:#ff617a66;color:#ffdbe2;background:#150d1bd9}
+.community-panel{border-color:#ff3d5e55;background:radial-gradient(circle at 88% 50%,#173c65,#10233d 38%,#0b1425 76%);box-shadow:0 25px 80px #0006,0 0 45px #ff23451a}
+.community-symbol{color:#ff42651c;filter:drop-shadow(0 0 34px #ff345b44)}
+.learning-overview{border-color:#ff496244;color:#ff7086;background:#111f35}
+.learning-progress i,.learning-bar i{background:linear-gradient(90deg,#ff3158,#ff8797 50%,#65adff)}
+.learning-card{border-color:#ffffff16;background:linear-gradient(145deg,#14233b,#0a1527)}
+.learning-card:hover,.learning-card.is-expanded{border-color:#ff4c6b77;box-shadow:0 18px 48px #0007,0 0 25px #ff23451a}
+.learning-icon{border-color:#ff526b55;color:#ff7188;background:#651a344d}
+.learning-area{color:#ff7288}
+.learning-expand{color:#ff7288}
+.lesson-done .lesson-number{border-color:#ff526b77;color:#ff8799;background:#54172d66}
+.auth-modal{border-color:#ff4c6a66;background:linear-gradient(145deg,#12243d,#0a1425);box-shadow:0 35px 110px #000b,0 0 45px #ff23451a}
+.auth-modal input:focus,.discussion-form textarea:focus{border-color:#ff4a68;box-shadow:0 0 0 3px #ff23451c}
+.auth-message{border-color:#ff526a55;color:#ffc0cc;background:#4c172c66}
+.resource-reader{border-color:#ff496555;background:#0b172a}
+.reader-discussion{border-color:#ff49662e}
+.discussion-avatar{color:#ff8da0;background:#581b334f}
+.discussion-form textarea{background:#071426}
+@keyframes brifanOrbit{to{transform:rotateX(68deg) rotateZ(336deg)}}
+@keyframes brifanOrbitReverse{to{transform:rotateY(68deg) rotateZ(-330deg)}}
+@keyframes brifanCoreGlow{0%,100%{filter:saturate(1);box-shadow:0 0 30px #ff23457a,0 0 105px #ff234538,inset 0 0 60px #6fbaff45}50%{filter:saturate(1.3);box-shadow:0 0 45px #ff2345b0,0 0 135px #ff23455c,inset 0 0 80px #6fbaff55}}
+@keyframes brifanImageBreath{0%{background-position:48% 50%;filter:saturate(.8) contrast(1.05)}100%{background-position:54% 45%;filter:saturate(1.12) contrast(1.12)}}
+.deep-hero-art:hover .deep-core{transform:translateY(-8px) rotateY(10deg) scale(1.035)}
+.deep-hero-art:hover .deep-orbit-one{filter:drop-shadow(0 0 10px #ff345b)}
+.deep-hero-art:hover .deep-orbit-two{filter:drop-shadow(0 0 10px #65adff)}
+.category-card:hover .category-icon{box-shadow:0 0 25px #ff315833}
+.resource-card:hover .resource-art{filter:saturate(1.18)}
+@media(max-width:900px){.deep-hero{min-height:0}.deep-hero-art{min-height:450px}}
+@media(max-width:560px){.deep-hero-art{min-height:360px}.deep-art-image,.deep-art-shade{inset:25px 8px}.deep-card-top{top:34px}.deep-card-bottom{bottom:34px}}
+@media(prefers-reduced-motion:reduce){.deep-art-image,.deep-orbit-one,.deep-orbit-two,.deep-core{animation:none!important}.deep-hero-art:hover .deep-core{transform:none}}
