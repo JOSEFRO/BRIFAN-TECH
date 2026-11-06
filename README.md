@@ -18,11 +18,15 @@
 - Adjuntos privados servidos mediante enlaces firmados de Supabase Storage.
 - Herramientas de administración basadas en el rol del perfil.
 
-> La disponibilidad de las funciones conectadas depende de la configuración de Supabase, las migraciones SQL, las políticas RLS y los buckets. La vista previa del repositorio es conceptual y no debe confundirse con una captura de datos reales.
+> La disponibilidad de las funciones conectadas depende de la configuración de Supabase, las migraciones SQL, las políticas RLS y los buckets. La imagen de vista previa es conceptual y no debe confundirse con una captura del contenido publicado. Si la biblioteca no logra consultar Supabase, la interfaz muestra un estado de error en lugar de presentar contenido de ejemplo como si fuera contenido real.
 
 ## Experiencia y diseño
 
-La interfaz utiliza una identidad visual cinematográfica en azul noche y rojo eléctrico, con profundidad 3D, iluminación volumétrica y microinteracciones, tipografía Space Grotesk + DM Sans, escenas geométricas 3D y animaciones CSS optimizadas, tarjetas por categoría y composiciones adaptables a móvil. Las animaciones respetan la preferencia del sistema por movimiento reducido.
+La interfaz utiliza una identidad visual cinematográfica en azul noche y rojo eléctrico, con profundidad 3D, iluminación volumétrica y microinteracciones. Las áreas y las tarjetas de recursos incorporan fotografías temáticas de Unsplash con carga diferida, capas de contraste y fallback de color si una imagen externa no responde. Las animaciones respetan la preferencia del sistema por movimiento reducido.
+
+## Referencias visuales
+
+Las fotografías temáticas se sirven desde imágenes de Unsplash. Son referencias ilustrativas por categoría y no representan instalaciones, equipos ni personal de BRIFAN TECH. La ilustración SVG del repositorio es una maqueta conceptual, no una captura real del sitio.
 
 ## Tecnologías
 
