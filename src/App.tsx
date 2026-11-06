@@ -378,7 +378,7 @@ export default function App() {
               <circle className="network-pulse" cx="260" cy="105" r="22"/><circle className="network-pulse delay" cx="450" cy="130" r="18"/>
             </svg>
             <div className="data-widget widget-a"><span>NODOS DEL ECOSISTEMA</span><strong>↗ <b>10 ÁREAS</b></strong><div className="mini-bars">{[24,38,30,52,42,68,50,78,62,92,72,100].map((v,i)=><i key={i} style={{height:v+'%'}}/>)}</div></div>
-            <div className="data-widget widget-b"><span>RUTAS DE APRENDIZAJE</span><div className="flow-ring"><b>∞</b></div><small>Conocimiento por explorar</small></div>
+            <div className="data-widget widget-b"><span>RUTAS DE APRENDIZAJE</span><div className="flow-ring"><b>03</b></div><small>Rutas para comenzar</small></div>
           </div>
         </div>
       </section>
