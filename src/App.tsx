@@ -2,7 +2,7 @@ import Header from './components/Header'
 import LearningHub from './components/LearningHub'
 import { learningGuides } from './data/learningGuides'
 import { ArrowRight, ArrowUpRight, BookOpen, Bookmark, BrainCircuit, Code2, Cpu, Database, FileText, Globe2, Layers3, Network, Search, ShieldCheck, Sparkles, Terminal, X } from 'lucide-react'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import type { Session } from '@supabase/supabase-js'
 import { supabase, isSupabaseConfigured } from './lib/supabase'
 
@@ -34,6 +34,23 @@ const categoryVisuals: Record<string, string> = {
 
 const demoResources = learningGuides
 
+function renderArticleBody(source: string) {
+  return source.split('\n').map((raw, index) => {
+    const line = raw.trim()
+    if (!line) return null
+    const video = line.match(/(?:youtube\.com\/(?:watch\?v=|shorts\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/)
+    if (video) return <div className="article-video" key={index}><iframe src={'https://www.youtube-nocookie.com/embed/' + video[1]} title="Video de YouTube" loading="lazy" allow="accelerometer; autoplay; encrypted-media; picture-in-picture" allowFullScreen /></div>
+    const image = line.match(/^!\[([^\]]*)\]\((https?:\/\/[^)]+)\)$/)
+    if (image) return <figure key={index}><img className="article-inline-image" src={image[2]} alt={image[1]} loading="lazy" /></figure>
+    if (line.startsWith('### ')) return <h3 key={index}>{line.slice(4)}</h3>
+    if (line.startsWith('## ')) return <h2 key={index}>{line.slice(3)}</h2>
+    if (line.startsWith('# ')) return <h1 key={index}>{line.slice(2)}</h1>
+    if (/^[-*] /.test(line)) return <p key={index}>• {line.slice(2)}</p>
+    if (line.startsWith('> ')) return <blockquote key={index}>{line.slice(2)}</blockquote>
+    return <p key={index}>{line}</p>
+  })
+}
+
 export default function App() {
   const [query, setQuery] = useState('')
   const [liveResources, setLiveResources] = useState<any[]>([])
@@ -59,6 +76,8 @@ export default function App() {
   const [publishLevel, setPublishLevel] = useState('beginner')
   const [publishExcerpt, setPublishExcerpt] = useState('')
   const [publishBody, setPublishBody] = useState('')
+  const [editorView, setEditorView] = useState<'write' | 'preview'>('write')
+  const publishBodyRef = useRef<HTMLTextAreaElement>(null)
   const [publishMessage, setPublishMessage] = useState('')
   const [publishBusy, setPublishBusy] = useState(false)
   const [publishFiles, setPublishFiles] = useState<File[]>([])
@@ -519,7 +538,18 @@ export default function App() {
             <label>Nivel<select value={publishLevel} onChange={e => setPublishLevel(e.target.value)}><option value="beginner">Principiante</option><option value="intermediate">Intermedio</option><option value="advanced">Avanzado</option><option value="all">Todos</option></select></label>
           </div>
           <label>Resumen<textarea value={publishExcerpt} onChange={e => setPublishExcerpt(e.target.value)} maxLength={400} required rows={2} placeholder="Explica brevemente qué aprenderá el lector."/></label>
-          <label>Contenido<textarea value={publishBody} onChange={e => setPublishBody(e.target.value)} minLength={40} required rows={10} placeholder="Escribe aquí tu guía. Puedes separar los temas con títulos y párrafos."/></label>
+          <div className="publish-editor-wrap">
+            <div className="publish-editor-heading"><strong>Editor de contenido</strong><span>Vista previa del artículo</span></div>
+            <div className="publish-editor-tabs"><button type="button" className={editorView==='write'?'active':''} onClick={()=>setEditorView('write')}>Escribir</button><button type="button" className={editorView==='preview'?'active':''} onClick={()=>setEditorView('preview')}>Vista previa</button></div>
+            {editorView==='write' ? <>
+              <div className="publish-toolbar">
+                {([{label:'Título 1',value:'# '},{label:'Título 2',value:'## '},{label:'Negrita',value:'**'},{label:'Imagen',value:'![Descripción](https://)'},{label:'Enlace',value:'[Texto](https://)'},{label:'Lista',value:'- '}]).map(tool=><button type="button" key={tool.label} onClick={()=>{const el=publishBodyRef.current;if(!el)return;const pos=el.selectionStart;const next=publishBody.slice(0,pos)+tool.value+publishBody.slice(el.selectionEnd);setPublishBody(next);requestAnimationFrame(()=>{el.focus();el.setSelectionRange(pos+tool.value.length,pos+tool.value.length)})}}>{tool.label}</button>)}
+                <button type="button" onClick={()=>setPublishBody(v=>v+(v?'\n\n':'')+'https://www.youtube.com/watch?v=ID_DEL_VIDEO')}>Video YouTube</button>
+              </div>
+              <textarea ref={publishBodyRef} value={publishBody} onChange={e=>setPublishBody(e.target.value)} minLength={40} required rows={15} placeholder="Escribe tu artículo aquí. Inserta títulos, imágenes mediante enlaces y videos de YouTube." />
+              <p className="editor-tip">Para insertar una imagen, usa el botón Imagen y reemplaza la URL por un enlace directo a la imagen. Para videos, pega el enlace de YouTube en una línea independiente.</p>
+            </> : <div className="publish-live-preview">{publishBody.trim()?renderArticleBody(publishBody):<p className="preview-empty">Tu vista previa aparecerá aquí.</p>}</div>}
+          </div>
           <label>Imágenes y archivos<input type="file" multiple accept="image/jpeg,image/png,image/webp,image/gif,application/pdf,text/plain,text/markdown,text/csv,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation,application/zip" onChange={event => { const incoming = Array.from(event.target.files ?? []); setPublishFiles(current => [...current, ...incoming].slice(0, 8)); event.target.value = '' }} /></label>
           <p className="upload-help">Hasta 8 archivos por publicación · máximo 50 MB por archivo. Imágenes, PDF, Office, CSV, texto y ZIP.</p>
           {publishFiles.length > 0 && <ul className="upload-list">{publishFiles.map((file, index) => <li key={file.name + file.lastModified + index}><span>{file.name} <small>{(file.size / 1024 / 1024).toFixed(2)} MB</small></span><button type="button" onClick={() => setPublishFiles(current => current.filter((_, i) => i !== index))}>Quitar</button></li>)}</ul>}
@@ -535,7 +565,7 @@ export default function App() {
         <h2 id="resource-reader-title">{selectedResource.title}</h2>
         <div className="reader-meta"><span>{selectedResource.level}</span><span>{selectedResource.time}</span></div>
         {selectedResource.excerpt && <p className="reader-excerpt">{selectedResource.excerpt}</p>}
-        <div className="reader-content">{selectedResource.body || selectedResource.body_md || selectedResource.content || 'Este recurso todavía no tiene contenido disponible. Vuelve a intentarlo más adelante.'}</div>
+        <div className="reader-content">{renderArticleBody(selectedResource.body || selectedResource.body_md || selectedResource.content || 'Este recurso todavía no tiene contenido disponible. Vuelve a intentarlo más adelante.')}</div>
         <section className="reader-discussion" aria-labelledby="discussion-title">
           <div className="discussion-heading"><div><span className="section-kicker">COMUNIDAD / DISCUSIÓN</span><h3 id="discussion-title">Comparte tu perspectiva</h3></div><span className="discussion-count">{readerComments.length} comentarios</span></div>
           {selectedResource.id ? <>
