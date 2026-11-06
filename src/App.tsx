@@ -25,7 +25,7 @@ const categoryVisuals: Record<string, string> = {
   'Programación': 'https://images.unsplash.com/photo-1515879218367-8466d910aaa4?auto=format&fit=crop&w=1000&q=85',
   'Inteligencia artificial': 'https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&w=1000&q=85',
   'Sistemas operativos': 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1000&q=85',
-  'Bases de datos': 'https://images.unsplash.com/photo-1544383835-bda2bc66a55d?auto=format&fit=crop&w=1000&q=85',
+  'Bases de datos': 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1000&q=85',
   'Cloud y DevOps': 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1000&q=85',
   'Hardware y electrónica': 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1000&q=85',
   'Soporte técnico': 'https://images.unsplash.com/photo-1662638600476-d563fffbb072?auto=format&fit=crop&w=1000&q=85',
