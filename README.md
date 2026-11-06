@@ -22,7 +22,7 @@
 
 ## Experiencia y diseño
 
-La interfaz utiliza una identidad visual oscura con acentos cyan/violeta, tipografía Space Grotesk + DM Sans, ilustraciones geométricas, tarjetas por categoría y composiciones adaptables a móvil. Las animaciones respetan la preferencia del sistema por movimiento reducido.
+La interfaz utiliza una identidad visual cinematográfica en azul noche y rojo eléctrico, con profundidad 3D, iluminación volumétrica y microinteracciones, tipografía Space Grotesk + DM Sans, escenas geométricas 3D y animaciones CSS optimizadas, tarjetas por categoría y composiciones adaptables a móvil. Las animaciones respetan la preferencia del sistema por movimiento reducido.
 
 ## Tecnologías
 
