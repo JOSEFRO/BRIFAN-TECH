@@ -305,7 +305,22 @@ export default function App() {
   }, [])
   const resources = liveResources.length > 0 ? liveResources : demoResources
   const [active, setActive] = useState('Todo')
-    const filtered = useMemo(() => resources.filter((r) =>
+    useEffect(() => {
+    const art = document.querySelector<HTMLElement>('.deep-hero-art')
+    if (!art || window.matchMedia('(prefers-reduced-motion: reduce)').matches || !window.matchMedia('(hover: hover) and (pointer: fine)').matches) return
+    const move = (event: PointerEvent) => {
+      const rect = art.getBoundingClientRect()
+      const x = (event.clientX - rect.left) / rect.width - 0.5
+      const y = (event.clientY - rect.top) / rect.height - 0.5
+      art.style.transform = `perspective(1200px) rotateY(${(x * 3.2).toFixed(2)}deg) rotateX(${(-y * 2.4).toFixed(2)}deg)`
+    }
+    const reset = () => { art.style.transform = '' }
+    art.addEventListener('pointermove', move)
+    art.addEventListener('pointerleave', reset)
+    return () => { art.removeEventListener('pointermove', move); art.removeEventListener('pointerleave', reset); reset() }
+  }, [])
+
+  const filtered = useMemo(() => resources.filter((r) =>
     (active === 'Todo' || r.category === active) &&
     (r.title + r.category + r.type).toLowerCase().includes(query.toLowerCase())
   ), [resources, active, query])
