@@ -13,7 +13,7 @@ type Preferences = {
   in_app_updates: boolean
   profile_visibility: 'public' | 'members' | 'private'
 }
-type Profile = { display_name: string | null; username: string | null; bio: string | null; website: string | null; avatar_url: string | null }
+type Profile = { display_name: string; username: string; bio: string; website: string; avatar_url: string }
 const defaults: Preferences = { language: 'es', theme: 'dark', accent_color: 'red', reading_density: 'comfortable', email_replies: true, email_publications: false, in_app_updates: true, profile_visibility: 'public' }
 
 export default function SettingsPanel({ session, onClose }: { session: Session; onClose: () => void }) {
@@ -44,10 +44,14 @@ export default function SettingsPanel({ session, onClose }: { session: Session; 
 
   useEffect(() => {
     const root = document.documentElement
-    root.dataset.theme = prefs.theme
+    const systemLight = window.matchMedia('(prefers-color-scheme: light)').matches
+    root.dataset.theme = prefs.theme === 'system' ? (systemLight ? 'light' : 'dark') : prefs.theme
     root.dataset.accent = prefs.accent_color
     root.dataset.density = prefs.reading_density
-    return () => { delete root.dataset.theme; delete root.dataset.accent; delete root.dataset.density }
+    const media = window.matchMedia('(prefers-color-scheme: light)')
+    const syncTheme = () => { if (prefs.theme === 'system') root.dataset.theme = media.matches ? 'light' : 'dark' }
+    media.addEventListener('change', syncTheme)
+    return () => { media.removeEventListener('change', syncTheme); delete root.dataset.theme; delete root.dataset.accent; delete root.dataset.density }
   }, [prefs.theme, prefs.accent_color, prefs.reading_density])
 
   async function save() {
@@ -94,7 +98,7 @@ export default function SettingsPanel({ session, onClose }: { session: Session; 
           {busy ? <p className="settings-muted">Cargando tus preferencias…</p> : <>
             {tab === 'profile' && <section className="settings-section"><h3>Información pública</h3><p className="settings-muted">Estos datos ayudan a otros miembros a reconocerte.</p>
               {field('Nombre visible', profile.display_name ?? '', v => setProfile(p => ({ ...p, display_name: v })), 'Tu nombre', 60)}
-              {field('Nombre de usuario', profile.username ?? '', () => {}, 'Gestionado por tu cuenta')}
+              <label className="settings-field">Nombre de usuario<input value={profile.username} readOnly aria-readonly="true"/></label>
               {field('URL del avatar', profile.avatar_url ?? '', v => setProfile(p => ({ ...p, avatar_url: v })), 'https://…')}
               {field('Sitio web', profile.website ?? '', v => setProfile(p => ({ ...p, website: v })), 'https://tusitio.com')}
               <label className="settings-field">Biografía<textarea value={profile.bio ?? ''} onChange={e => setProfile(p => ({ ...p, bio: e.target.value }))} rows={4} maxLength={500} placeholder="Cuéntale a la comunidad qué te interesa…"/></label>
