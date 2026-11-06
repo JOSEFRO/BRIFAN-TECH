@@ -52,6 +52,7 @@ export default function App() {
   const [selectedResource, setSelectedResource] = useState<any | null>(null)
   const [publishOpen, setPublishOpen] = useState(false)
   const [editingArticleId, setEditingArticleId] = useState<string | null>(null)
+  const [editingAttachmentBlock, setEditingAttachmentBlock] = useState('')
   const [publishTitle, setPublishTitle] = useState('')
   const [publishCategory, setPublishCategory] = useState(categories[0].name)
   const [publishType, setPublishType] = useState('guide')
@@ -223,6 +224,7 @@ export default function App() {
     const rawBody = String(article.body_md ?? '')
     const attachmentMatch = rawBody.match(/<!--BRIFAN_ATTACHMENTS:(.*?)-->/s)
     const cleanBody = attachmentMatch ? rawBody.slice(0, attachmentMatch.index).trim() : rawBody.trim()
+    setEditingAttachmentBlock(attachmentMatch?.[0] ? `\n\n${attachmentMatch[0]}` : '')
     setEditingArticleId(article.id)
     setPublishTitle(article.title ?? '')
     setPublishExcerpt(article.excerpt ?? '')
@@ -290,15 +292,16 @@ export default function App() {
           category_id: category.id,
           title: publishTitle.trim(),
           excerpt: publishExcerpt.trim(),
-          body_md: publishBody.trim(),
+          body_md: publishBody.trim() + editingAttachmentBlock,
           content_type: publishType,
           difficulty: publishLevel,
           status: 'pending',
-          reading_minutes: Math.max(1, Math.ceil(publishBody.trim().split(/\\s+/).length / 180)),
+          reading_minutes: Math.max(1, Math.ceil(publishBody.trim().split(/\s+/).length / 180)),
         }).eq('id', editingArticleId).eq('author_id', session.user.id)
         if (error) throw error
         setPublishMessage('Cambios guardados. La publicación volvió a revisión antes de mostrarse públicamente.')
         setEditingArticleId(null)
+        setEditingAttachmentBlock('')
         setPublishTitle(''); setPublishExcerpt(''); setPublishBody(''); setPublishFiles([])
         await loadMyArticles()
         return
