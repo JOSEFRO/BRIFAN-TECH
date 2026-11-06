@@ -455,7 +455,7 @@ export default function App() {
         <button className="btn-secondary mt-5" onClick={()=>void loadMyArticles()}>Actualizar lista</button>
       </section>
     </div>}
-    {adminOpen && isAdmin && <div> className="modal-backdrop resource-backdrop" role="presentation" onMouseDown={event=>{if(event.target===event.currentTarget)setAdminOpen(false)}}>
+    {adminOpen && isAdmin && <div className="modal-backdrop resource-backdrop" role="presentation" onMouseDown={event=>{if(event.target===event.currentTarget)setAdminOpen(false)}}>
       <section className="resource-reader publish-reader" role="dialog" aria-modal="true" aria-labelledby="admin-title">
         <button className="modal-close" onClick={()=>setAdminOpen(false)} aria-label="Cerrar"><X size={18}/></button>
         <span className="section-kicker">BRIFAN / MODERACIÓN</span><h2 id="admin-title">Administración de publicaciones</h2>
