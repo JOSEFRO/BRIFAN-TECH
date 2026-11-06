@@ -1,4 +1,5 @@
 import Header from './components/Header'
+import SettingsPanel from './components/SettingsPanel'
 import LearningHub from './components/LearningHub'
 import { learningGuides } from './data/learningGuides'
 import { ArrowRight, ArrowUpRight, BookOpen, Bookmark, BrainCircuit, Code2, Cpu, Database, FileText, Globe2, Layers3, Network, Search, ShieldCheck, Sparkles, Terminal, X } from 'lucide-react'
@@ -87,6 +88,7 @@ export default function App() {
   const [pendingArticles, setPendingArticles] = useState<any[]>([])
   const [adminMessage, setAdminMessage] = useState('')
   const [myPostsOpen, setMyPostsOpen] = useState(false)
+  const [settingsOpen, setSettingsOpen] = useState(false)
   const [myArticles, setMyArticles] = useState<any[]>([])
   const [myPostsMessage, setMyPostsMessage] = useState('')
   const [readerComments, setReaderComments] = useState<any[]>([])
@@ -433,6 +435,7 @@ export default function App() {
       onPublish={() => { setPublishMessage(''); setPublishOpen(true) }}
       onMyPosts={() => { setMyPostsOpen(true); void loadMyArticles() }}
       onAdmin={() => { setAdminOpen(true); setAdminMessage(''); void loadPendingArticles() }}
+      onSettings={() => setSettingsOpen(true)}
       onSignIn={() => { setAuthMode('signin'); setAuthOpen(true); setAuthMessage('') }}
       onSignUp={() => { setAuthMode('signup'); setAuthOpen(true); setAuthMessage('') }}
       onSignOut={() => { void supabase?.auth.signOut() }}
@@ -500,6 +503,7 @@ export default function App() {
       <section id="comunidad" className="mx-auto max-w-7xl px-5 py-20 sm:px-8"><div className="community-panel"><div className="relative z-10 max-w-2xl"><span className="section-kicker">03 / CONSTRUYAMOS JUNTOS</span><h2 className="mt-4 text-3xl font-black sm:text-4xl">Tu experiencia también puede <span className="gradient-text">inspirar.</span></h2><p className="mt-4 max-w-xl text-sm leading-7 text-slate-400">BRIFAN TECH busca reunir a estudiantes, profesionales y entusiastas para compartir soluciones, documentar aprendizajes y hacer crecer la comunidad tecnológica.</p><button className="btn-primary mt-7" onClick={() => {setAuthMode("signup");setAuthOpen(true);setAuthMessage("")}}>Crear cuenta gratis <ArrowUpRight size={16}/></button></div><div className="community-symbol"><Layers3 size={100} strokeWidth={.7}/></div></div></section>
     </main>
     <footer id="nosotros" className="border-t border-white/[.08]"><div className="mx-auto flex max-w-7xl flex-col gap-5 px-5 py-8 text-xs text-slate-500 sm:px-8 md:flex-row md:items-center md:justify-between"><div className="flex items-center gap-3"><span className="brand-mark small"><Layers3 size={16}/></span><b className="tracking-[.14em] text-slate-300">BRIFAN.TECH</b><span>© 2026</span></div><p>Explora. Aprende. Comparte.</p><a href="https://github.com/JOSEFRO/BRIFAN-TECH" target="_blank" rel="noreferrer" className="hover:text-cyan-300">Código en GitHub <ArrowUpRight size={13} className="inline"/></a></div></footer>
+    {settingsOpen && session && <SettingsPanel session={session} onClose={() => setSettingsOpen(false)} />}
     {myPostsOpen && session && <div className="modal-backdrop resource-backdrop" role="presentation" onMouseDown={event=>{if(event.target===event.currentTarget)setMyPostsOpen(false)}}>
       <section className="resource-reader publish-reader" role="dialog" aria-modal="true" aria-labelledby="my-posts-title">
         <button className="modal-close" onClick={()=>setMyPostsOpen(false)} aria-label="Cerrar"><X size={18}/></button>
