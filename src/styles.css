@@ -519,3 +519,38 @@ header>div button,.btn-primary,.btn-secondary,.btn-ghost{transition:transform .3
 @media(max-width:900px){.deep-hero{min-height:0}.deep-hero-art{min-height:450px}}
 @media(max-width:560px){.deep-hero-art{min-height:360px}.deep-art-image,.deep-art-shade{inset:25px 8px}.deep-card-top{top:34px}.deep-card-bottom{bottom:34px}}
 @media(prefers-reduced-motion:reduce){.deep-art-image,.deep-orbit-one,.deep-orbit-two,.deep-core{animation:none!important}.deep-hero-art:hover .deep-core{transform:none}}
+
+
+/* BRIFAN TECH / IMMERSIVE EXPERIENCE REFINEMENT */
+:root{--brifan-ease:cubic-bezier(.2,.75,.2,1)}
+html{scrollbar-color:#873149 #050a14}
+::selection{background:#ff3158;color:#fff}
+.deep-hero{isolation:isolate}
+.deep-hero-copy h1{text-wrap:balance;letter-spacing:-.045em}
+.deep-hero-art{transform-style:preserve-3d;will-change:transform;transition:transform .55s var(--brifan-ease)}
+.deep-art-image{transform:translateZ(0);backface-visibility:hidden}
+.deep-glass-card{transition:transform .4s var(--brifan-ease),border-color .35s,box-shadow .35s}
+.deep-card-top{transform:translateZ(34px)}
+.deep-card-bottom{transform:translateZ(48px)}
+.deep-hero-art:hover .deep-card-top{transform:translate3d(-5px,-5px,42px)}
+.deep-hero-art:hover .deep-card-bottom{transform:translate3d(5px,5px,56px)}
+.deep-core-inner{transform:translateZ(30px)}
+.signal-panel,.community-panel{isolation:isolate;transition:border-color .35s,box-shadow .35s}
+.signal-panel:hover,.community-panel:hover{border-color:#ff49665c;box-shadow:0 28px 90px #0008,0 0 48px #ff23451b}
+.category-card,.resource-card{transform-style:preserve-3d;transition:transform .45s var(--brifan-ease),border-color .35s,box-shadow .35s}
+.category-card:hover,.resource-card:hover{transform:translateY(-5px);border-color:#ff496b8c;box-shadow:0 24px 65px #0009,0 0 28px #ff23451b}
+.category-card-image,.resource-art{transition:transform .8s var(--brifan-ease),filter .5s}
+.category-card:hover .category-card-image,.resource-card:hover .resource-art{transform:scale(1.045);filter:saturate(1.15)}
+.btn-primary{position:relative;overflow:hidden}
+.btn-primary:after{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent 25%,#ffffff35 48%,transparent 70%);transform:translateX(-120%);transition:transform .7s}
+.btn-primary:hover:after{transform:translateX(120%)}
+.panorama-stage{isolation:isolate}
+.panorama-world{transform-style:preserve-3d}
+.panorama-switch button{transition:background .3s,color .3s,transform .3s}
+.panorama-switch button:hover{transform:translateY(-2px)}
+.search-box{transition:border-color .25s,box-shadow .25s,background .25s}
+.filter-pill{transition:transform .25s,border-color .25s,background .25s}
+.filter-pill:hover{transform:translateY(-2px)}
+a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:2px solid #ff6680;outline-offset:3px}
+@media(max-width:700px){.deep-hero-art{transform:none!important}.deep-hero-art:hover .deep-card-top,.deep-hero-art:hover .deep-card-bottom{transform:none}.category-card:hover,.resource-card:hover{transform:none}}
+@media(prefers-reduced-motion:reduce){.deep-hero-art,.deep-glass-card,.signal-panel,.community-panel,.category-card,.resource-card,.category-card-image,.resource-art,.btn-primary:after,.filter-pill,.panorama-switch button{transition:none!important}.deep-hero-art:hover .deep-card-top,.deep-hero-art:hover .deep-card-bottom{transform:none}}
