@@ -324,10 +324,10 @@ export default function App() {
     <main className="relative z-10">
       <section className="deep-hero mx-auto max-w-7xl px-5 sm:px-8">
         <div className="deep-hero-copy">
-          <div className="eyebrow"><span className="pulse-dot"/> EL CONOCIMIENTO ES TU PRÓXIMA VENTAJA</div>
+          <div className="eyebrow"><span className="pulse-dot"/> TU PRÓXIMO DESCUBRIMIENTO COMIENZA AQUÍ</div>
           <p className="deep-index">BRIFAN TECH <span>—</span> DIGITAL KNOWLEDGE PLATFORM / 2026</p>
           <h1>El futuro no se<br/>espera. <span className="gradient-text">Se construye.</span></h1>
-          <p className="deep-lead">Un espacio para quienes sienten curiosidad por la tecnología. Explora redes, ciberseguridad, inteligencia artificial y desarrollo a través de recursos prácticos y una comunidad que comparte lo que sabe.</p>
+          <p className="deep-lead">Una experiencia para explorar el mundo digital: aprende redes, ciberseguridad, programación e inteligencia artificial con guías prácticas, rutas de aprendizaje y una comunidad que comparte conocimiento.</p>
           <div className="deep-actions"><a href="#explorar" className="btn-primary">Explorar la biblioteca <ArrowRight size={17}/></a><a href="#panorama" className="deep-text-link">Entrar al universo <ArrowUpRight size={16}/></a></div>
           <div className="deep-proof"><div><b>10</b><span>ÁREAS DE TECNOLOGÍA</span></div><i/><div><b>∞</b><span>FORMAS DE APRENDER</span></div><i/><div><b>01</b><span>COMUNIDAD ABIERTA</span></div></div>
         </div>
@@ -340,7 +340,7 @@ export default function App() {
       </section>
       <section className="signal-section mx-auto max-w-7xl px-5 pb-16 sm:px-8">
         <div className="signal-panel">
-          <div className="signal-copy"><span className="section-kicker">LIVE / TECH ECOSYSTEM</span><h2>La tecnología está <span className="gradient-text">en movimiento.</span></h2><p>Explora cómo se conectan las ideas: redes, datos, código e inteligencia artificial en un mismo ecosistema.</p><div className="signal-points"><span><i className="signal-dot cyan-dot"/> Redes conectadas</span><span><i className="signal-dot violet-dot"/> Datos en flujo</span><span><i className="signal-dot green-dot"/> Ideas en evolución</span></div></div>
+          <div className="signal-copy"><span className="section-kicker">LIVE / TECH ECOSYSTEM</span><h2>El conocimiento <span className="gradient-text">se conecta.</span></h2><p>Un mapa visual de las disciplinas que transforman el mundo digital. Descubre conexiones entre redes, datos, código e inteligencia artificial.</p><div className="signal-points"><span><i className="signal-dot cyan-dot"/> Redes conectadas</span><span><i className="signal-dot violet-dot"/> Datos en flujo</span><span><i className="signal-dot green-dot"/> Ideas en evolución</span></div></div>
           <div className="data-visual" aria-label="Visualización animada de datos tecnológicos">
             <div className="data-grid"/>
             <svg className="network-svg" viewBox="0 0 520 300" role="img" aria-label="Red de nodos conectados">
@@ -349,8 +349,8 @@ export default function App() {
               <g className="network-nodes" filter="url(#glow)"><circle cx="70" cy="150" r="7"/><circle cx="160" cy="65" r="6"/><circle cx="260" cy="105" r="10"/><circle cx="365" cy="48" r="6"/><circle cx="450" cy="130" r="8"/><circle cx="350" cy="230" r="7"/><circle cx="245" cy="190" r="6"/><circle cx="145" cy="245" r="8"/></g>
               <circle className="network-pulse" cx="260" cy="105" r="22"/><circle className="network-pulse delay" cx="450" cy="130" r="18"/>
             </svg>
-            <div className="data-widget widget-a"><span>NETWORK TRAFFIC</span><strong>↗ <b>+24.8%</b></strong><div className="mini-bars">{[24,38,30,52,42,68,50,78,62,92,72,100].map((v,i)=><i key={i} style={{height:v+'%'}}/>)}</div></div>
-            <div className="data-widget widget-b"><span>DATA FLOW</span><div className="flow-ring"><b>98<span>%</span></b></div><small>Conexiones activas</small></div>
+            <div className="data-widget widget-a"><span>NODOS DEL ECOSISTEMA</span><strong>↗ <b>10 ÁREAS</b></strong><div className="mini-bars">{[24,38,30,52,42,68,50,78,62,92,72,100].map((v,i)=><i key={i} style={{height:v+'%'}}/>)}</div></div>
+            <div className="data-widget widget-b"><span>RUTAS DE APRENDIZAJE</span><div className="flow-ring"><b>∞</b></div><small>Conocimiento por explorar</small></div>
           </div>
         </div>
       </section>
@@ -369,7 +369,7 @@ export default function App() {
             <div className="world-node node-one"/><div className="world-node node-two"/><div className="world-node node-three"/><div className="world-node node-four"/>
             <div className="world-center"><div className="center-orbit"/><Layers3 size={42}/><b>BRIFAN</b><small>TECH ECOSYSTEM</small></div>
           </div>
-          <div className="panorama-label label-top"><span className="live-indicator"/> DIGITAL UNIVERSE <small>REAL-TIME EXPERIENCE</small></div>
+          <div className="panorama-label label-top"><span className="live-indicator"/> DIGITAL UNIVERSE <small>EXPERIENCIA INTERACTIVA</small></div>
           <button className="hotspot hotspot-network" onClick={() => {setActive('Redes y conectividad');document.getElementById('explorar')?.scrollIntoView({behavior:'smooth'})}}><Network size={15}/><span>Redes y conectividad</span><i/></button>
           <button className="hotspot hotspot-ai" onClick={() => {setActive('Inteligencia artificial');document.getElementById('explorar')?.scrollIntoView({behavior:'smooth'})}}><BrainCircuit size={15}/><span>Inteligencia artificial</span><i/></button>
           <button className="hotspot hotspot-security" onClick={() => {setActive('Ciberseguridad');document.getElementById('explorar')?.scrollIntoView({behavior:'smooth'})}}><ShieldCheck size={15}/><span>Ciberseguridad</span><i/></button>
