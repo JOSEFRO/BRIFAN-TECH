@@ -629,3 +629,8 @@ html[data-density="compact"] .reader-content p{margin:.35em 0;line-height:1.55}
 
 /* JOSEFRO signature — BRIFAN keeps its own red/blue product identity */
 .brand-mark-image{display:block;width:44px;height:44px;object-fit:contain;filter:drop-shadow(0 5px 16px #28c8f044);transition:transform .3s ease,filter .3s ease}.brand-mark-image:hover{transform:translateY(-2px) rotate(-3deg);filter:drop-shadow(0 8px 22px #35d7ef66)}.brand-word-stack{display:flex;flex-direction:column;line-height:1.1}.brand-word-stack small{margin-top:4px;color:#7f96b1;font:600 8px 'Space Grotesk',sans-serif;letter-spacing:.22em}@media(prefers-reduced-motion:reduce){.brand-mark-image{transition:none}}
+
+/* Electric logo pulse — restrained, premium, accessible */
+.brand-mark-image{animation:jf-electric 3.6s ease-in-out infinite;transform-origin:center}
+@keyframes jf-electric{0%,100%{filter:drop-shadow(0 0 4px #27cfff44) drop-shadow(0 5px 12px #287aff22)}44%{filter:drop-shadow(0 0 9px #29dfffaa) drop-shadow(0 0 20px #527cff66) brightness(1.08)}49%{filter:drop-shadow(0 0 14px #a3f7ff) drop-shadow(0 0 28px #597cffbb) brightness(1.18)}54%{filter:drop-shadow(0 0 4px #27cfff44) drop-shadow(0 5px 12px #287aff22)}}
+@media(prefers-reduced-motion:reduce){.brand-mark-image{animation:none}}
