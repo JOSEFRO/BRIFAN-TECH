@@ -626,3 +626,6 @@ html[data-accent="violet"] .settings-nav button.active{border-color:#a78bfa66;ba
 html[data-accent="cyan"] .settings-nav button.active{border-color:#67e8f966;background:#0891b220}
 html[data-density="compact"] .reader-content p{margin:.35em 0;line-height:1.55}
 @media(max-width:680px){.settings-layout{grid-template-columns:1fr;gap:12px}.settings-nav{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.settings-nav button{font-size:11px;padding:9px}.settings-content{padding:15px}.settings-panel{padding:20px 16px}.settings-footer{align-items:flex-start;flex-direction:column}}
+
+/* JOSEFRO signature — BRIFAN keeps its own red/blue product identity */
+.brand-mark-image{display:block;width:44px;height:44px;object-fit:contain;filter:drop-shadow(0 5px 16px #28c8f044);transition:transform .3s ease,filter .3s ease}.brand-mark-image:hover{transform:translateY(-2px) rotate(-3deg);filter:drop-shadow(0 8px 22px #35d7ef66)}.brand-word-stack{display:flex;flex-direction:column;line-height:1.1}.brand-word-stack small{margin-top:4px;color:#7f96b1;font:600 8px 'Space Grotesk',sans-serif;letter-spacing:.22em}@media(prefers-reduced-motion:reduce){.brand-mark-image{transition:none}}
