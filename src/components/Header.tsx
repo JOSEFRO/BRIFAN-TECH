@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { ArrowUpRight, FileText, Layers3, LogOut, Menu, Settings, ShieldCheck, X } from 'lucide-react'
+import { ArrowUpRight, FileText, LogOut, Menu, Settings, ShieldCheck, X } from 'lucide-react'
 import type { Session } from '@supabase/supabase-js'
 
 type HeaderProps = {
