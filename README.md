@@ -1,34 +1,50 @@
+<div align="center">
+
+<img src="docs/images/brifan-identity.svg" alt="Identidad visual BRIFAN TECH" width="100%">
+
 # BRIFAN TECH
 
-<p align="center">
-  <img src="docs/images/brifan-tech-preview.svg" alt="Vista conceptual de la plataforma BRIFAN TECH" width="100%">
-</p>
+### Explora. Aprende. Comparte.
 
-**Explora. Aprende. Comparte.** BRIFAN TECH es una plataforma web comunitaria para descubrir, leer y compartir conocimiento tecnológico. Se utiliza directamente desde el navegador: no requiere instalar una aplicación en el equipo para acceder a la web.
+**Una plataforma web comunitaria para descubrir, estudiar y compartir conocimiento tecnológico.**
 
-[Ver código fuente](https://github.com/JOSEFRO/BRIFAN-TECH) · [Reportar un problema](https://github.com/JOSEFRO/BRIFAN-TECH/issues)
+[🌐 Abrir plataforma](https://josefro.github.io/BRIFAN-TECH/) · [📂 Código fuente](https://github.com/JOSEFRO/BRIFAN-TECH) · [🐛 Reportar un problema](https://github.com/JOSEFRO/BRIFAN-TECH/issues)
 
-## Qué ofrece
+</div>
 
-- Exploración de recursos por categorías: redes, ciberseguridad, programación, IA, sistemas, bases de datos y más.
-- Búsqueda y lectura de guías, tutoriales y recursos.
-- Cuentas de usuario mediante Supabase Auth.
-- Publicación de contenido con revisión/moderación.
+## ¿Qué es BRIFAN TECH?
+
+BRIFAN TECH organiza recursos y publicaciones sobre redes, ciberseguridad, programación, inteligencia artificial, sistemas y otras áreas de tecnología. Está pensada para lectores y autores que desean aprender y compartir material desde una misma web.
+
+**No necesitas instalar nada para utilizar la plataforma pública:** se abre directamente desde el navegador.
+
+## Recorrido de la plataforma
+
+<img src="docs/images/brifan-experience-map.svg" alt="Diagrama conceptual de exploración, aprendizaje, publicación y gestión en BRIFAN TECH" width="100%">
+
+| Área | Para qué sirve |
+|---|---|
+| Explorar | Descubrir categorías, recursos y publicaciones. |
+| Leer y aprender | Consultar guías, tutoriales y contenido multimedia. |
+| Cuenta de usuario | Acceder a funciones que requieren autenticación. |
+| Publicar | Redactar contenido, adjuntar recursos y enviarlo a revisión. |
+| Comunidad | Comentar y guardar favoritos, según permisos habilitados. |
+| Gestión | Consultar publicaciones propias y herramientas de moderación según el rol. |
+
+## Características del producto
+
+- Biblioteca organizada por categorías tecnológicas.
+- Editor de artículos con formato, enlaces, imágenes y vista previa.
+- Autenticación de usuarios mediante Supabase Auth.
+- Flujo de revisión y moderación de publicaciones.
 - Comentarios y favoritos para usuarios autenticados.
-- Adjuntos privados servidos mediante enlaces firmados de Supabase Storage.
-- Herramientas de administración basadas en el rol del perfil.
+- Archivos adjuntos privados mediante enlaces firmados de Supabase Storage.
+- Preferencias de usuario y opciones de personalización.
+- Interfaz responsive con identidad azul noche y rojo eléctrico.
 
-> La disponibilidad de las funciones conectadas depende de la configuración de Supabase, las migraciones SQL, las políticas RLS y los buckets. La imagen de vista previa es conceptual y no debe confundirse con una captura del contenido publicado. Si la biblioteca no logra consultar Supabase, la interfaz muestra un estado de error en lugar de presentar contenido de ejemplo como si fuera contenido real.
+> La disponibilidad de las funciones conectadas depende de la configuración de Supabase, las migraciones, las políticas RLS y los buckets. El diagrama es una explicación conceptual del producto, no una captura de pantalla ni una garantía de que cada flujo haya superado pruebas de aceptación.
 
-## Experiencia y diseño
-
-La interfaz utiliza una identidad visual cinematográfica en azul noche y rojo eléctrico, con profundidad 3D, iluminación volumétrica y microinteracciones. Las áreas y las tarjetas de recursos incorporan fotografías temáticas de Unsplash con carga diferida, capas de contraste y fallback de color si una imagen externa no responde. Las animaciones respetan la preferencia del sistema por movimiento reducido.
-
-## Referencias visuales
-
-Las fotografías temáticas se sirven desde imágenes de Unsplash. Son referencias ilustrativas por categoría y no representan instalaciones, equipos ni personal de BRIFAN TECH. La ilustración SVG del repositorio es una maqueta conceptual, no una captura real del sitio.
-
-## Tecnologías
+## Tecnología
 
 - React 19 + TypeScript + Vite 7
 - Tailwind CSS 4
@@ -45,14 +61,14 @@ cd BRIFAN-TECH
 npm install
 ```
 
-Crea `.env.local` en la raíz a partir de `.env.example`:
+Crea `.env.local` a partir de `.env.example`:
 
 ```env
 VITE_SUPABASE_URL=https://TU-PROYECTO.supabase.co
 VITE_SUPABASE_ANON_KEY=TU_CLAVE_PUBLICA
 ```
 
-Luego:
+Después ejecuta:
 
 ```bash
 npm run dev
@@ -60,21 +76,21 @@ npm run build
 npm run preview
 ```
 
-La web pública, cuando está desplegada, se abre desde el navegador sin instalación. Los comandos anteriores son únicamente para desarrollo local.
+Los comandos anteriores son para desarrollo local. La web publicada se utiliza desde el navegador.
 
-## Configuración y seguridad de Supabase
+## Seguridad y configuración
 
-1. Aplica las migraciones incluidas en `supabase/` en el orden indicado.
-2. Configura y verifica las políticas Row Level Security (RLS).
-3. Crea los buckets requeridos y valida sus permisos.
-4. Prueba con cuentas normales y de administración.
-5. Mantén la clave `service_role` fuera del frontend, de los archivos públicos y de Git.
+1. Aplica las migraciones incluidas en `supabase/` en el orden documentado.
+2. Verifica las políticas Row Level Security (RLS) para cada tabla.
+3. Comprueba los permisos de los buckets de Storage.
+4. Prueba con cuentas separadas de usuario y administración.
+5. Nunca publiques la clave `service_role` ni secretos del proyecto en el frontend o en Git.
 
-La clave pública del cliente no sustituye las políticas de acceso del servidor. Ocultar controles en la interfaz tampoco es una medida de autorización.
+Ocultar un botón en la interfaz no sustituye la autorización en Supabase. La clave pública del cliente tampoco sustituye las políticas del servidor.
 
-## Estado del proyecto
+## Estado y próximos controles
 
-Proyecto en evolución. El código incluye una base de interfaz y flujos conectados a Supabase; antes de considerarlo un servicio de producción, conviene completar pruebas de permisos, moderación, adjuntos, accesibilidad, rendimiento y recuperación ante errores.
+Proyecto en evolución. Antes de abrirlo a una comunidad amplia, deben repetirse pruebas funcionales de registro, inicio de sesión, publicación, edición, eliminación, moderación, adjuntos, permisos, accesibilidad y recuperación ante errores. Los estados de compilación y despliegue deben comprobarse en GitHub Actions.
 
 ## Licencia
 
