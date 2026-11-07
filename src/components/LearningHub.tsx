@@ -45,6 +45,44 @@ const tracks: LearningTrack[] = [
   },
 ]
 
+const curatedResources = [
+  {
+    title: 'Cisco Networking Academy',
+    area: 'Redes y conectividad',
+    description: 'Cursos gratuitos y autodidactas de fundamentos de redes, Packet Tracer y ciberseguridad.',
+    url: 'https://www.cisco.com/site/us/en/learn/training-certifications/training/netacad/index.html',
+    label: 'Explorar cursos',
+  },
+  {
+    title: 'NIST NICE',
+    area: 'Ciberseguridad',
+    description: 'Catálogo de formación gratuita y de bajo costo para desarrollar conocimientos de seguridad.',
+    url: 'https://www.nist.gov/itl/applied-cybersecurity/nice/free-and-low-cost-online-cybersecurity-learning-content',
+    label: 'Consultar recursos',
+  },
+  {
+    title: 'MDN Web Docs',
+    area: 'Desarrollo web',
+    description: 'Ruta de aprendizaje y documentación de HTML, CSS y JavaScript.',
+    url: 'https://developer.mozilla.org/es/docs/Learn_web_development',
+    label: 'Comenzar a aprender',
+  },
+  {
+    title: 'Python — documentación oficial',
+    area: 'Programación',
+    description: 'Tutorial oficial para aprender los fundamentos del lenguaje Python.',
+    url: 'https://docs.python.org/es/3/tutorial/',
+    label: 'Abrir tutorial',
+  },
+  {
+    title: 'Microsoft Learn',
+    area: 'Sistemas y cloud',
+    description: 'Formación oficial sobre Windows, infraestructura, Azure y administración de sistemas.',
+    url: 'https://learn.microsoft.com/es-es/training/',
+    label: 'Ver formación',
+  },
+]
+
 const STORAGE_KEY = 'brifan-learning-progress-v1'
 
 export default function LearningHub() {
@@ -137,6 +175,24 @@ export default function LearningHub() {
         })}
       </div>
       <p className="learning-note"><BookOpen size={14} /> El progreso se guarda en este navegador. No requiere crear tablas nuevas ni modificar tu cuenta.</p>
+
+      <section className="curated-resources" aria-labelledby="curated-resources-title">
+        <div className="curated-resources-heading">
+          <span className="section-kicker">RECURSOS VERIFICABLES</span>
+          <h3 id="curated-resources-title">Aprende con documentación oficial.</h3>
+          <p>Enlaces externos seleccionados para ampliar cada ruta. Algunos cursos pueden requerir una cuenta gratuita o tener condiciones propias.</p>
+        </div>
+        <div className="curated-resources-grid">
+          {curatedResources.map(resource => (
+            <article className="curated-resource-card" key={resource.title}>
+              <span>{resource.area}</span>
+              <h4>{resource.title}</h4>
+              <p>{resource.description}</p>
+              <a href={resource.url} target="_blank" rel="noopener noreferrer">{resource.label} <span aria-hidden="true">↗</span></a>
+            </article>
+          ))}
+        </div>
+      </section>
     </section>
   )
 }
