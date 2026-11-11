@@ -727,3 +727,13 @@ body{background-color:#07060d;color:#f5f0ff}
 .deep-hero-art:hover .deep-orbit-two{filter:drop-shadow(0 0 10px #d18cff)}
 @media(prefers-reduced-motion:reduce){.deep-hero-art,.deep-glass-card,.category-card,.resource-card{animation:none!important}}
 /* Keep the existing BRIFAN wordmark and logo asset unchanged. */
+
+
+/* Guide reader follows the violet palette too */
+.guide-markdown h1,.guide-markdown h2,.guide-markdown h3{color:#f5edff}
+.guide-markdown pre{border-color:#bd8cff33;background:#0b0713;color:#e2ccff}
+.guide-markdown :not(pre)>code{border-color:#bd8cff55;background:#241438;color:#e0caff}
+.guide-table-wrap{border-color:#bd8cff33}
+.guide-table-wrap th{background:#29163f;color:#f3eaff}
+.guide-table-wrap td{border-bottom-color:#bd8cff22;color:#d7c9e9}
+.article-video{border:1px solid #bd8cff33;border-radius:14px;overflow:hidden;background:#090610}
