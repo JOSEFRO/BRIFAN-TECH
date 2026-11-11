@@ -737,3 +737,45 @@ body{background-color:#07060d;color:#f5f0ff}
 .guide-table-wrap th{background:#29163f;color:#f3eaff}
 .guide-table-wrap td{border-bottom-color:#bd8cff22;color:#d7c9e9}
 .article-video{border:1px solid #bd8cff33;border-radius:14px;overflow:hidden;background:#090610}
+
+
+/* BRIFAN VISUAL REDESIGN V2 — editorial community / research magazine */
+:root{--brifan-violet:#b88aff;--brifan-line:rgba(197,155,255,.2)}
+body{background:#08070d}
+body:before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;background:radial-gradient(ellipse at 85% 12%,#6f36a82b,transparent 35%),linear-gradient(90deg,#ffffff08 1px,transparent 1px),linear-gradient(#ffffff08 1px,transparent 1px);background-size:auto,64px 64px,64px 64px}
+body>div>header{position:sticky;top:0;max-width:none!important;width:100%;padding:14px clamp(18px,4vw,64px)!important;background:rgba(8,7,13,.92);border-bottom:1px solid var(--brifan-line);backdrop-filter:blur(24px)}
+.brand-mark-image{width:40px;height:40px;object-fit:contain}
+.brand-word-stack small{display:block;color:#9b8aaa;font:9px "DM Mono",monospace;letter-spacing:.22em}
+.nav-link{font-size:11px;letter-spacing:.12em;text-transform:uppercase}
+.deep-hero{max-width:none!important;width:min(1500px,calc(100% - 64px));min-height:680px;padding:70px 0 80px!important;display:grid;grid-template-columns:.92fr 1.08fr;gap:34px;align-items:center}
+.deep-hero-copy{padding:44px 0 44px 3vw}
+.deep-index{font:10px "DM Mono",monospace;letter-spacing:.18em;color:#b59bcf}
+.deep-hero h1{font:clamp(58px,7vw,112px)/.92 "Space Grotesk",sans-serif;letter-spacing:-.075em;max-width:760px}
+.deep-lead{max-width:520px;font-size:15px;line-height:1.9;color:#b9adc8}
+.deep-actions{margin-top:32px}.btn-primary{border-radius:2px;background:linear-gradient(100deg,#8e4de2,#c09aff);color:#10091b;box-shadow:0 15px 40px #9b62e52a}
+.deep-hero-art{min-height:570px;border:1px solid var(--brifan-line);border-radius:3px;background:#100b19;overflow:hidden;box-shadow:0 35px 100px #0008}
+.deep-art-image{inset:5%;background-image:linear-gradient(180deg,#0a07102b,#0a0710aa),url("https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1400&q=90");background-position:center;background-size:cover;filter:saturate(.75)}
+.deep-core{width:230px;height:230px;background:radial-gradient(circle,#6e3da9,#1c102c 66%,transparent 68%);border:1px solid #c49aff55;box-shadow:0 0 100px #a568ef55}
+.deep-core-inner{color:#f0e2ff}.deep-coordinate{font:9px "DM Mono",monospace;color:#d2b4ff;letter-spacing:.18em}
+.signal-section,.panorama-section{max-width:none!important;width:min(1500px,calc(100% - 64px))}
+.signal-panel{display:grid;grid-template-columns:.8fr 1.2fr;min-height:430px;border:1px solid var(--brifan-line);border-radius:3px;background:linear-gradient(115deg,#171020,#0b0911 65%);overflow:hidden}
+.signal-copy{padding:clamp(28px,5vw,72px)}
+.signal-copy h2{font:clamp(36px,5vw,68px)/1 "Space Grotesk",sans-serif;letter-spacing:-.06em}
+.data-visual{min-height:390px;background:radial-gradient(circle at 50% 50%,#49256c55,transparent 55%),#0d0913}
+.panorama-stage{height:560px;border:1px solid var(--brifan-line);border-radius:3px;background:#0c0812}
+.panorama-heading h2{font:clamp(34px,4vw,58px)/1.05 "Space Grotesk",sans-serif;letter-spacing:-.06em}
+#explorar{background:#0a080f!important;border-color:var(--brifan-line)!important}
+#explorar>div{max-width:1500px!important}
+#explorar .section-heading h2{font:clamp(40px,5vw,70px)/.98 "Space Grotesk",sans-serif;letter-spacing:-.07em}
+.filter-pill{border-radius:2px;border-color:#b88aff33}
+.filter-pill.selected{background:#6f3da3;color:#fff;border-color:#bd95f4}
+.search-box{border-radius:2px;background:#110d18;border-color:var(--brifan-line)}
+.resource-card{border-radius:3px;background:#100d16;border:1px solid var(--brifan-line);overflow:hidden;transition:transform .35s,border-color .35s}
+.resource-card:hover{transform:translateY(-7px);border-color:#bd95f4}
+.resource-art{height:220px;border-radius:0;background:#1a1025}
+.resource-photo{filter:saturate(.7) contrast(1.08);transition:transform .5s}
+.resource-card:hover .resource-photo{transform:scale(1.06)}
+.community-panel{border-radius:3px;background:linear-gradient(110deg,#241337,#0c0912 72%);border:1px solid var(--brifan-line)}
+footer{background:#09070e}
+@media(max-width:900px){.deep-hero{grid-template-columns:1fr;width:calc(100% - 36px);padding:48px 0!important}.deep-hero-copy{padding:12px 0}.deep-hero-art{min-height:430px}.signal-section,.panorama-section{width:calc(100% - 36px)}.signal-panel{grid-template-columns:1fr}.data-visual{min-height:330px}}
+@media(max-width:560px){body>div>header{padding:12px 18px!important}.deep-hero h1{font-size:54px}.deep-hero-art{min-height:340px}.panorama-stage{height:380px}.resource-art{height:190px}}
