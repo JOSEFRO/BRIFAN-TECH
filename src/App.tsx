@@ -2,9 +2,10 @@ import Header from './components/Header'
 import SettingsPanel from './components/SettingsPanel'
 import LearningHub from './components/LearningHub'
 import GuideMarkdown from './components/GuideMarkdown'
+import RichMarkdownEditor from './components/RichMarkdownEditor'
 import { learningGuides } from './data/learningGuides'
 import { ArrowRight, ArrowUpRight, BookOpen, Bookmark, BrainCircuit, Code2, Cpu, Database, FileText, Globe2, Layers3, Network, Search, ShieldCheck, Sparkles, Terminal, X } from 'lucide-react'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import type { Session } from '@supabase/supabase-js'
 import { supabase, isSupabaseConfigured } from './lib/supabase'
 
@@ -79,7 +80,6 @@ export default function App() {
   const [publishExcerpt, setPublishExcerpt] = useState('')
   const [publishBody, setPublishBody] = useState('')
   const [editorView, setEditorView] = useState<'write' | 'preview'>('write')
-  const publishBodyRef = useRef<HTMLTextAreaElement>(null)
   const [publishMessage, setPublishMessage] = useState('')
   const [publishBusy, setPublishBusy] = useState(false)
   const [publishFiles, setPublishFiles] = useState<File[]>([])
@@ -544,16 +544,10 @@ export default function App() {
           </div>
           <label>Resumen<textarea value={publishExcerpt} onChange={e => setPublishExcerpt(e.target.value)} maxLength={400} required rows={2} placeholder="Explica brevemente qué aprenderá el lector."/></label>
           <div className="publish-editor-wrap">
-            <div className="publish-editor-heading"><strong>Editor de contenido</strong><span>Vista previa del artículo</span></div>
+            <div className="publish-editor-heading"><strong>Editor de contenido</strong><span>Formato visual con salida Markdown</span></div>
             <div className="publish-editor-tabs"><button type="button" className={editorView==='write'?'active':''} onClick={()=>setEditorView('write')}>Escribir</button><button type="button" className={editorView==='preview'?'active':''} onClick={()=>setEditorView('preview')}>Vista previa</button></div>
-            {editorView==='write' ? <>
-              <div className="publish-toolbar">
-                {([{label:'Título 1',value:'# '},{label:'Título 2',value:'## '},{label:'Negrita',value:'**'},{label:'Imagen',value:'![Descripción](https://)'},{label:'Enlace',value:'[Texto](https://)'},{label:'Lista',value:'- '}]).map(tool=><button type="button" key={tool.label} onClick={()=>{const el=publishBodyRef.current;if(!el)return;const pos=el.selectionStart;const next=publishBody.slice(0,pos)+tool.value+publishBody.slice(el.selectionEnd);setPublishBody(next);requestAnimationFrame(()=>{el.focus();el.setSelectionRange(pos+tool.value.length,pos+tool.value.length)})}}>{tool.label}</button>)}
-                <button type="button" onClick={()=>setPublishBody(v=>v+(v?'\n\n':'')+'https://www.youtube.com/watch?v=ID_DEL_VIDEO')}>Video YouTube</button>
-              </div>
-              <textarea ref={publishBodyRef} value={publishBody} onChange={e=>setPublishBody(e.target.value)} minLength={40} required rows={15} placeholder="Escribe tu artículo aquí. Inserta títulos, imágenes mediante enlaces y videos de YouTube." />
-              <p className="editor-tip">Para insertar una imagen, usa el botón Imagen y reemplaza la URL por un enlace directo a la imagen. Para videos, pega el enlace de YouTube en una línea independiente.</p>
-            </> : <div className="publish-live-preview">{publishBody.trim()?renderArticleBody(publishBody):<p className="preview-empty">Tu vista previa aparecerá aquí.</p>}</div>}
+            {editorView==='write' ? <RichMarkdownEditor value={publishBody} onChange={setPublishBody}/> : <div className="publish-live-preview">{publishBody.trim()?renderArticleBody(publishBody):<p className="preview-empty">Tu vista previa aparecerá aquí.</p>}</div>}
+            <p className="editor-tip">Puedes dar formato como en un procesador de texto, añadir enlaces e insertar imágenes por URL o videos de YouTube. El contenido se conserva en Markdown para mantener compatibilidad con las guías existentes.</p>
           </div>
           <label>Imágenes y archivos<input type="file" multiple accept="image/jpeg,image/png,image/webp,image/gif,application/pdf,text/plain,text/markdown,text/csv,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation,application/zip" onChange={event => { const incoming = Array.from(event.target.files ?? []); setPublishFiles(current => [...current, ...incoming].slice(0, 8)); event.target.value = '' }} /></label>
           <p className="upload-help">Hasta 8 archivos por publicación · máximo 50 MB por archivo. Imágenes, PDF, Office, CSV, texto y ZIP.</p>
