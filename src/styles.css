@@ -887,3 +887,10 @@ footer{border-color:var(--brifan-rule)!important;background:#070909!important}
 @media(max-width:900px){.deep-hero{width:calc(100% - 40px)!important;grid-template-columns:1fr!important;gap:30px!important;padding:48px 0!important}.deep-hero-art{min-height:430px!important}.signal-section,.panorama-section{width:calc(100% - 40px)!important}.signal-panel{grid-template-columns:1fr!important}.category-card{min-height:320px!important}}
 @media(max-width:560px){body>div>header{height:72px!important;padding:0 18px!important}.deep-hero h1{font-size:clamp(50px,14vw,76px)!important}.deep-hero-art{min-height:340px!important}.signal-copy{padding:25px!important}.category-card-image{height:175px!important}.resource-art{height:190px!important}.brifan-rich-editor .brifan-prose-editor{min-height:250px;padding:16px}}
 @media(prefers-reduced-motion:reduce){.btn-primary:after,.category-card,.category-card-image img,.resource-card,.resource-photo{transition:none!important}}
+
+/* Editor finishing details */
+.brifan-editor-toolbar button:disabled{opacity:.32;cursor:not-allowed}
+.brifan-editor-toolbar button:disabled:hover{border-color:transparent;background:transparent;color:#c1cbb9}
+.brifan-prose-editor hr{border:0;border-top:1px solid #c9ff5b55;margin:24px 0}
+.brifan-editor-footer{gap:12px;flex-wrap:wrap;font-variant-numeric:tabular-nums}
+@media(max-width:560px){.brifan-editor-footer{font-size:8px}.brifan-editor-toolbar button{width:32px;height:32px}}
