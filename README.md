@@ -6,50 +6,46 @@
 
 ### Explora. Aprende. Comparte.
 
-**Una plataforma web comunitaria para descubrir, estudiar y compartir conocimiento tecnológico.**
+**Una plataforma web para descubrir, estudiar y compartir conocimiento tecnológico.**
 
 [🌐 Abrir plataforma](https://josefro.github.io/BRIFAN-TECH/) · [📂 Código fuente](https://github.com/JOSEFRO/BRIFAN-TECH) · [🐛 Reportar un problema](https://github.com/JOSEFRO/BRIFAN-TECH/issues)
 
 </div>
 
-## ¿Qué es BRIFAN TECH?
+## El producto
 
-BRIFAN TECH organiza recursos y publicaciones sobre redes, ciberseguridad, programación, inteligencia artificial, sistemas y otras áreas de tecnología. Está pensada para lectores y autores que desean aprender y compartir material desde una misma web.
+BRIFAN TECH reúne contenido y recursos sobre redes, ciberseguridad, programación, inteligencia artificial y sistemas. Su objetivo es ofrecer un espacio donde las personas puedan explorar material técnico, aprender mediante guías y participar en una comunidad.
 
-**No necesitas instalar nada para utilizar la plataforma pública:** se abre directamente desde el navegador.
+**Es una página web: se utiliza directamente desde el navegador y no requiere instalar una aplicación.**
 
-## Recorrido de la plataforma
+## Qué puedes encontrar
 
-<img src="docs/images/brifan-experience-map.svg" alt="Diagrama conceptual de exploración, aprendizaje, publicación y gestión en BRIFAN TECH" width="100%">
-
-| Área | Para qué sirve |
+| Sección | Propósito |
 |---|---|
-| Explorar | Descubrir categorías, recursos y publicaciones. |
-| Leer y aprender | Consultar guías, tutoriales y contenido multimedia. |
-| Cuenta de usuario | Acceder a funciones que requieren autenticación. |
-| Publicar | Redactar contenido, adjuntar recursos y enviarlo a revisión. |
-| Comunidad | Comentar y guardar favoritos, según permisos habilitados. |
-| Gestión | Consultar publicaciones propias y herramientas de moderación según el rol. |
+| Explorar | Descubrir publicaciones, categorías y recursos tecnológicos. |
+| Guías técnicas | Leer contenido estructurado con encabezados, listas, tablas y bloques de código. |
+| Contenido multimedia | Consultar imágenes enlazadas y videos de YouTube integrados de forma segura. |
+| Cuentas | Acceder a funciones que requieren autenticación. |
+| Comunidad | Participar mediante comentarios y guardar contenido, según permisos habilitados. |
+| Publicación | Crear y gestionar contenido conforme al rol y al flujo de moderación configurado. |
 
-## Características del producto
+## Experiencia de lectura y publicación
 
-- Biblioteca organizada por categorías tecnológicas.
-- Editor de artículos con formato, enlaces, imágenes y vista previa.
-- Autenticación de usuarios mediante Supabase Auth.
-- Flujo de revisión y moderación de publicaciones.
-- Comentarios y favoritos para usuarios autenticados.
-- Archivos adjuntos privados mediante enlaces firmados de Supabase Storage.
-- Preferencias de usuario y opciones de personalización.
-- Interfaz responsive con dirección visual obsidiana y violeta eléctrico, manteniendo el logotipo original. El lector técnico admite encabezados, listas, tablas, bloques de código, imágenes HTTP(S) y videos de YouTube mediante inserción segura.
+- Lector técnico enriquecido para guías y artículos.
+- Editor visual con formato, enlaces, imágenes y vista previa.
+- Herramientas de edición: encabezados, listas, código, separadores y acciones de deshacer/rehacer.
+- Contador de palabras y estimación de lectura en el editor.
+- Interfaz adaptable a escritorio, tableta y móvil.
+- Identidad visual propia con paleta oscura, acentos lima y componentes editoriales.
 
-> La disponibilidad de las funciones conectadas depende de la configuración de Supabase, las migraciones, las políticas RLS y los buckets. El diagrama es una explicación conceptual del producto, no una captura de pantalla ni una garantía de que cada flujo haya superado pruebas de aceptación.
+La disponibilidad de publicación, comentarios, favoritos y administración depende de la configuración activa de Supabase, autenticación, políticas RLS y permisos por rol.
 
 ## Tecnología
 
-- React 19 + TypeScript + Vite 7
-- Tailwind CSS 4
-- Supabase: Auth, PostgreSQL y Storage
-- Lucide React
+- React 19, TypeScript y Vite 7.
+- Tailwind CSS 4.
+- Supabase Auth, PostgreSQL y Storage.
+- Lucide React.
 
 ## Ejecutar en desarrollo
 
@@ -61,14 +57,14 @@ cd BRIFAN-TECH
 npm install
 ```
 
-Crea `.env.local` a partir de `.env.example`:
+Crea `.env.local` a partir de `.env.example` y configura las credenciales públicas de tu proyecto Supabase:
 
 ```env
 VITE_SUPABASE_URL=https://TU-PROYECTO.supabase.co
 VITE_SUPABASE_ANON_KEY=TU_CLAVE_PUBLICA
 ```
 
-Después ejecuta:
+Inicia el entorno:
 
 ```bash
 npm run dev
@@ -76,25 +72,31 @@ npm run build
 npm run preview
 ```
 
-Los comandos anteriores son para desarrollo local. La web publicada se utiliza desde el navegador.
+Estos comandos son para desarrollo. La versión pública se abre desde el navegador.
 
 ## Seguridad y configuración
 
-1. Aplica las migraciones incluidas en `supabase/` en el orden documentado.
-2. Verifica las políticas Row Level Security (RLS) para cada tabla.
-3. Comprueba los permisos de los buckets de Storage.
-4. Prueba con cuentas separadas de usuario y administración.
-5. Nunca publiques la clave `service_role` ni secretos del proyecto en el frontend o en Git.
+1. Revisa y aplica las migraciones de `supabase/` en el orden documentado.
+2. Comprueba las políticas Row Level Security (RLS) de cada tabla.
+3. Verifica los permisos de los buckets de Storage.
+4. Prueba los flujos con cuentas de usuario y administración separadas.
+5. Nunca publiques claves `service_role`, contraseñas ni secretos en el frontend o en Git.
 
-Ocultar un botón en la interfaz no sustituye la autorización en Supabase. La clave pública del cliente tampoco sustituye las políticas del servidor.
+La interfaz no sustituye la autorización del servidor: los permisos deben comprobarse en Supabase.
 
-## Actualización visual 2026
+## Estado del proyecto
 
-La rama `feat/brifan-rich-guide-reader` incorpora una capa visual violeta sobre la interfaz existente y un lector técnico enriquecido. La compilación de producción y la comprobación TypeScript del commit validado por GitHub Actions finalizaron correctamente. La revisión visual manual en navegadores y móviles, y las pruebas de aceptación de los flujos conectados a Supabase, siguen pendientes. Esta propuesta todavía no está fusionada ni desplegada.
+BRIFAN TECH está publicado como sitio web estático en GitHub Pages y continúa en desarrollo. La compilación y el despliegue automatizados se han ejecutado correctamente en GitHub Actions para la versión integrada.
 
-## Estado y próximos controles
+Esto no equivale a una certificación de todos los flujos de usuario. Antes de considerar el producto listo para una comunidad amplia, deben completarse pruebas funcionales de registro, inicio de sesión, publicación, edición, eliminación, moderación, adjuntos, permisos, accesibilidad y recuperación ante errores.
 
-Proyecto en evolución. Antes de abrirlo a una comunidad amplia, deben repetirse pruebas funcionales de registro, inicio de sesión, publicación, edición, eliminación, moderación, adjuntos, permisos, accesibilidad y recuperación ante errores. Los estados de compilación y despliegue deben comprobarse en GitHub Actions.
+## Próximas mejoras
+
+- Validación integral de los flujos de usuario y administración.
+- Pruebas de permisos y seguridad de Supabase.
+- Mejoras de accesibilidad y experiencia móvil.
+- Seguimiento de errores y estados vacíos.
+- Ampliación de la biblioteca de guías y recursos.
 
 ## Licencia
 
