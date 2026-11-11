@@ -650,3 +650,90 @@ html[data-density="compact"] .reader-content p{margin:.35em 0;line-height:1.55}
 .curated-resource-card a{display:inline-flex;align-items:center;gap:8px;margin-top:14px;color:#a5e6ff;font-size:.85rem;font-weight:750;text-decoration:none}
 .curated-resource-card a:hover{text-decoration:underline}
 @media(prefers-reduced-motion:reduce){.curated-resource-card{transition:none}.curated-resource-card:hover{transform:none}}
+
+
+/* Accessible technical guide Markdown */
+.guide-markdown{min-width:0;overflow-wrap:anywhere}
+.guide-markdown p{margin:.7rem 0;line-height:1.85}
+.guide-markdown h1,.guide-markdown h2,.guide-markdown h3{color:#f2f7ff;font-weight:800;line-height:1.25;letter-spacing:-.025em}
+.guide-markdown h1{font-size:1.8rem;margin:1.5rem 0 .8rem}
+.guide-markdown h2{font-size:1.45rem;margin:1.35rem 0 .65rem}
+.guide-markdown h3{font-size:1.15rem;margin:1.1rem 0 .5rem}
+.guide-markdown ul,.guide-markdown ol{margin:1rem 0;padding-left:1.5rem;line-height:1.8}
+.guide-markdown ul{list-style:disc}.guide-markdown ol{list-style:decimal}
+.guide-markdown li{padding-left:.25rem;margin:.25rem 0}
+.guide-markdown pre{max-width:100%;overflow:auto;margin:1.1rem 0;padding:1rem 1.1rem;border:1px solid #ffffff18;border-radius:12px;background:#050d19;color:#c8f4f2;font: .86rem/1.7 ui-monospace,SFMono-Regular,Consolas,monospace;white-space:pre}
+.guide-markdown :not(pre)>code{padding:.12rem .38rem;border:1px solid #66dce533;border-radius:6px;background:#0b2637;color:#a8eff2;font-size:.9em}
+.guide-table-wrap{max-width:100%;overflow-x:auto;margin:1.2rem 0;border:1px solid #ffffff18;border-radius:12px}
+.guide-table-wrap table{width:100%;border-collapse:collapse;font-size:.9rem}
+.guide-table-wrap th,.guide-table-wrap td{min-width:120px;padding:11px 13px;border-bottom:1px solid #ffffff12;text-align:left;vertical-align:top}
+.guide-table-wrap th{background:#10243a;color:#eaf7ff;font-weight:750}
+.guide-table-wrap td{color:#bdcde0}
+.guide-table-wrap tr:last-child td{border-bottom:0}
+@media(prefers-reduced-motion:reduce){.guide-markdown *{scroll-behavior:auto!important}}
+
+
+/* BRIFAN TECH — JOSEFRO ecosystem visual direction: obsidian + electric violet */
+:root{--brifan-accent:#b78aff;--brifan-accent-2:#7c3aed;--brifan-glow:rgba(167,112,255,.24)}
+body{background-color:#07060d;color:#f5f0ff}
+.ambient-one{background:#7c3aed}.ambient-two{background:#c026d3}
+.brand-mark{border-color:#b78aff66;color:#d5baff;background:linear-gradient(145deg,#32165a,#140d24);box-shadow:0 0 30px #a66cff28}
+.btn-primary{color:#fff;background:linear-gradient(105deg,#7136c5,#a66cff 58%,#c39aff);box-shadow:0 8px 30px #8b5cf633}
+.btn-primary:hover{box-shadow:0 12px 38px #9b5de55c}
+.btn-secondary:hover,.btn-ghost:hover{border-color:#bd8cffaa;color:#d8c1ff}
+.eyebrow,.section-kicker{color:#c49bff}
+.pulse-dot,.tiny-status{background:#c39aff;box-shadow:0 0 14px #c39aff}
+.gradient-text{background-image:linear-gradient(100deg,#f4eaff 5%,#c49bff 52%,#e7a8ff)}
+.hero-visual .visual-core{border-color:#b78aff66;background:radial-gradient(circle at 50% 45%,#4b2774,#24153d 43%,#0b0914 70%);box-shadow:0 0 90px #9b5de533,inset 0 0 45px #c39aff1a}
+.core-icon{border-color:#d3b3ff66;color:#e1ceff;background:linear-gradient(145deg,#512a7b,#211638);box-shadow:0 0 50px #a66cff44}
+.orbit{border-color:#b78aff3d}.orbit-b{border-color:#e1a8ff3d}
+.float-card{border-color:#b78aff2c;background:#130d20e8;box-shadow:0 15px 40px #0007,0 0 25px #9b5de512}
+.float-icon.cyan{color:#d0b5ff;background:#6536a64a}.float-icon.purple{color:#e1b7ff;background:#6c31844a}.float-icon.green{color:#c4a5ff;background:#533b794a}
+.stat-icon{border-color:#b78aff3b;color:#d2b4ff;background:#4b277a4a}
+.category-card{border-color:#b78aff22;background:linear-gradient(145deg,#171025dd,#0d0917dd)}
+.category-card:hover{border-color:#b78aff77;background:linear-gradient(145deg,#241538,#120d20);box-shadow:0 18px 50px #0005,0 0 30px #9b5de51a}
+.category-icon.blue,.category-icon.cyan,.category-icon.violet,.category-icon.pink,.category-icon.green,.category-icon.orange{color:#d2b4ff;background:#623c8c4d}
+.filter-pill:hover,.filter-pill.selected{border-color:#bd8cff88;color:#e6d6ff;background:#6d35a82b}
+.search-box{border-color:#b78aff33;background:#0c0814}
+.search-box:focus-within{border-color:#bd8cff;box-shadow:0 0 0 3px #a66cff22}
+.resource-card{border-color:#b78aff22;background:#120d1d}
+.resource-card:hover{border-color:#bd8cff77;box-shadow:0 18px 50px #0007,0 0 25px #9b5de51a}
+.resource-art,.resource-art.violet,.resource-art.green{color:#d8bdff;background:radial-gradient(circle at 50% 50%,#4b2774,#110b1c 68%)}
+.community-panel{border-color:#b78aff55;background:radial-gradient(circle at 88% 50%,#49266c,#201332 38%,#0c0914 76%);box-shadow:0 25px 80px #0007,0 0 45px #9b5de51a}
+.community-symbol{color:#c39aff24;filter:drop-shadow(0 0 34px #a66cff44)}
+.signal-panel{border-color:#b78aff35;background:linear-gradient(120deg,#1c1230,#0d0917 52%,#1b1030)}
+.data-visual{background:radial-gradient(ellipse at 50% 50%,#432365aa,transparent 65%)}
+.data-grid{background-image:linear-gradient(#c39aff10 1px,transparent 1px),linear-gradient(90deg,#c39aff10 1px,transparent 1px)}
+.network-svg g circle{fill:#c39aff;stroke:#eadcff}.network-pulse{stroke:#c39aff}.network-pulse.delay{stroke:#e4a8ff}
+.data-widget{border-color:#bd8cff33;background:#100a1de8}.data-widget strong{color:#d3b3ff}
+.panorama-stage{border-color:#b78aff3d;background:radial-gradient(ellipse at 50% 58%,#432365 0%,#211335 38%,#090711 78%);box-shadow:0 28px 90px #0007,inset 0 0 90px #b78aff0c}
+.panorama-sky{background-image:radial-gradient(circle at 15% 22%,#c39aff55 0 1px,transparent 2px),radial-gradient(circle at 72% 18%,#e1a8ff55 0 1px,transparent 2px),radial-gradient(circle at 88% 36%,#a78bfa66 0 1px,transparent 2px),radial-gradient(circle at 40% 12%,#ffffff55 0 1px,transparent 2px)}
+.panorama-switch button.chosen{color:#fff;background:linear-gradient(110deg,#7136c5,#9b5de5);box-shadow:0 4px 22px #9b5de533}
+.learning-overview{border-color:#b78aff44;color:#d4baff;background:#1a1029}
+.learning-progress i,.learning-bar i{background:linear-gradient(90deg,#7136c5,#bd8cff 55%,#e3b5ff)}
+.learning-card{border-color:#b78aff24;background:linear-gradient(145deg,#1b1230,#0d0917)}
+.learning-card:hover,.learning-card.is-expanded{border-color:#bd8cff77;box-shadow:0 18px 48px #0007,0 0 25px #9b5de51a}
+.learning-icon{border-color:#bd8cff55;color:#d7bdff;background:#5a2d824d}
+.learning-area,.learning-expand{color:#d0b2ff}
+.lesson-done .lesson-number{border-color:#bd8cff77;color:#e0caff;background:#4a246966}
+.auth-modal{border-color:#bd8cff66;background:linear-gradient(145deg,#241538,#0d0917);box-shadow:0 35px 110px #000b,0 0 45px #9b5de51a}
+.auth-modal input:focus,.discussion-form textarea:focus{border-color:#bd8cff;box-shadow:0 0 0 3px #a66cff22}
+.auth-message{border-color:#bd8cff55;color:#e2ccff;background:#39204e66}
+.resource-reader{border-color:#bd8cff55;background:#100a1b}
+.reader-discussion{border-color:#bd8cff2e}
+.discussion-avatar{color:#e0caff;background:#5a2d824f}
+.discussion-form textarea{background:#0a0712}
+.deep-hero-art:hover .deep-orbit-one{filter:drop-shadow(0 0 10px #b78aff)}
+.deep-hero-art:hover .deep-orbit-two{filter:drop-shadow(0 0 10px #d18cff)}
+@media(prefers-reduced-motion:reduce){.deep-hero-art,.deep-glass-card,.category-card,.resource-card{animation:none!important}}
+/* Keep the existing BRIFAN wordmark and logo asset unchanged. */
+
+
+/* Guide reader follows the violet palette too */
+.guide-markdown h1,.guide-markdown h2,.guide-markdown h3{color:#f5edff}
+.guide-markdown pre{border-color:#bd8cff33;background:#0b0713;color:#e2ccff}
+.guide-markdown :not(pre)>code{border-color:#bd8cff55;background:#241438;color:#e0caff}
+.guide-table-wrap{border-color:#bd8cff33}
+.guide-table-wrap th{background:#29163f;color:#f3eaff}
+.guide-table-wrap td{border-bottom-color:#bd8cff22;color:#d7c9e9}
+.article-video{border:1px solid #bd8cff33;border-radius:14px;overflow:hidden;background:#090610}

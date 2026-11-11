@@ -40,7 +40,7 @@ BRIFAN TECH organiza recursos y publicaciones sobre redes, ciberseguridad, progr
 - Comentarios y favoritos para usuarios autenticados.
 - Archivos adjuntos privados mediante enlaces firmados de Supabase Storage.
 - Preferencias de usuario y opciones de personalización.
-- Interfaz responsive con identidad azul noche y rojo eléctrico.
+- Interfaz responsive con dirección visual obsidiana y violeta eléctrico, manteniendo el logotipo original. El lector técnico admite encabezados, listas, tablas, bloques de código, imágenes HTTP(S) y videos de YouTube mediante inserción segura.
 
 > La disponibilidad de las funciones conectadas depende de la configuración de Supabase, las migraciones, las políticas RLS y los buckets. El diagrama es una explicación conceptual del producto, no una captura de pantalla ni una garantía de que cada flujo haya superado pruebas de aceptación.
 
@@ -87,6 +87,10 @@ Los comandos anteriores son para desarrollo local. La web publicada se utiliza d
 5. Nunca publiques la clave `service_role` ni secretos del proyecto en el frontend o en Git.
 
 Ocultar un botón en la interfaz no sustituye la autorización en Supabase. La clave pública del cliente tampoco sustituye las políticas del servidor.
+
+## Actualización visual 2026
+
+La rama `feat/brifan-rich-guide-reader` incorpora una capa visual violeta sobre la interfaz existente y un lector técnico enriquecido. La compilación de producción y la comprobación TypeScript del commit validado por GitHub Actions finalizaron correctamente. La revisión visual manual en navegadores y móviles, y las pruebas de aceptación de los flujos conectados a Supabase, siguen pendientes. Esta propuesta todavía no está fusionada ni desplegada.
 
 ## Estado y próximos controles
 
