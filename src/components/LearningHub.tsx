@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { BookOpen, CheckCircle2, ChevronDown, Code2, Network, ShieldCheck, Sparkles } from 'lucide-react'
+import { BookOpen, CheckCircle2, ChevronDown, Code2, Download, Network, RotateCcw, ShieldCheck, Sparkles } from 'lucide-react'
 
 type LearningTrack = {
   id: string
@@ -112,6 +112,21 @@ export default function LearningHub() {
   )
   const totalCount = tracks.reduce((total, track) => total + track.lessons.length, 0)
 
+  function exportProgress() {
+    const payload = { product: 'BRIFAN TECH', type: 'learning-progress', exportedAt: new Date().toISOString(), tracks: tracks.map(track => ({ id: track.id, title: track.title, completedLessons: progress[track.id] ?? [], totalLessons: track.lessons.length })) }
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = 'brifan-learning-progress.json'
+    link.click()
+    URL.revokeObjectURL(url)
+  }
+
+  function resetProgress() {
+    if (!window.confirm('¿Quieres reiniciar el progreso de todas las rutas en este navegador?')) return
+    setProgress({})
+  }
   function toggleLesson(trackId: string, lesson: string) {
     setProgress(current => {
       const completed = current[trackId] ?? []
@@ -136,6 +151,7 @@ export default function LearningHub() {
           <Sparkles size={18} />
           <div><strong>{completedCount}/{totalCount}</strong><span>módulos completados</span></div>
           <div className="learning-progress"><i style={{ width: totalCount ? `${(completedCount / totalCount) * 100}%` : '0%' }} /></div>
+          <div className="learning-progress-actions"><button type="button" onClick={exportProgress} disabled={completedCount === 0}><Download size={14}/> Exportar progreso</button><button type="button" onClick={resetProgress} disabled={completedCount === 0}><RotateCcw size={14}/> Reiniciar</button></div>
         </div>
       </div>
       <div className="learning-grid">
