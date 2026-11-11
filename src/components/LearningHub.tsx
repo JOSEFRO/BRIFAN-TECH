@@ -182,7 +182,7 @@ export default function LearningHub() {
           <Sparkles size={18} />
           <div><strong>{completedCount}/{totalCount}</strong><span>módulos completados</span></div>
           <div className="learning-progress"><i style={{ width: totalCount ? `${(completedCount / totalCount) * 100}%` : '0%' }} /></div>
-          <div className="learning-progress-actions"><button type="button" onClick={exportProgress} disabled={completedCount === 0}><Download size={14}/> Exportar progreso</button><button type="button" onClick={resetProgress} disabled={completedCount === 0}><RotateCcw size={14}/> Reiniciar</button></div>
+          <div className="learning-progress-actions"><button type="button" onClick={exportProgress} disabled={completedCount === 0}><Download size={14}/> Exportar progreso</button><button type="button" onClick={resetProgress} disabled={completedCount === 0}><RotateCcw size={14}/> Reiniciar</button><button type="button" onClick={() => window.print()}><Printer size={14}/> Imprimir</button></div>
         </div>
       </div>
       <div className="learning-discovery">
@@ -208,7 +208,7 @@ export default function LearningHub() {
               <p>{track.description}</p>
               <div className="learning-card-progress"><span>{completed.length} de {track.lessons.length} módulos</span><b>{percent}%</b></div>
               <div className="learning-bar"><i style={{ width: `${percent}%` }} /></div>
-              <button type="button" className="learning-continue" onClick={() => setExpanded(track.id)}>Continuar: {track.lessons.find(lesson => !completed.includes(lesson)) || 'Ruta completada'}</button>
+              <div className="learning-card-actions"><button type="button" className="learning-continue" onClick={() => setExpanded(track.id)}>Continuar: {track.lessons.find(lesson => !completed.includes(lesson)) || 'Ruta completada'}</button><button type="button" onClick={() => { if (window.confirm('¿Marcar todos los módulos de esta ruta como completados?')) setProgress(current => ({ ...current, [track.id]: [...track.lessons] })) }} disabled={percent === 100}>Completar ruta</button></div>
               <button className="learning-expand" onClick={() => setExpanded(isOpen ? null : track.id)} aria-expanded={isOpen}>
                 {isOpen ? 'Ocultar módulos' : 'Ver ruta'} <ChevronDown size={15} />
               </button>
