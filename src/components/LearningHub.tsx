@@ -88,6 +88,12 @@ const STORAGE_KEY = 'brifan-learning-progress-v1'
 export default function LearningHub() {
   const [progress, setProgress] = useState<Record<string, string[]>>({})
   const [expanded, setExpanded] = useState<string | null>(tracks[0].id)
+  const [trackSearch, setTrackSearch] = useState('')
+  const [areaFilter, setAreaFilter] = useState('Todas')
+  const [levelFilter, setLevelFilter] = useState('Todos')
+  const [notes, setNotes] = useState<Record<string, string>>({})
+  const [bookmarks, setBookmarks] = useState<string[]>([])
+  const [resourceSearch, setResourceSearch] = useState('')
 
   useEffect(() => {
     try {
@@ -105,6 +111,31 @@ export default function LearningHub() {
       // Progress remains available for the current session if storage is unavailable.
     }
   }, [progress])
+
+  useEffect(() => {
+    try {
+      setNotes(JSON.parse(window.localStorage.getItem('brifan-learning-notes-v1') || '{}'))
+      setBookmarks(JSON.parse(window.localStorage.getItem('brifan-learning-bookmarks-v1') || '[]'))
+    } catch { setNotes({}); setBookmarks([]) }
+  }, [])
+
+  useEffect(() => {
+    try { window.localStorage.setItem('brifan-learning-notes-v1', JSON.stringify(notes)) } catch { /* local-only notes */ }
+  }, [notes])
+
+  useEffect(() => {
+    try { window.localStorage.setItem('brifan-learning-bookmarks-v1', JSON.stringify(bookmarks)) } catch { /* local-only bookmarks */ }
+  }, [bookmarks])
+
+  const filteredTracks = useMemo(() => tracks.filter(track =>
+    (areaFilter === 'Todas' || track.area === areaFilter) &&
+    (levelFilter === 'Todos' || track.level === levelFilter) &&
+    (track.title + ' ' + track.description + ' ' + track.area).toLocaleLowerCase('es').includes(trackSearch.toLocaleLowerCase('es'))
+  ), [areaFilter, levelFilter, trackSearch])
+
+  const visibleResources = useMemo(() => curatedResources.filter(resource =>
+    (resource.title + ' ' + resource.description + ' ' + resource.area).toLocaleLowerCase('es').includes(resourceSearch.toLocaleLowerCase('es'))
+  ), [resourceSearch])
 
   const completedCount = useMemo(
     () => tracks.reduce((total, track) => total + (progress[track.id]?.length ?? 0), 0),
@@ -154,8 +185,14 @@ export default function LearningHub() {
           <div className="learning-progress-actions"><button type="button" onClick={exportProgress} disabled={completedCount === 0}><Download size={14}/> Exportar progreso</button><button type="button" onClick={resetProgress} disabled={completedCount === 0}><RotateCcw size={14}/> Reiniciar</button></div>
         </div>
       </div>
+      <div className="learning-discovery">
+        <label>Buscar ruta <input value={trackSearch} onChange={event => setTrackSearch(event.target.value)} placeholder="Redes, seguridad, programación…"/></label>
+        <label>Área <select value={areaFilter} onChange={event => setAreaFilter(event.target.value)}><option>Todas</option>{Array.from(new Set(tracks.map(track => track.area))).map(area => <option key={area}>{area}</option>)}</select></label>
+        <label>Nivel <select value={levelFilter} onChange={event => setLevelFilter(event.target.value)}><option>Todos</option>{Array.from(new Set(tracks.map(track => track.level))).map(level => <option key={level}>{level}</option>)}</select></label>
+        <button type="button" onClick={() => { setTrackSearch(''); setAreaFilter('Todas'); setLevelFilter('Todos') }}>Limpiar filtros</button>
+      </div>
       <div className="learning-grid">
-        {tracks.map(track => {
+        {filteredTracks.map(track => {
           const Icon = track.icon
           const completed = progress[track.id] ?? []
           const isOpen = expanded === track.id
@@ -171,9 +208,11 @@ export default function LearningHub() {
               <p>{track.description}</p>
               <div className="learning-card-progress"><span>{completed.length} de {track.lessons.length} módulos</span><b>{percent}%</b></div>
               <div className="learning-bar"><i style={{ width: `${percent}%` }} /></div>
+              <button type="button" className="learning-continue" onClick={() => setExpanded(track.id)}>Continuar: {track.lessons.find(lesson => !completed.includes(lesson)) || 'Ruta completada'}</button>
               <button className="learning-expand" onClick={() => setExpanded(isOpen ? null : track.id)} aria-expanded={isOpen}>
                 {isOpen ? 'Ocultar módulos' : 'Ver ruta'} <ChevronDown size={15} />
               </button>
+              {isOpen && <div className="learning-notes"><label htmlFor={'notes-' + track.id}>Mis notas de esta ruta</label><textarea id={'notes-' + track.id} value={notes[track.id] || ''} onChange={event => setNotes(current => ({ ...current, [track.id]: event.target.value }))} placeholder="Conceptos, comandos y dudas para repasar…"/></div>}
               {isOpen && <ol className="learning-lessons">
                 {track.lessons.map((lesson, index) => {
                   const done = completed.includes(lesson)
@@ -198,13 +237,14 @@ export default function LearningHub() {
           <h3 id="curated-resources-title">Aprende con documentación oficial.</h3>
           <p>Enlaces externos seleccionados para ampliar cada ruta. Algunos cursos pueden requerir una cuenta gratuita o tener condiciones propias.</p>
         </div>
+        <label className="resource-search">Buscar recursos <input value={resourceSearch} onChange={event => setResourceSearch(event.target.value)} placeholder="Documentación o cursos…"/></label>
         <div className="curated-resources-grid">
-          {curatedResources.map(resource => (
+          {visibleResources.map(resource => (
             <article className="curated-resource-card" key={resource.title}>
               <span>{resource.area}</span>
               <h4>{resource.title}</h4>
               <p>{resource.description}</p>
-              <a href={resource.url} target="_blank" rel="noopener noreferrer">{resource.label} <span aria-hidden="true">↗</span></a>
+              <div className="resource-actions"><a href={resource.url} target="_blank" rel="noopener noreferrer">{resource.label} <span aria-hidden="true">↗</span></a><button type="button" aria-pressed={bookmarks.includes(resource.url)} onClick={() => setBookmarks(current => current.includes(resource.url) ? current.filter(url => url !== resource.url) : [...current, resource.url])}>{bookmarks.includes(resource.url) ? 'Guardado' : 'Guardar'}</button></div>
             </article>
           ))}
         </div>
