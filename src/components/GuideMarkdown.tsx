@@ -39,14 +39,14 @@ export default function GuideMarkdown({ content }: GuideMarkdownProps) {
       continue
     }
 
-    const video = line.match(/(?:youtube\\.com\\/(?:watch\\?v=|shorts\\/)|youtu\\.be\\/)([a-zA-Z0-9_-]{11})/)
+    const video = line.match(/(?:youtube\.com\/(?:watch\?v=|shorts\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/)
     if (video) {
       blocks.push(<div className="article-video" key={blocks.length}><iframe src={'https://www.youtube-nocookie.com/embed/' + video[1]} title="Video de YouTube" loading="lazy" allow="accelerometer; encrypted-media; picture-in-picture" allowFullScreen /></div>)
       index += 1
       continue
     }
 
-    const image = line.match(/^!\\[([^\\]]*)\\]\\((https?:\\/\\/[^)]+)\\)$/)
+    const image = line.match(/^!\[([^\]]*)\]\((https?:\/\/[^)]+)\)$/)
     if (image) {
       blocks.push(<figure key={blocks.length}><img className="article-inline-image" src={image[2]} alt={image[1]} loading="lazy" decoding="async" /></figure>)
       index += 1
