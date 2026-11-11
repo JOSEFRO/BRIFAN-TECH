@@ -12,6 +12,14 @@
 
 </div>
 
+## Vista del producto
+
+![Vista conceptual de BRIFAN TECH](docs/images/brifan-tech-preview.svg)
+
+[Ver mapa de experiencia](docs/images/brifan-experience-map.svg) · [Arquitectura](docs/ARCHITECTURE.md) · [Registro de cambios](CHANGELOG.md)
+
+> Las imágenes del repositorio son recursos de presentación y mapas conceptuales; no se presentan como capturas reales de una sesión de usuario.
+
 ## El producto
 
 BRIFAN TECH reúne contenido y recursos sobre redes, ciberseguridad, programación, inteligencia artificial y sistemas. Su objetivo es ofrecer un espacio donde las personas puedan explorar material técnico, aprender mediante guías y participar en una comunidad.
