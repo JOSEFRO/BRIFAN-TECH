@@ -650,3 +650,24 @@ html[data-density="compact"] .reader-content p{margin:.35em 0;line-height:1.55}
 .curated-resource-card a{display:inline-flex;align-items:center;gap:8px;margin-top:14px;color:#a5e6ff;font-size:.85rem;font-weight:750;text-decoration:none}
 .curated-resource-card a:hover{text-decoration:underline}
 @media(prefers-reduced-motion:reduce){.curated-resource-card{transition:none}.curated-resource-card:hover{transform:none}}
+
+
+/* Accessible technical guide Markdown */
+.guide-markdown{min-width:0;overflow-wrap:anywhere}
+.guide-markdown p{margin:.7rem 0;line-height:1.85}
+.guide-markdown h1,.guide-markdown h2,.guide-markdown h3{color:#f2f7ff;font-weight:800;line-height:1.25;letter-spacing:-.025em}
+.guide-markdown h1{font-size:1.8rem;margin:1.5rem 0 .8rem}
+.guide-markdown h2{font-size:1.45rem;margin:1.35rem 0 .65rem}
+.guide-markdown h3{font-size:1.15rem;margin:1.1rem 0 .5rem}
+.guide-markdown ul,.guide-markdown ol{margin:1rem 0;padding-left:1.5rem;line-height:1.8}
+.guide-markdown ul{list-style:disc}.guide-markdown ol{list-style:decimal}
+.guide-markdown li{padding-left:.25rem;margin:.25rem 0}
+.guide-markdown pre{max-width:100%;overflow:auto;margin:1.1rem 0;padding:1rem 1.1rem;border:1px solid #ffffff18;border-radius:12px;background:#050d19;color:#c8f4f2;font: .86rem/1.7 ui-monospace,SFMono-Regular,Consolas,monospace;white-space:pre}
+.guide-markdown :not(pre)>code{padding:.12rem .38rem;border:1px solid #66dce533;border-radius:6px;background:#0b2637;color:#a8eff2;font-size:.9em}
+.guide-table-wrap{max-width:100%;overflow-x:auto;margin:1.2rem 0;border:1px solid #ffffff18;border-radius:12px}
+.guide-table-wrap table{width:100%;border-collapse:collapse;font-size:.9rem}
+.guide-table-wrap th,.guide-table-wrap td{min-width:120px;padding:11px 13px;border-bottom:1px solid #ffffff12;text-align:left;vertical-align:top}
+.guide-table-wrap th{background:#10243a;color:#eaf7ff;font-weight:750}
+.guide-table-wrap td{color:#bdcde0}
+.guide-table-wrap tr:last-child td{border-bottom:0}
+@media(prefers-reduced-motion:reduce){.guide-markdown *{scroll-behavior:auto!important}}
