@@ -69,7 +69,7 @@ export default function RichMarkdownEditor({ value, onChange }: Props) {
         <button type="button" title="Insertar video de YouTube" aria-label="Insertar video de YouTube" onClick={() => { const url = window.prompt('Pega el enlace de YouTube'); if (url && /^(https:\/\/)?(www\.)?(youtube\.com\/watch\?v=|youtu\.be\/)[\w-]{11}/i.test(url)) insertMarkdown('\n' + url + '\n') }}><Video size={16}/></button>
       </div>
       <EditorContent editor={editor}/>
-      <div className="brifan-editor-footer"><span>EDITOR VISUAL · MARKDOWN</span><span>{editor.storage.characterCount?.characters?.() ?? editor.getText().length} caracteres</span></div>
+      <div className="brifan-editor-footer"><span>EDITOR VISUAL · MARKDOWN</span><span>{editor.getText().length} caracteres</span></div>
     </div>
   )
 }
