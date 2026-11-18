@@ -5,4 +5,5 @@ import tailwindcss from '@tailwindcss/vite'
 export default defineConfig({
   base: '/BRIFAN-TECH/',
   plugins: [react(), tailwindcss()],
+  resolve: { alias: { '@': '/src' } },
 })
