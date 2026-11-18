@@ -1,4 +1,5 @@
 import Header from './components/Header'
+import { Button } from './components/ui/button'
 import SettingsPanel from './components/SettingsPanel'
 import LearningHub from './components/LearningHub'
 import GuideMarkdown from './components/GuideMarkdown'
@@ -472,7 +473,7 @@ export default function App() {
           <p className="deep-index">BRIFAN TECH <span>—</span> DIGITAL KNOWLEDGE PLATFORM / 2026</p>
           <h1>El futuro no se<br/>espera. <span className="gradient-text">Se construye.</span></h1>
           <p className="deep-lead">Una experiencia para explorar el mundo digital: aprende redes, ciberseguridad, programación e inteligencia artificial con guías prácticas, rutas de aprendizaje y una comunidad que comparte conocimiento.</p>
-          <div className="deep-actions"><a href="#explorar" className="btn-primary">Explorar la biblioteca <ArrowRight size={17}/></a><a href="#panorama" className="deep-text-link">Entrar al universo <ArrowUpRight size={16}/></a></div>
+          <div className="deep-actions"><Button asChild size="lg"><a href="#explorar">Explorar la biblioteca <ArrowRight size={17}/></a></Button><a href="#panorama" className="deep-text-link">Entrar al universo <ArrowUpRight size={16}/></a></div>
           <div className="deep-proof"><div><b>10</b><span>ÁREAS DE TECNOLOGÍA</span></div><i/><div><b>03</b><span>RUTAS DE APRENDIZAJE</span></div><i/><div><b>16</b><span>MÓDULOS INICIALES</span></div></div>
         </div>
         <div className="deep-hero-art"><div className="deep-art-image" role="img" aria-label="Centro de datos tecnológico iluminado"/><div className="deep-art-shade"/><div className="deep-orbit deep-orbit-one"/><div className="deep-orbit deep-orbit-two"/>
