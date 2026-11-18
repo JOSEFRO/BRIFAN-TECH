@@ -1,5 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
+@plugin "daisyui" { themes: dark --default; }
 :root{font-family:'DM Sans',sans-serif;color:#e7edf8;background:#080d18;font-synthesis:none;text-rendering:optimizeLegibility}*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;min-width:320px}button,a{-webkit-tap-highlight-color:transparent}button{cursor:pointer}h1,h2,h3,.brand-mark,.eyebrow,.section-kicker{font-family:'Space Grotesk',sans-serif}
 .ambient{position:absolute;pointer-events:none;width:32rem;height:32rem;border-radius:50%;filter:blur(110px);opacity:.13}.ambient-one{top:4rem;left:-16rem;background:#087fbd}.ambient-two{top:20rem;right:-18rem;background:#6638bd}
 .brand-mark{display:grid;width:42px;height:42px;place-items:center;border:1px solid #3bd6e855;border-radius:13px;color:#70e6f4;background:linear-gradient(145deg,#12364b,#101b31);box-shadow:0 0 30px #13b9d51c}.brand-mark.small{width:30px;height:30px;border-radius:9px}
