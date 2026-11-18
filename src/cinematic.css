@@ -1,0 +1,25 @@
+/* BRIFAN TECH · Cinematic editorial skin */
+:root{--brifan-electric:#ff5367;--brifan-ice:#79e7ee;--brifan-night:#050a14}
+body{background:radial-gradient(ellipse at 18% 0,rgba(22,89,125,.22),transparent 38%),radial-gradient(ellipse at 92% 12%,rgba(255,75,100,.09),transparent 32%),#050a14}
+body:before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.2;background-image:linear-gradient(rgba(118,190,220,.08) 1px,transparent 1px),linear-gradient(90deg,rgba(118,190,220,.08) 1px,transparent 1px);background-size:68px 68px;mask-image:linear-gradient(#000,transparent 82%)}
+.brand-mark{border-color:#ff536766;color:#ff8290;background:linear-gradient(145deg,#49202e,#101b31);box-shadow:0 0 34px #ff53671c}
+.btn-primary{color:#fff;background:linear-gradient(105deg,#e83e59,#ff6575 54%,#8b91ff);box-shadow:0 10px 32px #ff53672b}
+.btn-primary:hover{box-shadow:0 14px 40px #ff536747}
+.btn-secondary:hover,.btn-ghost:hover{border-color:#ff657588;color:#ff9aa5}
+.eyebrow,.section-kicker{color:#ff8795}
+.gradient-text{background-image:linear-gradient(100deg,#ff7888 4%,#b7b1ff 58%,#7de8ee)}
+.category-card,.resource-card{border-color:#ffffff16;background:linear-gradient(145deg,#111d30e8,#091321ed);box-shadow:0 18px 55px #0003}
+.category-card:hover,.resource-card:hover{border-color:#ff657566;box-shadow:0 22px 65px #0005,0 0 28px #ff536711}
+.category-card:hover .category-icon{box-shadow:0 8px 28px #ff536722}
+.filter-pill:hover,.filter-pill.selected{border-color:#ff657588;color:#ffabb4;background:#ff53671c}
+.community-panel,.signal-panel{border-color:#ff657533;background:radial-gradient(ellipse at 88% 35%,#612c4055,transparent 45%),linear-gradient(120deg,#111d30,#0b1424 62%,#15172c)}
+.signal-copy .section-kicker{color:#ff8998}
+.panorama-stage{border-color:#ff6d8055;box-shadow:0 32px 100px #0007,inset 0 0 100px #ff53670d}
+.panorama-stage:after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(120deg,transparent 35%,#ff6b7b0b 50%,transparent 65%);background-size:220% 100%;animation:brifanSweep 12s ease-in-out infinite}
+@keyframes brifanSweep{0%,100%{background-position:120% 0}50%{background-position:-20% 0}}
+.modal-backdrop{background:#020611e8}
+.auth-modal{border-color:#ff657555;background:linear-gradient(145deg,#19263c,#0b1424);box-shadow:0 35px 110px #000b,0 0 50px #ff536711}
+.auth-modal input:focus{border-color:#ff7888;box-shadow:0 0 0 3px #ff53671c}
+.auth-switch{color:#ff8998}
+a:focus-visible,button:focus-visible,input:focus-visible{outline:2px solid #ff8795;outline-offset:3px}
+@media(prefers-reduced-motion:reduce){.panorama-stage:after{animation:none!important}}

@@ -235,7 +235,7 @@ export default function App() {
     if (!supabase || !session?.user.id) return
     setMyPostsMessage('')
     const { data, error } = await supabase.from('articles')
-      .select('id,author_id,title,excerpt,body_md,status,created_at,updated_at,categories(name)')
+      .select('id,author_id,title,excerpt,body_md,status,content_type,difficulty,created_at,updated_at,categories(name)')
       .eq('author_id', session.user.id).order('updated_at', { ascending: false }).limit(100)
     if (error) { setMyPostsMessage('No se pudieron cargar tus publicaciones.'); return }
     setMyArticles(data ?? [])
@@ -310,17 +310,41 @@ export default function App() {
       const { data: category, error: categoryError } = await supabase.from('categories').select('id').eq('name', publishCategory).eq('is_active', true).single()
       if (categoryError || !category) throw new Error('No se encontró la categoría seleccionada.')
       if (editingArticleId) {
-        const { error } = await supabase.from('articles').update({
-          category_id: category.id,
-          title: publishTitle.trim(),
-          excerpt: publishExcerpt.trim(),
-          body_md: publishBody.trim() + editingAttachmentBlock,
-          content_type: publishType,
-          difficulty: publishLevel,
-          status: 'pending',
-          reading_minutes: Math.max(1, Math.ceil(publishBody.trim().split(/\s+/).length / 180)),
-        }).eq('id', editingArticleId).eq('author_id', session.user.id)
-        if (error) throw error
+        const attachmentMatch = editingAttachmentBlock.match(/<!--BRIFAN_ATTACHMENTS:(.*?)-->/s)
+        let existingAttachments: Array<{ path: string; name: string; type: string }> = []
+        try { if (attachmentMatch) existingAttachments = JSON.parse(attachmentMatch[1]) } catch { existingAttachments = [] }
+        if (existingAttachments.length + publishFiles.length > 8) {
+          throw new Error('Cada publicación admite un máximo de 8 archivos adjuntos.')
+        }
+        const uploaded: Array<{ path: string; name: string; type: string }> = []
+        try {
+          for (const file of publishFiles) {
+            if (file.size > 50 * 1024 * 1024) throw new Error('El archivo "' + file.name + '" supera el límite de 50 MB.')
+            const safeName = file.name.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-zA-Z0-9._-]/g, '-').slice(-100)
+            const storagePath = session.user.id + '/' + editingArticleId + '/' + crypto.randomUUID() + '-' + safeName
+            const { error: uploadError } = await supabase.storage.from('brifan-articles').upload(storagePath, file, { contentType: file.type, upsert: false })
+            if (uploadError) throw uploadError
+            uploaded.push({ path: storagePath, name: file.name, type: file.type })
+          }
+          const allAttachments = [...existingAttachments, ...uploaded]
+          const attachmentBlock = allAttachments.length
+            ? '\n\n<!--BRIFAN_ATTACHMENTS:' + JSON.stringify(allAttachments) + '-->'
+            : ''
+          const { error } = await supabase.from('articles').update({
+            category_id: category.id,
+            title: publishTitle.trim(),
+            excerpt: publishExcerpt.trim(),
+            body_md: publishBody.trim() + attachmentBlock,
+            content_type: publishType,
+            difficulty: publishLevel,
+            status: 'pending',
+            reading_minutes: Math.max(1, Math.ceil(publishBody.trim().split(/\s+/).length / 180)),
+          }).eq('id', editingArticleId).eq('author_id', session.user.id)
+          if (error) throw error
+        } catch (editFailure) {
+          if (uploaded.length) await supabase.storage.from('brifan-articles').remove(uploaded.map(file => file.path))
+          throw editFailure
+        }
         setPublishMessage('Cambios guardados. La publicación volvió a revisión antes de mostrarse públicamente.')
         setEditingArticleId(null)
         setEditingAttachmentBlock('')
