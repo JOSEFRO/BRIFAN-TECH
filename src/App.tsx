@@ -435,14 +435,18 @@ export default function App() {
   const [active, setActive] = useState('Todo')
     useEffect(() => {
     const art = document.querySelector<HTMLElement>('.deep-hero-art')
-    if (!art || window.matchMedia('(prefers-reduced-motion: reduce)').matches || !window.matchMedia('(hover: hover) and (pointer: fine)').matches) return
+    const hero = document.querySelector<HTMLElement>('.deep-hero')
+    if (!art || !hero || window.matchMedia('(prefers-reduced-motion: reduce)').matches || !window.matchMedia('(hover: hover) and (pointer: fine)').matches) return
     const move = (event: PointerEvent) => {
       const rect = art.getBoundingClientRect()
       const x = (event.clientX - rect.left) / rect.width - 0.5
       const y = (event.clientY - rect.top) / rect.height - 0.5
+      const heroRect = hero.getBoundingClientRect()
+      hero.style.setProperty('--spot-x', ((event.clientX - heroRect.left) / heroRect.width * 100).toFixed(1) + '%')
+      hero.style.setProperty('--spot-y', ((event.clientY - heroRect.top) / heroRect.height * 100).toFixed(1) + '%')
       art.style.transform = `perspective(1200px) rotateY(${(x * 3.2).toFixed(2)}deg) rotateX(${(-y * 2.4).toFixed(2)}deg)`
     }
-    const reset = () => { art.style.transform = '' }
+    const reset = () => { art.style.transform = ''; hero.style.setProperty('--spot-x', '72%'); hero.style.setProperty('--spot-y', '35%') }
     art.addEventListener('pointermove', move)
     art.addEventListener('pointerleave', reset)
     return () => { art.removeEventListener('pointermove', move); art.removeEventListener('pointerleave', reset); reset() }
@@ -477,7 +481,7 @@ export default function App() {
           <div className="deep-proof"><div><b>10</b><span>ÁREAS DE TECNOLOGÍA</span></div><i/><div><b>03</b><span>RUTAS DE APRENDIZAJE</span></div><i/><div><b>16</b><span>MÓDULOS INICIALES</span></div></div>
         </div>
         <div className="deep-hero-art"><div className="deep-art-image" role="img" aria-label="Centro de datos tecnológico iluminado"/><div className="deep-art-shade"/><div className="deep-orbit deep-orbit-one"/><div className="deep-orbit deep-orbit-two"/>
-          <div className="deep-glass-card deep-card-top"><span className="deep-card-icon"><Network size={17}/></span><div><small>NETWORK SYSTEMS</small><b>Conecta el conocimiento</b></div><span className="deep-live">CORE</span></div>
+          <div className="deep-glass-card deep-card-top"><span className="deep-card-icon"><Network size={17}/></span><div><small>NETWORK SYSTEMS</small><b>Conecta el conocimiento</b></div><span className="deep-live badge badge-outline">CORE</span></div>
           <div className="deep-glass-card deep-card-bottom"><span className="deep-card-icon purple"><BrainCircuit size={18}/></span><div><small>INTELLIGENCE / 01</small><b>Ideas que evolucionan</b></div><ArrowUpRight size={17}/></div>
           <div className="deep-core"><div className="deep-core-inner"><Layers3 size={48}/><b>BRIFAN</b><small>TECH ECOSYSTEM</small></div></div>
           <span className="deep-coordinate coordinate-a">18° / 70° — DIGITAL SPACE</span><span className="deep-coordinate coordinate-b">EXPLORE BEYOND LIMITS</span>
