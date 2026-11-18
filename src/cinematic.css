@@ -23,3 +23,17 @@ body:before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opa
 .auth-switch{color:#ff8998}
 a:focus-visible,button:focus-visible,input:focus-visible{outline:2px solid #ff8795;outline-offset:3px}
 @media(prefers-reduced-motion:reduce){.panorama-stage:after{animation:none!important}}
+
+
+/* Motion layer inspired by Magic UI and React Bits; no global animation loops. */
+:root{--brifan-beam:rgba(255,83,103,.36);--brifan-spot:rgba(121,231,238,.13)}
+.deep-hero{isolation:isolate;overflow:hidden}
+.deep-hero:after{content:"";position:absolute;z-index:0;inset:0;pointer-events:none;background:radial-gradient(circle at var(--spot-x,72%) var(--spot-y,35%),var(--brifan-spot),transparent 34%);opacity:.8}
+.hero-visual,.visual-core,.panorama-stage{transform-style:preserve-3d}
+.visual-core{animation:brifan-core-float 8s ease-in-out infinite}
+.category-card,.resource-card{transform:translateZ(0);transition:transform .35s cubic-bezier(.2,.7,.2,1),border-color .3s,box-shadow .3s}
+.category-card:hover,.resource-card:hover{transform:translateY(-6px) perspective(900px) rotateX(1deg);box-shadow:0 24px 72px #0008,0 0 32px var(--brifan-beam)}
+.panorama-stage{position:relative;overflow:hidden}
+.panorama-stage:before{content:"";position:absolute;z-index:2;inset:-1px;pointer-events:none;border:1px solid rgba(255,111,128,.3);mask-image:linear-gradient(110deg,#000,transparent 36%,#000 72%)}
+@keyframes brifan-core-float{0%,100%{transform:translateY(0) rotateX(0)}50%{transform:translateY(-9px) rotateX(2deg)}}
+@media(prefers-reduced-motion:reduce){.visual-core{animation:none}.category-card,.resource-card{transition:none}.category-card:hover,.resource-card:hover{transform:none}}
