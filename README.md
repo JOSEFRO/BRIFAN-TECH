@@ -1,5 +1,9 @@
 <div align="center">
 
+<img src="https://d8j0ntlcm91z4.cloudfront.net/user_3MJ8xX039ib9919oo3CFVd7NjMx/hf_20261119_141623_29dd20c4-2d49-42c4-ad5a-7d7c102f3920.webp" alt="Ilustración conceptual de la plataforma educativa BRIFAN TECH" width="100%">
+
+<img src="docs/images/brifan-identity.svg" alt="Identidad visual BRIFAN TECH" width="100%">
+
 <img src="docs/images/brifan-identity.svg" alt="Identidad visual BRIFAN TECH" width="100%">
 
 # BRIFAN TECH
