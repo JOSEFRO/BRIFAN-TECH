@@ -4,7 +4,6 @@
 
 <img src="docs/images/brifan-identity.svg" alt="Identidad visual BRIFAN TECH" width="100%">
 
-<img src="docs/images/brifan-identity.svg" alt="Identidad visual BRIFAN TECH" width="100%">
 
 # BRIFAN TECH
 
