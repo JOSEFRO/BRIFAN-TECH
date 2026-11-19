@@ -1,66 +1,67 @@
 <div align="center">
 
-<img src="https://d8j0ntlcm91z4.cloudfront.net/user_3MJ8xX039ib9919oo3CFVd7NjMx/hf_20261119_141623_29dd20c4-2d49-42c4-ad5a-7d7c102f3920.webp" alt="Ilustración conceptual de la plataforma educativa BRIFAN TECH" width="100%">
-
-<img src="docs/images/brifan-identity.svg" alt="Identidad visual BRIFAN TECH" width="100%">
-
+<img src="https://d8j0ntlcm91z4.cloudfront.net/user_3MJ8xX039ib9919oo3CFVd7NjMx/hf_20261119_141623_29dd20c4-2d49-42c4-ad5a-7d7c102f3920.webp" alt="Arte conceptual de BRIFAN TECH" width="100%">
 
 # BRIFAN TECH
 
 ### Explora. Aprende. Comparte.
 
-**Una plataforma web para descubrir, estudiar y compartir conocimiento tecnológico.**
+**Plataforma web para consultar, crear y compartir conocimiento tecnológico.**
 
-[🌐 Abrir plataforma](https://josefro.github.io/BRIFAN-TECH/) · [📂 Código fuente](https://github.com/JOSEFRO/BRIFAN-TECH) · [🐛 Reportar un problema](https://github.com/JOSEFRO/BRIFAN-TECH/issues)
+[🌐 Abrir plataforma](https://josefro.github.io/BRIFAN-TECH/) · [Código fuente](https://github.com/JOSEFRO/BRIFAN-TECH) · [Incidencias](https://github.com/JOSEFRO/BRIFAN-TECH/issues)
+
+![Estado](https://img.shields.io/badge/estado-desarrollo%20activo-blue)
+![React](https://img.shields.io/badge/React-19-149ECA?logo=react)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.8-3178C6?logo=typescript)
+![Vite](https://img.shields.io/badge/Vite-7-646CFF?logo=vite)
+![Supabase](https://img.shields.io/badge/backend-Supabase-3ECF8E?logo=supabase)
 
 </div>
 
-## Vista del producto
+## 1. Descripción del producto
 
-![Vista conceptual de BRIFAN TECH](docs/images/brifan-tech-preview.svg)
+BRIFAN TECH es una plataforma web orientada a la divulgación y el aprendizaje tecnológico. Reúne contenidos sobre redes, ciberseguridad, programación, inteligencia artificial y sistemas.
 
-[Ver mapa de experiencia](docs/images/brifan-experience-map.svg) · [Arquitectura](docs/ARCHITECTURE.md) · [Registro de cambios](CHANGELOG.md)
+**Es un sitio web que se utiliza desde el navegador; no requiere instalar una aplicación.**
 
-> Las imágenes del repositorio son recursos de presentación y mapas conceptuales; no se presentan como capturas reales de una sesión de usuario.
+## 2. Funcionalidades y módulos
 
-## El producto
-
-BRIFAN TECH reúne contenido y recursos sobre redes, ciberseguridad, programación, inteligencia artificial y sistemas. Su objetivo es ofrecer un espacio donde las personas puedan explorar material técnico, aprender mediante guías y participar en una comunidad.
-
-**Es una página web: se utiliza directamente desde el navegador y no requiere instalar una aplicación.**
-
-## Qué puedes encontrar
-
-| Sección | Propósito |
+| Módulo | Objetivo |
 |---|---|
-| Explorar | Descubrir publicaciones, categorías y recursos tecnológicos. |
-| Guías técnicas | Leer contenido estructurado con encabezados, listas, tablas y bloques de código. |
-| Contenido multimedia | Consultar imágenes enlazadas y videos de YouTube integrados de forma segura. |
-| Cuentas | Acceder a funciones que requieren autenticación. |
-| Comunidad | Participar mediante comentarios y guardar contenido, según permisos habilitados. |
-| Publicación | Crear y gestionar contenido conforme al rol y al flujo de moderación configurado. |
+| Exploración | Descubrir artículos, categorías y recursos. |
+| Biblioteca técnica | Consultar guías con texto estructurado, imágenes y bloques de código. |
+| Editor | Redactar y previsualizar contenido enriquecido. |
+| Cuentas | Gestionar sesiones mediante autenticación. |
+| Comunidad | Comentarios y marcadores, sujetos a permisos y configuración. |
+| Administración | Gestionar contenido y moderación según el rol autorizado. |
 
-## Experiencia de lectura y publicación
+La disponibilidad de cada función debe confirmarse en la versión desplegada y en sus servicios backend. La presencia de un componente visual no implica que su flujo completo esté habilitado.
 
-- Lector técnico enriquecido para guías y artículos.
-- Editor visual con formato, enlaces, imágenes y vista previa.
-- Herramientas de edición: encabezados, listas, código, separadores y acciones de deshacer/rehacer.
-- Contador de palabras y estimación de lectura en el editor.
-- Interfaz adaptable a escritorio, tableta y móvil.
-- Identidad visual propia con paleta oscura, acentos lima y componentes editoriales.
+## 3. Arquitectura y tecnologías
 
-La disponibilidad de publicación, comentarios, favoritos y administración depende de la configuración activa de Supabase, autenticación, políticas RLS y permisos por rol.
+- React 19 y TypeScript.
+- Vite 7 y Tailwind CSS 4.
+- Supabase Auth y PostgreSQL.
+- Supabase Storage.
+- TipTap para edición enriquecida.
+- Lucide React para iconografía.
 
-## Tecnología
+### Integraciones y protocolos
 
-- React 19, TypeScript y Vite 7.
-- Tailwind CSS 4.
-- Supabase Auth, PostgreSQL y Storage.
-- Lucide React.
+- HTTPS para el acceso al sitio y las comunicaciones remotas.
+- API de Supabase sobre HTTPS.
+- PostgreSQL como motor de persistencia.
+- Row Level Security (RLS) como capa de autorización de datos.
+- Variables de entorno para configuración del cliente.
 
-## Ejecutar en desarrollo
+## 4. Requisitos
 
-Requisitos: Node.js compatible con Vite 7 y npm.
+- Node.js 20.19 o superior, compatible con Vite 7.
+- npm.
+- Proyecto Supabase configurado.
+- Acceso a las migraciones y políticas de base de datos del proyecto.
+
+## 5. Instalación y ejecución
 
 ```bash
 git clone https://github.com/JOSEFRO/BRIFAN-TECH.git
@@ -68,14 +69,14 @@ cd BRIFAN-TECH
 npm install
 ```
 
-Crea `.env.local` a partir de `.env.example` y configura las credenciales públicas de tu proyecto Supabase:
+Crea `.env.local` a partir de `.env.example` y configura los valores públicos del proyecto:
 
 ```env
 VITE_SUPABASE_URL=https://TU-PROYECTO.supabase.co
 VITE_SUPABASE_ANON_KEY=TU_CLAVE_PUBLICA
 ```
 
-Inicia el entorno:
+Ejecuta los comandos:
 
 ```bash
 npm run dev
@@ -83,32 +84,41 @@ npm run build
 npm run preview
 ```
 
-Estos comandos son para desarrollo. La versión pública se abre desde el navegador.
+## 6. Seguridad
 
-## Seguridad y configuración
+- Nunca incluyas claves `service_role`, contraseñas ni secretos en el frontend.
+- Aplica RLS a todas las tablas expuestas al cliente.
+- Comprueba permisos de lectura y escritura en cada bucket de Storage.
+- Valida roles y autorizaciones en el backend; ocultar botones no es un control de seguridad.
+- Limita tipos, tamaños y nombres de archivos cargados.
+- Usa URLs HTTPS y políticas de contenido apropiadas.
+- Prueba los flujos con cuentas de usuario y administración independientes.
 
-1. Revisa y aplica las migraciones de `supabase/` en el orden documentado.
-2. Comprueba las políticas Row Level Security (RLS) de cada tabla.
-3. Verifica los permisos de los buckets de Storage.
-4. Prueba los flujos con cuentas de usuario y administración separadas.
-5. Nunca publiques claves `service_role`, contraseñas ni secretos en el frontend o en Git.
+## 7. Verificación y calidad
 
-La interfaz no sustituye la autorización del servidor: los permisos deben comprobarse en Supabase.
+Antes de una publicación se deben comprobar:
 
-## Estado del proyecto
+- Instalación reproducible y compilación TypeScript/Vite.
+- Registro, inicio de sesión y cierre de sesión.
+- Creación, edición y eliminación de publicaciones.
+- Permisos de usuario y administración.
+- Comentarios, marcadores y archivos adjuntos.
+- Estados de carga, error y ausencia de contenido.
+- Accesibilidad, navegación por teclado y diseño responsive.
 
-BRIFAN TECH está publicado como sitio web estático en GitHub Pages y continúa en desarrollo. La compilación y el despliegue automatizados se han ejecutado correctamente en GitHub Actions para la versión integrada.
+## 8. Publicación
 
-Esto no equivale a una certificación de todos los flujos de usuario. Antes de considerar el producto listo para una comunidad amplia, deben completarse pruebas funcionales de registro, inicio de sesión, publicación, edición, eliminación, moderación, adjuntos, permisos, accesibilidad y recuperación ante errores.
+- Sitio: [https://josefro.github.io/BRIFAN-TECH/](https://josefro.github.io/BRIFAN-TECH/)
+- Rama de publicación: `main`.
+- Automatización: [GitHub Actions](https://github.com/JOSEFRO/BRIFAN-TECH/actions).
+- Configuración: [.github/workflows/deploy.yml](.github/workflows/deploy.yml).
 
-## Próximas mejoras
+El éxito de una compilación no certifica por sí solo la seguridad de Supabase ni todos los flujos funcionales.
 
-- Validación integral de los flujos de usuario y administración.
-- Pruebas de permisos y seguridad de Supabase.
-- Mejoras de accesibilidad y experiencia móvil.
-- Seguimiento de errores y estados vacíos.
-- Ampliación de la biblioteca de guías y recursos.
+## 9. Estado del proyecto
 
-## Licencia
+BRIFAN TECH continúa en desarrollo. La plataforma tiene una base React/TypeScript y una integración con Supabase; las funciones que dependen de autenticación, RLS, Storage y roles requieren pruebas de extremo a extremo antes de considerarse listas para producción.
 
-No se ha añadido una licencia de reutilización. El código y los recursos permanecen reservados a su propietario salvo autorización expresa.
+## 10. Licencia
+
+No se ha incorporado una licencia de reutilización. El código y los recursos permanecen reservados a su titular salvo autorización expresa.
