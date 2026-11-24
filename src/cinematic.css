@@ -21,7 +21,7 @@ body:before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opa
 .auth-modal{border-color:#ff657555;background:linear-gradient(145deg,#19263c,#0b1424);box-shadow:0 35px 110px #000b,0 0 50px #ff536711}
 .auth-modal input:focus{border-color:#ff7888;box-shadow:0 0 0 3px #ff53671c}
 .auth-switch{color:#ff8998}
-a:focus-visible,button:focus-visible,input:focus-visible{outline:2px solid #ff8795;outline-offset:3px}
+:where(a,button,input,select,textarea,[tabindex]):focus-visible{outline:2px solid #ff8795;outline-offset:3px}
 @media(prefers-reduced-motion:reduce){.panorama-stage:after{animation:none!important}}
 
 
