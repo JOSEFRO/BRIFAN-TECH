@@ -104,6 +104,11 @@ using (private.can_view_profile(id));
 -- profile fields and these self-editable columns.
 revoke all privileges on table public.profiles from anon, authenticated;
 
+-- Remove the pre-existing column-level UPDATE grants too. In particular,
+-- username was previously updateable even though the settings UI marks it read-only.
+revoke update (username, display_name, bio, avatar_url, website)
+  on table public.profiles from authenticated;
+
 grant select (
   id,
   username,
