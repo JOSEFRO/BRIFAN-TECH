@@ -215,8 +215,8 @@ export default function App() {
     async function loadAdminAccess() {
       setIsAdmin(false)
       if (!supabase || !session?.user.id) return
-      const { data } = await supabase.from('profiles').select('role').eq('id', session.user.id).maybeSingle()
-      if (active) setIsAdmin(data?.role === 'admin')
+      const { data, error } = await supabase.rpc('is_admin')
+      if (active) setIsAdmin(!error && data === true)
     }
     void loadAdminAccess()
     return () => { active = false }
