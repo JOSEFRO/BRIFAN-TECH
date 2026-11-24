@@ -26,7 +26,7 @@ Columnas verificadas:
 - Retirar la política permisiva `Profiles are public`; las políticas RLS permisivas se combinan con OR, así que añadir otra política restrictiva sin retirar esta no cerraría el acceso.
 - Crear una función auxiliar pequeña, en un esquema no expuesto por la API (por ejemplo `private`), con `SECURITY DEFINER`, `STABLE`, `search_path` fijo y permisos de ejecución mínimos. Debe resolver visibilidad leyendo `user_preferences` sin depender de las políticas de lectura propias de esa tabla. Debe comparar el usuario autenticado con el propietario y contemplar explícitamente el caso anónimo.
 - La política SELECT de `profiles` debe permitir propietario, perfiles públicos, perfiles de miembros a usuarios autenticados y acceso administrativo comprobado por una fuente de roles confiable. No debe confiar en un rol enviado por el cliente.
-- Exponer los datos de autor mediante una vista pública de columnas permitidas, con `security_invoker = true`, y migrar el join de comentarios a esa vista. La vista no debe incluir `role` ni preferencias.
+- Exponer únicamente columnas permitidas para los datos de autor. La implementación actual conserva la relación PostgREST directa `comments -> profiles` y limita las columnas mediante grants; debe verificarse el join anidado en las pruebas. Una vista `security_invoker = true` sería una alternativa si el join directo no funciona con los grants por columna.
 - Mantener la consulta del panel de configuración limitada al perfil propio.
 - El acceso administrativo debe validarse en servidor/RLS; la visibilidad de la interfaz no es un control de seguridad.
 
@@ -50,7 +50,7 @@ También comprobar:
 - Un usuario no puede cambiar su propio `role` mediante UPDATE.
 - El join de comentarios conserva nombre y username de autores visibles.
 - El registro, inicio de sesión, edición de perfil y panel admin siguen funcionando.
-- La vista respeta RLS y no actúa como `SECURITY DEFINER`.
+- La relación anidada de comentarios devuelve únicamente `display_name` y `username` de perfiles que el lector puede ver.
 - Las políticas de UPDATE existentes siguen limitadas a `id = auth.uid()`.
 
 ## Bloqueo actual
@@ -67,7 +67,7 @@ Se añadió `supabase/migrations/20261124090000_profile_visibility_rls.sql` como
 El borrador:
 - Implementa una función auxiliar `private.can_view_profile(uuid)` con `SECURITY DEFINER`, `search_path` vacío y acceso controlado para evaluar la visibilidad.
 - Sustituye la política SELECT pública sin restricciones por una política que respeta `public`, `members` y `private`.
-- Reduce los privilegios de tabla de `profiles` a SELECT de campos de perfil no sensibles y UPDATE de los campos editables.
+- Reduce los privilegios de tabla de `profiles` a SELECT de campos de perfil no sensibles y UPDATE de los campos editables. También revoca el permiso UPDATE por columna preexistente sobre `username`, que la interfaz presenta como solo lectura.
 - Ajusta `public.is_admin()` para que las políticas RLS existentes puedan seguir comprobando roles sin conceder SELECT de la columna `role`. Se conserva EXECUTE para `anon` porque hay políticas actuales de tablas públicas que llaman a esa función; para una sesión anónima debe devolver false.
 - Ajusta `guard_profile_role_changes()` para conservar su comprobación de administrador al retirar permisos directos sobre `role`.
 
