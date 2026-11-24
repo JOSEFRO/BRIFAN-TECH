@@ -1,12 +1,10 @@
 import Header from './components/Header'
 import { Button } from './components/ui/button'
-import SettingsPanel from './components/SettingsPanel'
 import LearningHub from './components/LearningHub'
 import GuideMarkdown from './components/GuideMarkdown'
-import RichMarkdownEditor from './components/RichMarkdownEditor'
 import { learningGuides } from './data/learningGuides'
 import { ArrowRight, ArrowUpRight, BookOpen, Bookmark, BrainCircuit, Code2, Cpu, Database, FileText, Globe2, Layers3, Network, Search, ShieldCheck, Sparkles, Terminal, X } from 'lucide-react'
-import { useEffect, useMemo, useState } from 'react'
+import { lazy, Suspense, useEffect, useMemo, useState } from 'react'
 import type { Session } from '@supabase/supabase-js'
 import { supabase, isSupabaseConfigured } from './lib/supabase'
 import { matchesLibrarySearch } from './lib/search'
@@ -36,6 +34,9 @@ const categoryVisuals: Record<string, string> = {
   'Soporte técnico': 'https://images.unsplash.com/photo-1662638600476-d563fffbb072?auto=format&fit=crop&w=1000&q=85',
   'Certificaciones y formación': 'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?auto=format&fit=crop&w=1000&q=85',
 }
+
+const SettingsPanel = lazy(() => import('./components/SettingsPanel'))
+const RichMarkdownEditor = lazy(() => import('./components/RichMarkdownEditor'))
 
 const demoResources = learningGuides.map((resource) => ({ ...resource, id: undefined }))
 
@@ -535,7 +536,7 @@ export default function App() {
       <section id="comunidad" className="mx-auto max-w-7xl px-5 py-20 sm:px-8"><div className="community-panel"><div className="relative z-10 max-w-2xl"><span className="section-kicker">03 / CONSTRUYAMOS JUNTOS</span><h2 className="mt-4 text-3xl font-black sm:text-4xl">Tu experiencia también puede <span className="gradient-text">inspirar.</span></h2><p className="mt-4 max-w-xl text-sm leading-7 text-slate-400">BRIFAN TECH busca reunir a estudiantes, profesionales y entusiastas para compartir soluciones, documentar aprendizajes y hacer crecer la comunidad tecnológica.</p><button className="btn-primary mt-7" onClick={() => {setAuthMode("signup");setAuthOpen(true);setAuthMessage("")}}>Crear cuenta gratis <ArrowUpRight size={16}/></button></div><div className="community-symbol"><Layers3 size={100} strokeWidth={.7}/></div></div></section>
     </main>
     <footer id="nosotros" className="border-t border-white/[.08]"><div className="mx-auto flex max-w-7xl flex-col gap-5 px-5 py-8 text-xs text-slate-500 sm:px-8 md:flex-row md:items-center md:justify-between"><div className="flex items-center gap-3"><span className="brand-mark small"><Layers3 size={16}/></span><b className="tracking-[.14em] text-slate-300">BRIFAN.TECH</b><span>© 2026</span></div><p>Explora. Aprende. Comparte.</p><a href="https://github.com/JOSEFRO/BRIFAN-TECH" target="_blank" rel="noreferrer" className="hover:text-cyan-300">Código en GitHub <ArrowUpRight size={13} className="inline"/></a></div></footer>
-    {settingsOpen && session && <SettingsPanel session={session} onClose={() => setSettingsOpen(false)} />}
+    {settingsOpen && session && <Suspense fallback={<div className="modal-backdrop resource-backdrop"><div className="resource-reader" role="status">Cargando configuración…</div></div>}><SettingsPanel session={session} onClose={() => setSettingsOpen(false)} /></Suspense>}
     {myPostsOpen && session && <div className="modal-backdrop resource-backdrop" role="presentation" onMouseDown={event=>{if(event.target===event.currentTarget)setMyPostsOpen(false)}}>
       <section className="resource-reader publish-reader" role="dialog" aria-modal="true" aria-labelledby="my-posts-title">
         <button className="modal-close" onClick={()=>setMyPostsOpen(false)} aria-label="Cerrar"><X size={18}/></button>
@@ -577,7 +578,7 @@ export default function App() {
           <div className="publish-editor-wrap">
             <div className="publish-editor-heading"><strong>Editor de contenido</strong><span>Formato visual con salida Markdown</span></div>
             <div className="publish-editor-tabs"><button type="button" className={editorView==='write'?'active':''} onClick={()=>setEditorView('write')}>Escribir</button><button type="button" className={editorView==='preview'?'active':''} onClick={()=>setEditorView('preview')}>Vista previa</button></div>
-            {editorView==='write' ? <RichMarkdownEditor value={publishBody} onChange={setPublishBody}/> : <div className="publish-live-preview">{publishBody.trim()?renderArticleBody(publishBody):<p className="preview-empty">Tu vista previa aparecerá aquí.</p>}</div>}
+            {editorView==='write' ? <Suspense fallback={<div className="brifan-editor-loading" role="status">Cargando editor…</div>}><RichMarkdownEditor value={publishBody} onChange={setPublishBody}/></Suspense> : <div className="publish-live-preview">{publishBody.trim()?renderArticleBody(publishBody):<p className="preview-empty">Tu vista previa aparecerá aquí.</p>}</div>}
             <p className="editor-tip">Puedes dar formato como en un procesador de texto, añadir enlaces e insertar imágenes por URL o videos de YouTube. El contenido se conserva en Markdown para mantener compatibilidad con las guías existentes.</p>
           </div>
           <label>Imágenes y archivos<input type="file" multiple accept="image/jpeg,image/png,image/webp,image/gif,application/pdf,text/plain,text/markdown,text/csv,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation,application/zip" onChange={event => { const incoming = Array.from(event.target.files ?? []); setPublishFiles(current => [...current, ...incoming].slice(0, 8)); event.target.value = '' }} /></label>
