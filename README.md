@@ -72,7 +72,7 @@ Crea `.env.local` a partir de `.env.example` y configura las credenciales públi
 
 ```env
 VITE_SUPABASE_URL=https://TU-PROYECTO.supabase.co
-VITE_SUPABASE_ANON_KEY=TU_CLAVE_PUBLICA
+VITE_SUPABASE_PUBLISHABLE_KEY=TU_CLAVE_PUBLICA
 ```
 
 Inicia el entorno:

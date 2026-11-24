@@ -1,14 +1,13 @@
 import Header from './components/Header'
 import { Button } from './components/ui/button'
-import SettingsPanel from './components/SettingsPanel'
 import LearningHub from './components/LearningHub'
 import GuideMarkdown from './components/GuideMarkdown'
-import RichMarkdownEditor from './components/RichMarkdownEditor'
 import { learningGuides } from './data/learningGuides'
 import { ArrowRight, ArrowUpRight, BookOpen, Bookmark, BrainCircuit, Code2, Cpu, Database, FileText, Globe2, Layers3, Network, Search, ShieldCheck, Sparkles, Terminal, X } from 'lucide-react'
-import { useEffect, useMemo, useState } from 'react'
+import { lazy, Suspense, useEffect, useMemo, useState } from 'react'
 import type { Session } from '@supabase/supabase-js'
 import { supabase, isSupabaseConfigured } from './lib/supabase'
+import { matchesLibrarySearch } from './lib/search'
 
 const categories = [
   { name: 'Redes y conectividad', icon: Network, tone: 'blue' },
@@ -36,28 +35,19 @@ const categoryVisuals: Record<string, string> = {
   'Certificaciones y formación': 'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?auto=format&fit=crop&w=1000&q=85',
 }
 
-const demoResources = learningGuides
+const SettingsPanel = lazy(() => import('./components/SettingsPanel'))
+const RichMarkdownEditor = lazy(() => import('./components/RichMarkdownEditor'))
+
+const demoResources = learningGuides.map((resource) => ({ ...resource, id: undefined }))
 
 function renderArticleBody(source: string) {
-  return source.split('\n').map((raw, index) => {
-    const line = raw.trim()
-    if (!line) return null
-    const video = line.match(/(?:youtube\.com\/(?:watch\?v=|shorts\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/)
-    if (video) return <div className="article-video" key={index}><iframe src={'https://www.youtube-nocookie.com/embed/' + video[1]} title="Video de YouTube" loading="lazy" allow="accelerometer; autoplay; encrypted-media; picture-in-picture" allowFullScreen /></div>
-    const image = line.match(/^!\[([^\]]*)\]\((https?:\/\/[^)]+)\)$/)
-    if (image) return <figure key={index}><img className="article-inline-image" src={image[2]} alt={image[1]} loading="lazy" /></figure>
-    if (line.startsWith('### ')) return <h3 key={index}>{line.slice(4)}</h3>
-    if (line.startsWith('## ')) return <h2 key={index}>{line.slice(3)}</h2>
-    if (line.startsWith('# ')) return <h1 key={index}>{line.slice(2)}</h1>
-    if (/^[-*] /.test(line)) return <p key={index}>• {line.slice(2)}</p>
-    if (line.startsWith('> ')) return <blockquote key={index}>{line.slice(2)}</blockquote>
-    return <p key={index}>{line}</p>
-  })
+  return <GuideMarkdown content={source} />
 }
 
 export default function App() {
   const [query, setQuery] = useState('')
   const [liveResources, setLiveResources] = useState<any[]>([])
+  const [usingDemoResources, setUsingDemoResources] = useState(false)
   const [loadingResources, setLoadingResources] = useState(true)
   const [resourceLoadError, setResourceLoadError] = useState(false)
   const [session, setSession] = useState<Session | null>(null)
@@ -225,8 +215,8 @@ export default function App() {
     async function loadAdminAccess() {
       setIsAdmin(false)
       if (!supabase || !session?.user.id) return
-      const { data } = await supabase.from('profiles').select('role').eq('id', session.user.id).maybeSingle()
-      if (active) setIsAdmin(data?.role === 'admin')
+      const { data, error } = await supabase.rpc('is_admin')
+      if (active) setIsAdmin(!error && data === true)
     }
     void loadAdminAccess()
     return () => { active = false }
@@ -406,6 +396,7 @@ export default function App() {
       if (!supabase) { setLoadingResources(false); return }
       setLoadingResources(true)
       setResourceLoadError(false)
+      setUsingDemoResources(false)
       try {
         const { data, error } = await supabase.from('articles').select('id,title,excerpt,body_md,content_type,difficulty,reading_minutes,categories(name)').eq('status', 'published').order('published_at', { ascending: false }).limit(18)
         if (!active) return
@@ -414,7 +405,12 @@ export default function App() {
           setLiveResources([])
           return
         }
-        setLiveResources((data ?? []).map((item: any) => {
+        if (!data?.length) {
+          setLiveResources([])
+          setUsingDemoResources(true)
+          return
+        }
+        setLiveResources(data.map((item: any) => {
           const rawBody = item.body_md ?? ''
           const attachmentMatch = rawBody.match(/<!--BRIFAN_ATTACHMENTS:(.*?)-->/s)
           let attachments: Array<{ path: string; name: string; type: string }> = []
@@ -431,7 +427,7 @@ export default function App() {
     void loadResources()
     return () => { active = false }
   }, [])
-  const resources = isSupabaseConfigured ? liveResources : demoResources
+  const resources = isSupabaseConfigured ? (usingDemoResources ? demoResources : liveResources) : demoResources
   const [active, setActive] = useState('Todo')
     useEffect(() => {
     const art = document.querySelector<HTMLElement>('.deep-hero-art')
@@ -452,10 +448,17 @@ export default function App() {
     return () => { art.removeEventListener('pointermove', move); art.removeEventListener('pointerleave', reset); reset() }
   }, [])
 
-  const filtered = useMemo(() => resources.filter((r) =>
-    (active === 'Todo' || r.category === active) &&
-    (r.title + r.category + r.type).toLowerCase().includes(query.toLowerCase())
+  const filtered = useMemo(() => resources.filter((resource) =>
+    (active === 'Todo' || resource.category === active) &&
+    matchesLibrarySearch(resource, query)
   ), [resources, active, query])
+  const libraryStatusMessage = !isSupabaseConfigured
+    ? 'Vista de demostración con guías locales. Configura Supabase para activar publicaciones y cuentas.'
+    : resourceLoadError
+      ? 'La biblioteca no pudo conectar con Supabase.'
+      : usingDemoResources
+        ? 'Guías de muestra: todavía no hay publicaciones aprobadas en Supabase.'
+        : 'Contenido publicado desde Supabase.'
 
   return <div className="min-h-screen overflow-hidden bg-[#080d18] text-slate-100">
     <div className="ambient ambient-one" /><div className="ambient ambient-two" />
@@ -529,11 +532,11 @@ export default function App() {
       <section className="border-y border-white/[.07] bg-white/[.018]"><div className="mx-auto grid max-w-7xl gap-6 px-5 py-7 sm:grid-cols-3 sm:px-8"><div className="flex items-center gap-4"><span className="stat-icon"><BookOpen size={19}/></span><div><b className="block text-sm">Conocimiento compartido</b><span className="text-xs text-slate-500">Experiencias que ayudan a crecer</span></div></div><div className="flex items-center gap-4"><span className="stat-icon"><FileText size={19}/></span><div><b className="block text-sm">Recursos prácticos</b><span className="text-xs text-slate-500">Material para aprender haciendo</span></div></div><div className="flex items-center gap-4"><span className="stat-icon"><Globe2 size={19}/></span><div><b className="block text-sm">Comunidad tecnológica</b><span className="text-xs text-slate-500">Distintas áreas, una misma pasión</span></div></div></div></section>
       <section id="categorias" className="mx-auto max-w-7xl px-5 py-20 sm:px-8"><div className="section-heading"><div><span className="section-kicker">01 / EXPLORA POR ÁREA</span><h2>Un universo de <span className="gradient-text">posibilidades.</span></h2></div><a href="#explorar" className="text-sm font-semibold text-cyan-300">Ver contenido <ArrowUpRight size={15} className="inline"/></a></div><div className="mt-9 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{categories.map(({name,icon:Icon,tone},i)=><button key={name} onClick={()=>{setActive(name);document.getElementById('explorar')?.scrollIntoView({behavior:'smooth'})}} className="category-card group text-left"><div className="category-card-image"><img src={categoryVisuals[name] ?? categoryVisuals['Programación']} alt="" loading="lazy" decoding="async" onError={event => { event.currentTarget.style.display = 'none' }}/></div><div className={'category-icon '+tone}><Icon size={22}/></div><div className="mt-7 flex items-end justify-between"><div><span className="mb-2 block text-xs text-slate-500">{String(i + 1).padStart(2, '0')} / ÁREA</span><h3>{name}</h3><span className="mt-2 block text-xs text-slate-500">Explorar contenido</span></div><ArrowUpRight className="text-slate-600 transition group-hover:-translate-y-1 group-hover:translate-x-1 group-hover:text-cyan-300"/></div></button>)}</div></section>
       <LearningHub />
-      <section id="explorar" className="border-y border-white/[.07] bg-[#0b1220]/80"><div className="mx-auto max-w-7xl px-5 py-20 sm:px-8"><div className="section-heading"><div><span className="section-kicker">02 / BIBLIOTECA</span><h2>Descubre algo <span className="gradient-text">nuevo.</span></h2><p className="mt-3 text-sm text-slate-400">Guías, tutoriales y recursos para llevar tus conocimientos más lejos.</p></div></div><div className="mt-8 flex flex-col gap-4 md:flex-row md:items-center md:justify-between"><div className="flex flex-wrap gap-2">{['Todo',...categories.map(c=>c.name)].map(item=><button key={item} onClick={()=>setActive(item)} className={'filter-pill '+(active===item?'selected':'')}>{item}</button>)}</div><label className="search-box"><Search size={17}/><input value={query} onChange={e=>setQuery(e.target.value)} placeholder="Buscar contenido..."/></label></div><div className="mt-8 grid gap-5 lg:grid-cols-3">{loadingResources ? <div className="col-span-full py-14 text-center text-sm text-slate-500">Cargando publicaciones...</div> : resourceLoadError ? <div className="col-span-full rounded-2xl border border-rose-400/20 bg-rose-400/5 py-12 text-center text-sm text-rose-200" role="status">No se pudieron cargar los recursos publicados. Comprueba la conexión e inténtalo más tarde.</div> : filtered.map(({id,type,title,category,level,time,color})=><article key={id ?? title} className="resource-card"><div className={'resource-art '+color}><img className="resource-photo" src={categoryVisuals[category] ?? categoryVisuals['Programación']} alt="" loading="lazy" decoding="async" onError={event => { event.currentTarget.style.display = 'none' }}/><div className="art-orbit"/><span className="resource-type">{type}</span><span className="resource-image-caption">{category}</span></div><div className="p-5"><span className="text-xs font-semibold text-cyan-300">{category}</span><h3 className="mt-3 min-h-14 text-lg font-bold leading-snug">{title}</h3><p className="mt-2 min-h-10 text-xs leading-6 text-slate-400">{(resources.find((item: any) => item.id === id || item.title === title)?.excerpt) ?? "Abre este recurso para consultar su contenido."}</p><div className="mt-5 flex items-center justify-between border-t border-white/10 pt-4 text-xs text-slate-500"><span>{level} · {time}</span><div className="flex items-center gap-2"><button onClick={() => setSelectedResource(resources.find((item: any) => item.id === id || item.title === title))} className="rounded-lg px-3 py-2 font-semibold text-cyan-300 hover:bg-cyan-300/10">Leer guía <ArrowUpRight size={14} className="inline"/></button><button aria-label={savedIds.includes(id) ? "Quitar de guardados" : "Guardar recurso"} aria-pressed={Boolean(id && savedIds.includes(id))} onClick={() => void toggleBookmark(id)} disabled={!id} className="rounded-lg p-2 hover:bg-white/10 hover:text-cyan-300 disabled:cursor-not-allowed disabled:opacity-40"><Bookmark size={16} fill={id && savedIds.includes(id) ? "currentColor" : "none"}/></button></div></div></div></article>)}{!loadingResources && !resourceLoadError && filtered.length===0&&<div className="col-span-full rounded-2xl border border-dashed border-white/15 py-14 text-center text-sm text-slate-500">{resources.length===0 ? 'Todavía no hay publicaciones aprobadas. Puedes volver más tarde o compartir la primera guía.' : 'No encontramos contenido con esos filtros. Prueba otra búsqueda.'}</div>}</div><p className="mt-5 text-xs text-slate-600">{isSupabaseConfigured ? (resourceLoadError ? 'La biblioteca no pudo conectar con Supabase.' : 'Contenido publicado desde Supabase.') : 'Vista de demostración con guías locales. Configura Supabase para activar publicaciones y cuentas.'}</p></div></section>
+      <section id="explorar" className="border-y border-white/[.07] bg-[#0b1220]/80"><div className="mx-auto max-w-7xl px-5 py-20 sm:px-8"><div className="section-heading"><div><span className="section-kicker">02 / BIBLIOTECA</span><h2>Descubre algo <span className="gradient-text">nuevo.</span></h2><p className="mt-3 text-sm text-slate-400">Guías, tutoriales y recursos para llevar tus conocimientos más lejos.</p></div></div><div className="mt-8 flex flex-col gap-4 md:flex-row md:items-center md:justify-between"><div className="flex flex-wrap gap-2">{['Todo',...categories.map(c=>c.name)].map(item=><button key={item} onClick={()=>setActive(item)} className={'filter-pill '+(active===item?'selected':'')}>{item}</button>)}</div><label className="search-box"><Search size={17}/><input value={query} onChange={e=>setQuery(e.target.value)} placeholder="Buscar título, tema o contenido..." aria-label="Buscar en toda la biblioteca"/></label></div><div className="mt-8 grid gap-5 lg:grid-cols-3">{loadingResources ? <div className="col-span-full py-14 text-center text-sm text-slate-500">Cargando publicaciones...</div> : resourceLoadError ? <div className="col-span-full rounded-2xl border border-rose-400/20 bg-rose-400/5 py-12 text-center text-sm text-rose-200" role="status">No se pudieron cargar los recursos publicados. Comprueba la conexión e inténtalo más tarde.</div> : filtered.map(({id,type,title,category,level,time,color})=><article key={id ?? title} className="resource-card"><div className={'resource-art '+color}><img className="resource-photo" src={categoryVisuals[category] ?? categoryVisuals['Programación']} alt="" loading="lazy" decoding="async" onError={event => { event.currentTarget.style.display = 'none' }}/><div className="art-orbit"/><span className="resource-type">{type}</span><span className="resource-image-caption">{category}</span></div><div className="p-5"><span className="text-xs font-semibold text-cyan-300">{category}</span><h3 className="mt-3 min-h-14 text-lg font-bold leading-snug">{title}</h3><p className="mt-2 min-h-10 text-xs leading-6 text-slate-400">{(resources.find((item: any) => item.title === title)?.excerpt) ?? "Abre este recurso para consultar su contenido."}</p><div className="mt-5 flex items-center justify-between border-t border-white/10 pt-4 text-xs text-slate-500"><span>{level} · {time}</span><div className="flex items-center gap-2"><button onClick={() => setSelectedResource(resources.find((item: any) => item.title === title))} className="rounded-lg px-3 py-2 font-semibold text-cyan-300 hover:bg-cyan-300/10">Leer guía <ArrowUpRight size={14} className="inline"/></button><button aria-label={savedIds.includes(id) ? "Quitar de guardados" : "Guardar recurso"} aria-pressed={Boolean(id && savedIds.includes(id))} onClick={() => void toggleBookmark(id)} disabled={!id} className="rounded-lg p-2 hover:bg-white/10 hover:text-cyan-300 disabled:cursor-not-allowed disabled:opacity-40"><Bookmark size={16} fill={id && savedIds.includes(id) ? "currentColor" : "none"}/></button></div></div></div></article>)}{!loadingResources && !resourceLoadError && filtered.length===0&&<div className="col-span-full rounded-2xl border border-dashed border-white/15 py-14 text-center text-sm text-slate-500">{resources.length===0 ? 'Todavía no hay publicaciones aprobadas. Puedes volver más tarde o compartir la primera guía.' : 'No encontramos contenido con esos filtros. Prueba otra búsqueda.'}</div>}</div><p className="mt-5 text-xs text-slate-600">{libraryStatusMessage}</p></div></section>
       <section id="comunidad" className="mx-auto max-w-7xl px-5 py-20 sm:px-8"><div className="community-panel"><div className="relative z-10 max-w-2xl"><span className="section-kicker">03 / CONSTRUYAMOS JUNTOS</span><h2 className="mt-4 text-3xl font-black sm:text-4xl">Tu experiencia también puede <span className="gradient-text">inspirar.</span></h2><p className="mt-4 max-w-xl text-sm leading-7 text-slate-400">BRIFAN TECH busca reunir a estudiantes, profesionales y entusiastas para compartir soluciones, documentar aprendizajes y hacer crecer la comunidad tecnológica.</p><button className="btn-primary mt-7" onClick={() => {setAuthMode("signup");setAuthOpen(true);setAuthMessage("")}}>Crear cuenta gratis <ArrowUpRight size={16}/></button></div><div className="community-symbol"><Layers3 size={100} strokeWidth={.7}/></div></div></section>
     </main>
     <footer id="nosotros" className="border-t border-white/[.08]"><div className="mx-auto flex max-w-7xl flex-col gap-5 px-5 py-8 text-xs text-slate-500 sm:px-8 md:flex-row md:items-center md:justify-between"><div className="flex items-center gap-3"><span className="brand-mark small"><Layers3 size={16}/></span><b className="tracking-[.14em] text-slate-300">BRIFAN.TECH</b><span>© 2026</span></div><p>Explora. Aprende. Comparte.</p><a href="https://github.com/JOSEFRO/BRIFAN-TECH" target="_blank" rel="noreferrer" className="hover:text-cyan-300">Código en GitHub <ArrowUpRight size={13} className="inline"/></a></div></footer>
-    {settingsOpen && session && <SettingsPanel session={session} onClose={() => setSettingsOpen(false)} />}
+    {settingsOpen && session && <Suspense fallback={<div className="modal-backdrop resource-backdrop"><div className="resource-reader" role="status">Cargando configuración…</div></div>}><SettingsPanel session={session} onClose={() => setSettingsOpen(false)} /></Suspense>}
     {myPostsOpen && session && <div className="modal-backdrop resource-backdrop" role="presentation" onMouseDown={event=>{if(event.target===event.currentTarget)setMyPostsOpen(false)}}>
       <section className="resource-reader publish-reader" role="dialog" aria-modal="true" aria-labelledby="my-posts-title">
         <button className="modal-close" onClick={()=>setMyPostsOpen(false)} aria-label="Cerrar"><X size={18}/></button>
@@ -575,7 +578,7 @@ export default function App() {
           <div className="publish-editor-wrap">
             <div className="publish-editor-heading"><strong>Editor de contenido</strong><span>Formato visual con salida Markdown</span></div>
             <div className="publish-editor-tabs"><button type="button" className={editorView==='write'?'active':''} onClick={()=>setEditorView('write')}>Escribir</button><button type="button" className={editorView==='preview'?'active':''} onClick={()=>setEditorView('preview')}>Vista previa</button></div>
-            {editorView==='write' ? <RichMarkdownEditor value={publishBody} onChange={setPublishBody}/> : <div className="publish-live-preview">{publishBody.trim()?renderArticleBody(publishBody):<p className="preview-empty">Tu vista previa aparecerá aquí.</p>}</div>}
+            {editorView==='write' ? <Suspense fallback={<div className="brifan-editor-loading" role="status">Cargando editor…</div>}><RichMarkdownEditor value={publishBody} onChange={setPublishBody}/></Suspense> : <div className="publish-live-preview">{publishBody.trim()?renderArticleBody(publishBody):<p className="preview-empty">Tu vista previa aparecerá aquí.</p>}</div>}
             <p className="editor-tip">Puedes dar formato como en un procesador de texto, añadir enlaces e insertar imágenes por URL o videos de YouTube. El contenido se conserva en Markdown para mantener compatibilidad con las guías existentes.</p>
           </div>
           <label>Imágenes y archivos<input type="file" multiple accept="image/jpeg,image/png,image/webp,image/gif,application/pdf,text/plain,text/markdown,text/csv,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation,application/zip" onChange={event => { const incoming = Array.from(event.target.files ?? []); setPublishFiles(current => [...current, ...incoming].slice(0, 8)); event.target.value = '' }} /></label>
