@@ -58,3 +58,23 @@ También comprobar:
 No se ejecutó SQL de escritura, no se creó una rama de Supabase y no se modificaron datos ni políticas de producción. La corrección debe probarse en un proyecto/branch aislado con cuentas de prueba. El coste de crear ese entorno debe verificarse antes de provisionarlo.
 
 **No aplicar esta propuesta como SQL directo sin revisar primero las funciones/roles administrativos existentes y los permisos SQL actuales.**
+
+
+## Implementación preparada en la rama
+
+Se añadió `supabase/migrations/20261124090000_profile_visibility_rls.sql` como **borrador versionado**, no aplicado a ninguna base de datos.
+
+El borrador:
+- Implementa una función auxiliar `private.can_view_profile(uuid)` con `SECURITY DEFINER`, `search_path` vacío y acceso controlado para evaluar la visibilidad.
+- Sustituye la política SELECT pública sin restricciones por una política que respeta `public`, `members` y `private`.
+- Reduce los privilegios de tabla de `profiles` a SELECT de campos de perfil no sensibles y UPDATE de los campos editables.
+- Ajusta `public.is_admin()` para que las políticas RLS existentes puedan seguir comprobando roles sin conceder SELECT de la columna `role`. Se conserva EXECUTE para `anon` porque hay políticas actuales de tablas públicas que llaman a esa función; para una sesión anónima debe devolver false.
+- Ajusta `guard_profile_role_changes()` para conservar su comprobación de administrador al retirar permisos directos sobre `role`.
+
+La consulta de auditoría confirmó que `is_admin()` es utilizada por políticas RLS de `articles`, `article_tags`, `categories`, `comments` y `tags`. Por eso no debe revocarse su ejecución a `anon` de forma aislada.
+
+## Validación pendiente
+
+El archivo SQL fue guardado y releído desde GitHub, pero no se ha ejecutado ni validado contra una instancia PostgreSQL aislada. El CI de la aplicación no ejecuta migraciones SQL ni pruebas RLS. El último commit de la migración todavía no tiene un resultado de workflow confirmado.
+
+Antes de producción se debe crear un entorno aislado con autorización de coste, aplicar allí esta migración, ejecutar pruebas con sesiones anon/authenticated/admin y verificar las consultas anidadas de comentarios. No fusionar ni aplicar esta migración basándose únicamente en el build de frontend.
