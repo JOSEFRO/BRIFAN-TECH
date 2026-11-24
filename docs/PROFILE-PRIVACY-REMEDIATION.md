@@ -78,3 +78,29 @@ La consulta de auditoría confirmó que `is_admin()` es utilizada por políticas
 El archivo SQL fue guardado y releído desde GitHub, pero no se ha ejecutado ni validado contra una instancia PostgreSQL aislada. El CI de la aplicación no ejecuta migraciones SQL ni pruebas RLS. El último commit de la migración todavía no tiene un resultado de workflow confirmado.
 
 Antes de producción se debe crear un entorno aislado con autorización de coste, aplicar allí esta migración, ejecutar pruebas con sesiones anon/authenticated/admin y verificar las consultas anidadas de comentarios. No fusionar ni aplicar esta migración basándose únicamente en el build de frontend.
+
+## Revisión técnica adicional — 24/11/2026
+
+Consulta de solo lectura sobre Supabase confirmó:
+
+- `public.profiles` pertenece a `postgres`; las funciones actuales `is_admin()` y `guard_profile_role_changes()` también pertenecen a `postgres`.
+- Ambas funciones actuales son `SECURITY INVOKER` y usan `search_path = ''`. El cuerpo de la función de protección de roles del borrador conserva la comprobación y el mensaje de error originales; el cambio propuesto es convertirla en `SECURITY DEFINER` para que pueda consultar `role` después de restringir los grants.
+- El trigger `protect_profile_role_changes` está habilitado y sigue asociado a `guard_profile_role_changes()`. También está habilitado `profiles_set_updated_at`.
+- `user_preferences` tiene RLS y políticas que limitan SELECT/UPDATE/INSERT a `auth.uid() = user_id`.
+- `private` no existe todavía en producción. La configuración de esquemas expuestos de PostgREST no pudo confirmarse mediante SQL; antes de aplicar se debe comprobar en la configuración de la API que `private` no esté expuesto.
+- Se confirmó que los grants previos de UPDATE por columna cubrían `username`, `display_name`, `bio`, `avatar_url` y `website`. El borrador ahora revoca explícitamente esos grants antes de volver a conceder solo los cuatro campos editables.
+
+### Validación aún bloqueada
+
+No hay un entorno PostgreSQL/Supabase aislado disponible en esta sesión y no se autorizó crear una rama de base de datos con posible coste. Por tanto, no se ejecutó la migración, ni siquiera en producción. El commit de los últimos cambios no reportó workflow run ni status de CI en GitHub; esto no equivale a una aprobación.
+
+Pruebas necesarias en un entorno aislado:
+1. Anónimo: ve solo perfiles `public`; no ve `members` ni `private`; no puede leer `role`.
+2. Miembro autenticado: ve perfiles `public` y `members`; no ve perfiles `private` ajenos.
+3. Propietario: ve su perfil privado y actualiza solo los cuatro campos permitidos.
+4. Administrador: puede consultar perfiles privados y la función `is_admin()` devuelve true solo para su sesión.
+5. Cambio de `role`: usuarios normales no pueden actualizarlo; el mecanismo administrativo autorizado conserva su comportamiento.
+6. Comentarios: el join `profiles(display_name,username)` sigue resolviendo autores visibles y no revela columnas restringidas.
+7. Tablas cuyas políticas llaman a `is_admin()`: artículos, categorías, comentarios, etiquetas y relaciones de etiquetas siguen funcionando para anon y authenticated.
+
+**Resultado:** revisión estática y consultas de catálogo completadas; validación de ejecución pendiente. Mantener el PR sin fusionar y la migración sin aplicar hasta completar estas pruebas.
